@@ -1,7 +1,12 @@
 #include "Server.hpp"
+#include "../CONSTANTS.hpp"
 #include <cstring> //memset
 #include <iostream>
 #include <netinet/in.h> //for socket, bind, listen, accept
+
+Server::Server() : _fd_server(-1) {};
+
+Server::~Server() {};
 
 int Server::init(int port) {
   // TODO: validate Port num
@@ -21,7 +26,6 @@ int Server::init(int port) {
     std::cerr << "Binding Error" << std::endl;
     return (1);
   };
-  int MAX_QUEUED = 10;
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     std::cout << "Listen Error" << std::endl;
     return 1;
