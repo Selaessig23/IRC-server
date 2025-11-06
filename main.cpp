@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
   }
   // TO-DO's:
   // play around with required (& allowed) c-functions
+  // ERROR handling using exceptions
   // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
   // protocl number (if several)
   // int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);

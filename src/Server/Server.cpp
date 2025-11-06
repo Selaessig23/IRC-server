@@ -3,6 +3,8 @@
 #include <cstring> //memset
 #include <iostream>
 #include <netinet/in.h> //for socket, bind, listen, accept
+#include <poll.h>       //sockaddr_in
+#include <sys/socket.h> //sockaddr_in
 
 Server::Server() : _fd_server(-1) {};
 
@@ -26,11 +28,15 @@ int Server::init(int port) {
     std::cerr << "Binding Error" << std::endl;
     return (1);
   };
+  // This creates ad passive socket like used in server applications
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     std::cout << "Listen Error" << std::endl;
     return 1;
   }
   std::cout << "Server listening on port: " << port << std::endl;
+  struct pollfd ServerPoll;
+  ServerPoll.revents = 0;
+  _poll_fds.push_back(ServerPoll);
   return 0;
 }
 
