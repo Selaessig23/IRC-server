@@ -24,7 +24,7 @@ DEPFLAGS =	-MMD -MP
 # CXXFLAGS += -g3 -O0
 
 #Arguments to test:
-ARGS = "8080 1234abc?"
+ARGS = "8080" "1234abc?"
 
 #styling
 RESET =			\033[0m
@@ -35,6 +35,7 @@ RED :=			\033[91m
 
 #sources
 SRCS =	main.cpp 
+SRCS += src/Server/Server.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 

@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <errno.h>
+#include "src/Server/Server.hpp"
+#include <cstdlib> //atoi
 #include <iostream>
-#include <sys/socket.h> //for socket, bind, listen, accept
 
 /**
  * @param1: port to use
@@ -20,7 +20,6 @@
  * webserver
  */
 int main(int argc, char *argv[]) {
-  int fd_server = 0;
 
 // test debug-mode
 #ifdef DEBUG
@@ -32,18 +31,19 @@ int main(int argc, char *argv[]) {
               << std::endl;
     return (1);
   }
-  (void)argv;
+  int port = std::atoi(argv[1]);
+  Server server = Server();
+  if (server.init(port)) {
+    return 1;
+  }
+  if (server.set_pw(argv[2])) {
+    return 1;
+  }
   // TO-DO's:
   // play around with required (& allowed) c-functions
   // int socket(int domain, int type, int protocol);
   // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
   // protocl number (if several)
-  fd_server = socket(AF_INET, SOCK_STREAM, 0);
-  if (fd_server < 0) {
-    std::cerr << "Socket creation error" << std::endl;
-    return 1;
-  }
-  // int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
   // int listen(int sockfd, int backlog);
   // int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
   return (0);
