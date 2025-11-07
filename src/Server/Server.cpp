@@ -3,10 +3,11 @@
 #include <cstring> //memset
 #include <iostream>
 #include <netinet/in.h> //for socket, bind, listen, accept
-#include <poll.h>       //sockaddr_in
+#include <poll.h>
 #include <sys/socket.h> //sockaddr_in
 #include <unistd.h> //for close()
 #include <stdexcept> // to throw exceptions for runtime
+#include <unistd.h>
 
 Server::Server(int port, std::string &pw)
 {
