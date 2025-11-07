@@ -1,10 +1,11 @@
 #include "Server.hpp"
-#include "../CONSTANTS.hpp"
-#include <cstring> //memset
+#include <netinet/in.h>  //for socket, bind, listen, accept
+#include <poll.h>
+#include <sys/socket.h>  //sockaddr_in
+#include <unistd.h>
+#include <cstring>  //memset
 #include <iostream>
-#include <netinet/in.h> //for socket, bind, listen, accept
-#include <poll.h>       //sockaddr_in
-#include <sys/socket.h> //sockaddr_in
+#include "../CONSTANTS.hpp"
 
 Server::Server() : _fd_server(-1) {};
 
@@ -17,19 +18,23 @@ int Server::init(int port) {
     std::cerr << "Socket creation error" << std::endl;
     return 1;
   }
-  // TODO: destroy socket on error and in destructor
+
+  // TODO: destroy socket in destructor
   std::memset(&_addr, 0, sizeof(_addr));
   _addr.sin_family = AF_INET;
   _addr.sin_addr.s_addr = INADDR_ANY;
   _addr.sin_port = htons(port);
 
   // Assign socket to IP & Port
-  if (bind(_fd_server, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
+  if (bind(_fd_server, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+    close(_fd_server);
     std::cerr << "Binding Error" << std::endl;
     return (1);
   };
+
   // This creates ad passive socket like used in server applications
   if (listen(_fd_server, MAX_QUEUED) < 0) {
+    close(_fd_server);
     std::cout << "Listen Error" << std::endl;
     return 1;
   }

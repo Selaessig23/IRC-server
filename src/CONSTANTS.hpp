@@ -4,4 +4,4 @@
 
 #define MAX_QUEUED 10
 
-#endif // CONSTANTS_HPP
+#endif  // CONSTANTS_HPP
