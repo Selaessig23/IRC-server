@@ -10,16 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <cstdlib>  //atoi
-#include <iostream>
 #include "src/Server/Server.hpp"
+#include <cstdlib> //atoi
+#include <iostream>
 
 /**
  * @param1: port to use
  * @param2: pw required by any IRC client that tries to connect to this
  * webserver
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
 // test debug-mode
 #ifdef DEBUG

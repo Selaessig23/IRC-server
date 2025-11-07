@@ -1,11 +1,11 @@
 #include "Server.hpp"
-#include <netinet/in.h>  //for socket, bind, listen, accept
-#include <poll.h>
-#include <sys/socket.h>  //sockaddr_in
-#include <unistd.h>
-#include <cstring>  //memset
-#include <iostream>
 #include "../CONSTANTS.hpp"
+#include <cstring> //memset
+#include <iostream>
+#include <netinet/in.h> //for socket, bind, listen, accept
+#include <poll.h>
+#include <sys/socket.h> //sockaddr_in
+#include <unistd.h>
 
 Server::Server() : _fd_server(-1) {};
 
@@ -26,7 +26,7 @@ int Server::init(int port) {
   _addr.sin_port = htons(port);
 
   // Assign socket to IP & Port
-  if (bind(_fd_server, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+  if (bind(_fd_server, (struct sockaddr *)&_addr, sizeof(_addr)) < 0) {
     close(_fd_server);
     std::cerr << "Binding Error" << std::endl;
     return (1);
