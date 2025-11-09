@@ -28,6 +28,7 @@ Server::Server(int port, std::string& pw) {
   _addr.sin_addr.s_addr = INADDR_ANY;
   _addr.sin_port = htons(port);
   // Assign socket to IP & Port
+//   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr), sizeof(_addr)) < 0) {
   if (bind(_fd_server, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
@@ -54,15 +55,33 @@ int Server::init() {
   struct pollfd ServerPoll;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  //   while (1)
-  //   {
-  // 	int client_fd = accept(_fd_server, NULL, NULL);
-  // 	if (client_fd < 0)
-  // 	{
-  // 		std::cout << "error with accept" << std::endl;
-  // 		return (1); //return error or continue loop?
-  // 	}
+  int client_fd = 0;
+  const char *msg_welcome = "Hello from server!\n";
+  const char *msg_waiting= "Please say something, server is waiting on response!\n";
+  ssize_t recv_len = 0;
+  char buf[1024];
+  while (1)
+  {
+	  std:: cout << "Waiting on new connections ..." << std::endl;
+  	client_fd = accept(_fd_server, NULL, NULL); // waits until connection was created
+   	if (client_fd < 0)
+   	{
+   		std::cout << "Error: problems with accept" << std::endl;
+   		return (1); //return error or continue loop?
+   	}
+	else if (client_fd > 0) //not necessary as accept waits until there is any connection
+	{
+		send(client_fd, msg_welcome, strlen(msg_welcome), 0);
+		while (recv_len <= 0)
+		{
+			std::cout << "Waiting on response from client" << std::endl;
+			send(client_fd, msg_waiting, strlen(msg_waiting), 0);
+			recv_len = recv(client_fd, buf, sizeof(buf) - 1, 0); //waits until it receives any responce from client
+		}
+		buf[recv_len] = '\0';
+		std::cout << "Message from client: " << buf << "length: " << recv_len << std::endl;
+	}
   // try to use the client connection (read/write)
-  //   }
+  }
   return 0;
 }
