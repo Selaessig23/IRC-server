@@ -67,21 +67,21 @@ int Server::init() {
    	if (client_fd < 0)
    	{
    		std::cout << "Error: problems with accept" << std::endl;
-   		return (1); //return error or continue loop?
+   		return (1); // return error or continue loop?
    	}
-	else if (client_fd > 0) //not necessary as accept waits until there is any connection
+	else if (client_fd > 0) // not necessary as accept waits until there is any connection
 	{
 		send(client_fd, msg_welcome, strlen(msg_welcome), 0);
 		while (recv_len <= 0)
 		{
 			std::cout << "Waiting on response from client" << std::endl;
 			send(client_fd, msg_waiting, strlen(msg_waiting), 0);
-			recv_len = recv(client_fd, buf, sizeof(buf) - 1, 0); //waits until it receives any responce from client
+			recv_len = recv(client_fd, buf, sizeof(buf) - 1, 0); // waits until it receives any responce from client
 		}
 		buf[recv_len] = '\0';
 		std::cout << "Message from client: " << buf << "length: " << recv_len << std::endl;
 	}
-  // try to use the client connection (read/write)
+	// TODO: add client_fd to vector of Client-class to manage connections to different clients
   }
   return 0;
 }

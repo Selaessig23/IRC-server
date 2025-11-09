@@ -9,11 +9,11 @@
 class Server {
 
  private:
-  int _port;
-  int _fd_server;
-  struct sockaddr_in _addr;
-  std::string _pw;
-  std::vector<struct pollfd> _poll_fds;
+  int				_port;
+  int 				_fd_server;
+  struct sockaddr_in		_addr;
+  std::string			_pw;
+  std::vector<struct pollfd>	_poll_fds;
 
  public:
   // OCF
