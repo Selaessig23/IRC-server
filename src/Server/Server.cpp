@@ -3,10 +3,11 @@
 #include <poll.h>
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>      //for close()
-#include <unistd.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <cstring>  //memset
 #include <iostream>
+#include <vector>
 #include <stdexcept>  // to throw exceptions for runtime
 #include "../CONSTANTS.hpp"
 #include <poll.h>
@@ -50,7 +51,7 @@ int	Server::AddNewClient(int client_fd)
   return (0);
 }
 
-int	Server::initiatePoll()
+int	Server::InitiatePoll()
 {
   const char *msg_welcome = "Hello from server!\n";
   const char *msg_waiting= "Please say something, server is waiting on response!\n";
@@ -71,6 +72,8 @@ int	Server::initiatePoll()
 	  else if (it->revents != 0)
   return (0);
 }
+  }
+}
 
 /**
  * @brief function to establish server loop
@@ -80,6 +83,7 @@ int Server::init() {
   // set the socket to be non-blocking
   fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   // This creates a passive socket like used in server applications
+  fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
@@ -95,34 +99,38 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  initiatePoll();
+  // initiatePoll(); // sttempt to use poll
+  std::vector<int> client_fd;
+  const char *msg_welcome = "Hello from server!\n";
+  const char *msg_waiting= "Please say something, server is waiting on response!\n";
   ssize_t recv_len = 0;
   char buf[1024];
   while (1)
   {
-	  int client_fd = 0;
-  	  #ifdef DEBUG
-	    std:: cout << "Waiting on new connections ..." << std::endl;
-  	  #endif
-  	client_fd = accept(_fd_server, NULL, NULL); // waits until connection was created
-   	if (client_fd < 0)
-   	{
-   		std::cout << "Error: problems with accept" << std::endl;
-   		return (1); // return error or continue loop?
-   	}
-	else
-	{
-		send(client_fd, msg_welcome, strlen(msg_welcome), 0);
-	}
-		// move it to poll-function
-		while (recv_len <= 0)
-		{
-			std::cout << "Waiting on response from client" << std::endl;
-			send(client_fd, msg_waiting, strlen(msg_waiting), 0);
-			recv_len = recv(client_fd, buf, sizeof(buf) - 1, 0); // waits until it receives any responce from client
-		}
-		buf[recv_len] = '\0';
-		std::cout << "Message from client: " << buf << "length: " << recv_len << std::endl;
+	  //std:: cout << "Waiting on new connections ..." << std::endl;
+    int size = client_fd.size();
+  	client_fd.push_back(accept(_fd_server, NULL, NULL)); // waits until connection was created
+    // if (client_fd < 0)
+   	// {
+   	// 	std::cout << "Error: problems with accept" << std::endl;
+   	// 	return (1); // return error or continue loop?
+   	// }
+	  // else if (client_fd > 0) // not necessary as accept waits until there is any connection
+    // {
+      send(client_fd[size - 1], msg_welcome, strlen(msg_welcome), 0);
+
+      //std::cout << "Waiting on response from client" << std::endl;
+      send(client_fd[size - 1], msg_waiting, strlen(msg_waiting), 0);
+      for (std::vector<int>::iterator start = client_fd.begin(); start < client_fd.end(); start++){
+        recv_len = recv(*start, buf, sizeof(buf) - 1, 0); // waits until it receives any responce from client
+        buf[recv_len] = '\0';
+        if (*start != -1) {
+          std::cout << "Message from client fd: " << *start << " - " << buf << "length: " << recv_len << std::endl;
+          std::memset(buf, 0, 1024);
+          recv_len = 0;
+          }
+        }
+    //}
 	// TODO: add client_fd to vector of Client-class to manage connections to different clients
   }
   return 0;

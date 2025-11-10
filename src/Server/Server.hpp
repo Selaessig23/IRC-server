@@ -2,6 +2,7 @@
 #include <sys/socket.h>  //sockaddr_in
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -16,7 +17,7 @@ class Server {
   std::vector<struct pollfd>	_poll_fds;
 
   //member function (helper)
-  int initiatePoll();
+  int InitiatePoll();
   int AddNewClient(int client_fd);
 
  public:
