@@ -2,6 +2,7 @@
 #include <sys/socket.h>  //sockaddr_in
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -9,11 +10,11 @@
 class Server {
 
  private:
-  int _port;
-  int _fd_server;
-  struct sockaddr_in _addr;
-  std::string _pw;
-  std::vector<struct pollfd> _poll_fds;
+  int				_port;
+  int 				_fd_server;
+  struct sockaddr_in		_addr;
+  std::string			_pw;
+  std::vector<struct pollfd>	_poll_fds;
 
  public:
   // OCF

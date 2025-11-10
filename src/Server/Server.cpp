@@ -3,9 +3,11 @@
 #include <poll.h>
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>      //for close()
-#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <cstring>  //memset
 #include <iostream>
+#include <vector>
 #include <stdexcept>  // to throw exceptions for runtime
 #include "../CONSTANTS.hpp"
 
@@ -28,6 +30,7 @@ Server::Server(int port, std::string& pw) {
   _addr.sin_addr.s_addr = INADDR_ANY;
   _addr.sin_port = htons(port);
   // Assign socket to IP & Port
+//   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr), sizeof(_addr)) < 0) {
   if (bind(_fd_server, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
@@ -44,25 +47,50 @@ Server::~Server() {};
  */
 int Server::init() {
   // This creates a passive socket like used in server applications
+  fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
     return 1;
   }
+  
   std::cout << "Server listening on port: " << _port << std::endl;
   // attepmt to establish a server loop that accepts several clients to connect
   struct pollfd ServerPoll;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  //   while (1)
-  //   {
-  // 	int client_fd = accept(_fd_server, NULL, NULL);
-  // 	if (client_fd < 0)
-  // 	{
-  // 		std::cout << "error with accept" << std::endl;
-  // 		return (1); //return error or continue loop?
-  // 	}
-  // try to use the client connection (read/write)
-  //   }
+  std::vector<int> client_fd;
+  const char *msg_welcome = "Hello from server!\n";
+  const char *msg_waiting= "Please say something, server is waiting on response!\n";
+  ssize_t recv_len = 0;
+  char buf[1024];
+  while (1)
+  {
+	  //std:: cout << "Waiting on new connections ..." << std::endl;
+    int size = client_fd.size();
+  	client_fd.push_back(accept(_fd_server, NULL, NULL)); // waits until connection was created
+    // if (client_fd < 0)
+   	// {
+   	// 	std::cout << "Error: problems with accept" << std::endl;
+   	// 	return (1); // return error or continue loop?
+   	// }
+	  // else if (client_fd > 0) // not necessary as accept waits until there is any connection
+    // {
+      send(client_fd[size - 1], msg_welcome, strlen(msg_welcome), 0);
+
+      //std::cout << "Waiting on response from client" << std::endl;
+      send(client_fd[size - 1], msg_waiting, strlen(msg_waiting), 0);
+      for (std::vector<int>::iterator start = client_fd.begin(); start < client_fd.end(); start++){
+        recv_len = recv(*start, buf, sizeof(buf) - 1, 0); // waits until it receives any responce from client
+        buf[recv_len] = '\0';
+        if (*start != -1) {
+          std::cout << "Message from client fd: " << *start << " - " << buf << "length: " << recv_len << std::endl;
+          std::memset(buf, 0, 1024);
+          recv_len = 0;
+          }
+        }
+    //}
+	// TODO: add client_fd to vector of Client-class to manage connections to different clients
+  }
   return 0;
 }
