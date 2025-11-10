@@ -16,7 +16,8 @@ class Server {
   std::vector<struct pollfd>	_poll_fds;
 
   //member function (helper)
-  int	initiatePoll(int client_fd);
+  int initiatePoll();
+  int AddNewClient(int client_fd);
 
  public:
   // OCF

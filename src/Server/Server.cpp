@@ -41,19 +41,35 @@ Server::Server(int port, std::string& pw) {
 
 Server::~Server() {};
 
-int	Server::initiatePoll(int client_fd)
+int	Server::AddNewClient(int client_fd)
 {
-	if (client_fd != 0)
+  struct pollfd ServerPoll;
+  ServerPoll.events = POLLIN;
+  ServerPoll.revents = 0;
+  _poll_fds.push_back(ServerPoll);
+  return (0);
+}
+
+int	Server::initiatePoll()
+{
+  const char *msg_welcome = "Hello from server!\n";
+  const char *msg_waiting= "Please say something, server is waiting on response!\n";
+  // int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+  // timeout = 0 for non-blocking
+  // do we have to reserve memory for std::vector?
+  poll(&_poll_fds[0], _poll_fds.size(), 0);
+  while (1)
+  {
+	for (std::vector<struct pollfd>::iterator it = _poll_fds.start(); it != _poll_fds.end(); it++) 
 	{
-		  struct pollfd ServerPoll;
-		  ServerPoll.fd = client_fd;
-		  ServerPoll.events = POLLIN;
-		  ServerPoll.revents = 0;
-		  _poll_fds.push_back(ServerPoll);
-	}
-	// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-	// timeout = 0 for non-blocking
-	poll(&_poll_fds[0], _poll_fds.size(), 0);
+	  if (_poll_fds[0].revents != 0)
+	  {
+		int client_fd = accept(_fd_server, NULL, NULL); 
+		send(_poll_fds[0].fd, msg_welcome, strlen(msg_welcome), 0);
+		AddNewClient(client_fd);
+	  }
+	  else if (it->revents != 0)
+  return (0);
 }
 
 /**
@@ -79,8 +95,7 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  const char *msg_welcome = "Hello from server!\n";
-  const char *msg_waiting= "Please say something, server is waiting on response!\n";
+  initiatePoll();
   ssize_t recv_len = 0;
   char buf[1024];
   while (1)
@@ -99,7 +114,6 @@ int Server::init() {
 	{
 		send(client_fd, msg_welcome, strlen(msg_welcome), 0);
 	}
-	initiatePoll(client_fd);
 		// move it to poll-function
 		while (recv_len <= 0)
 		{
