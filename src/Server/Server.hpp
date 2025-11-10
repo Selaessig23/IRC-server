@@ -2,6 +2,7 @@
 #include <sys/socket.h>  //sockaddr_in
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
