@@ -4,6 +4,7 @@
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>      //for close()
 #include <unistd.h>
+#include <fcntl.h>
 #include <cstring>  //memset
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
@@ -60,8 +61,8 @@ int	Server::initiatePoll(int client_fd)
  * @return returns 1 in case of an error, otherwise 0
  */
 int Server::init() {
-	// set the socket to be non-blocking
-	// fcntl(_fd_server, F_SETFL, O_NONBLOCK);
+  // set the socket to be non-blocking
+  fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   // This creates a passive socket like used in server applications
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
