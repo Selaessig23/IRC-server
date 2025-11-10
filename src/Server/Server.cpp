@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include "../CONSTANTS.hpp"
+#include <poll.h>
 
 Server::Server(int port, std::string& pw) {
   // TODO: validate Port num
@@ -39,39 +40,66 @@ Server::Server(int port, std::string& pw) {
 
 Server::~Server() {};
 
+int	Server::initiatePoll(int client_fd)
+{
+	if (client_fd != 0)
+	{
+		  struct pollfd ServerPoll;
+		  ServerPoll.fd = client_fd;
+		  ServerPoll.events = POLLIN;
+		  ServerPoll.revents = 0;
+		  _poll_fds.push_back(ServerPoll);
+	}
+	// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+	// timeout = 0 for non-blocking
+	poll(&_poll_fds[0], _poll_fds.size(), 0);
+}
+
 /**
  * @brief function to establish server loop
  * @return returns 1 in case of an error, otherwise 0
  */
 int Server::init() {
+	// set the socket to be non-blocking
+	// fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   // This creates a passive socket like used in server applications
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
     return 1;
   }
-  std::cout << "Server listening on port: " << _port << std::endl;
-  // attepmt to establish a server loop that accepts several clients to connect
+  #ifdef DEBUG
+    std::cout << "Server listening on port: " << _port << std::endl;
+  #endif
+  // attempt to establish a server loop that accepts several clients to connect
+  // use the socket_fd to check for new connections with poll-function
   struct pollfd ServerPoll;
+  ServerPoll.fd = _fd_server;
+  ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  int client_fd = 0;
   const char *msg_welcome = "Hello from server!\n";
   const char *msg_waiting= "Please say something, server is waiting on response!\n";
   ssize_t recv_len = 0;
   char buf[1024];
   while (1)
   {
-	  std:: cout << "Waiting on new connections ..." << std::endl;
+	  int client_fd = 0;
+  	  #ifdef DEBUG
+	    std:: cout << "Waiting on new connections ..." << std::endl;
+  	  #endif
   	client_fd = accept(_fd_server, NULL, NULL); // waits until connection was created
    	if (client_fd < 0)
    	{
    		std::cout << "Error: problems with accept" << std::endl;
    		return (1); // return error or continue loop?
    	}
-	else if (client_fd > 0) // not necessary as accept waits until there is any connection
+	else
 	{
 		send(client_fd, msg_welcome, strlen(msg_welcome), 0);
+	}
+	initiatePoll(client_fd);
+		// move it to poll-function
 		while (recv_len <= 0)
 		{
 			std::cout << "Waiting on response from client" << std::endl;
@@ -80,7 +108,6 @@ int Server::init() {
 		}
 		buf[recv_len] = '\0';
 		std::cout << "Message from client: " << buf << "length: " << recv_len << std::endl;
-	}
 	// TODO: add client_fd to vector of Client-class to manage connections to different clients
   }
   return 0;

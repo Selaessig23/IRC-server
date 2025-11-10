@@ -15,6 +15,9 @@ class Server {
   std::string			_pw;
   std::vector<struct pollfd>	_poll_fds;
 
+  //member function (helper)
+  int	initiatePoll(int client_fd);
+
  public:
   // OCF
   Server(int port, std::string& pw);
