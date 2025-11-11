@@ -15,12 +15,6 @@
 #include <iostream>
 #include "Server/Server.hpp"
 
-/**
- * @param1: port to use
- * @param2: pw required by any IRC client that tries to connect to this
- * webserver
- */
-
 // TODO:
 // play around with required (& allowed) c-functions
 // ERROR handling using exceptions
