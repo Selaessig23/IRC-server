@@ -24,10 +24,11 @@
 
 Server::~Server() {
   std::cout << "destructor called" << std::endl;
-  close(_fd_server);
-  for (fd_iterator it = _poll_fds.begin(); it != _poll_fds.end(); it++) {
+  for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
     close(it->fd);
   }
+  //Close Server last
+  close(_poll_fds.begin()->fd);
 }
 
 Server::Server(int port, std::string& pw) {

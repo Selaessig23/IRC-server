@@ -27,7 +27,7 @@ Server* g_server;
 
 void signal_handler(int signal) {
   std::cout << "\nSIGNAL: " << signal << std::endl;
-  g_server->exit();
+  delete g_server;
   exit(0);
 }
 
