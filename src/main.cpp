@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <csignal>  //signal
 #include <cstdlib>  //atoi
 #include <iostream>
 #include "Server/Server.hpp"
@@ -19,7 +20,25 @@
  * @param2: pw required by any IRC client that tries to connect to this
  * webserver
  */
+
+// TODO:
+// play around with required (& allowed) c-functions
+// ERROR handling using exceptions
+// AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
+// protocl number (if several)
+// int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+// verify port is int
+
+Server* g_server;
+
+void signal_handler(int signal) {
+  std::cout << "SIGNAL: " << signal << std::endl;
+  g_server->exit();
+  delete g_server;
+}
+
 int main(int argc, char* argv[]) {
+
 // test debug-mode
 #ifdef DEBUG
   std::cout << "[DEBUG] Debug mode is ON" << std::endl;
@@ -29,23 +48,18 @@ int main(int argc, char* argv[]) {
               << std::endl;
     return (1);
   }
-  // TODO: verify int
   int port = std::atoi(argv[1]);
-  // TODO: if set, check common pw-rules
   std::string pw(argv[2]);
   try {
-    Server server(port, pw);
-    if (server.init()) {
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGQUIT, signal_handler);
+    g_server = new Server(port, pw);
+    if (g_server->init()) {
       return 1;
     }
   } catch (const std::runtime_error& e) {
     std::cout << "Caught a runtime_error: " << e.what() << '\n';
   }
-  // TO-DO's:
-  // play around with required (& allowed) c-functions
-  // ERROR handling using exceptions
-  // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
-  // protocl number (if several)
-  // int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
   return (0);
 }

@@ -1,20 +1,21 @@
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <sys/socket.h>  //sockaddr_in
+#include <unistd.h>
 #include <iostream>
 #include <vector>
-#include <unistd.h>
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
 class Server {
+  typedef std::vector<struct pollfd>::iterator fd_iterator;
 
  private:
-  int				_port;
-  int 				_fd_server;
-  struct sockaddr_in		_addr;
-  std::string			_pw;
-  std::vector<struct pollfd>	_poll_fds;
+  int _port;
+  int _fd_server;
+  struct sockaddr_in _addr;
+  std::string _pw;
+  std::vector<struct pollfd> _poll_fds;
 
  public:
   // OCF
@@ -22,6 +23,7 @@ class Server {
   Server(const Server& other);
   Server& operator=(const Server& other);
   ~Server();
+  int exit(void);
 
   // function to activate the IRC-Server (run the server-loop)
   int init();
