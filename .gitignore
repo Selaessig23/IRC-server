@@ -42,3 +42,4 @@ ircserv
 
 # debug information files
 *.dwo
+*.swp
