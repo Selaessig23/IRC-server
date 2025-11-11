@@ -27,7 +27,6 @@ class Server {
   Server(const Server& other);
   Server& operator=(const Server& other);
   ~Server();
-  int exit(void);
 
   // function to activate the IRC-Server (run the server-loop)
   int init();

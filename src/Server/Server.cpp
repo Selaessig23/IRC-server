@@ -20,14 +20,11 @@
 // might have trouble 	connecting due to firewall/NAT setups. Ports
 // that are already in use by another service will throw an error when trying
 // to bind to them
-
-int Server::exit(void) {
-  this->~Server();
-  return (0);
-}
+// destroy socket on error and in destructor
 
 Server::~Server() {
-
+  std::cout << "destructor called" << std::endl;
+  close(_fd_server);
   for (fd_iterator it = _poll_fds.begin(); it != _poll_fds.end(); it++) {
     close(it->fd);
   }
@@ -38,7 +35,8 @@ Server::Server(int port, std::string& pw) {
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
     throw std::runtime_error("Socket creation error.");
-  // TODO: destroy socket on error and in destructor
+  int opt = 1;
+  setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   std::memset(&_addr, 0, sizeof(_addr));
   _addr.sin_family = AF_INET;
   _addr.sin_addr.s_addr = INADDR_ANY;
