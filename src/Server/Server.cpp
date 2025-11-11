@@ -31,8 +31,7 @@ Server::Server(int port, std::string& pw) {
   _addr.sin_addr.s_addr = INADDR_ANY;
   _addr.sin_port = htons(port);
   // Assign socket to IP & Port
-  //   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr), sizeof(_addr)) < 0) {
-  if (bind(_fd_server, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+  if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr), sizeof(_addr)) < 0) {
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
   }
