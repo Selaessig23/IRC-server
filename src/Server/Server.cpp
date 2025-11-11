@@ -58,22 +58,23 @@ int Server::InitiatePoll() {
   // int poll(struct pollfd *fds, nfds_t nfds, int timeout);
   // timeout = 0 for non-blocking
   // do we have to reserve memory for std::vector?
-  poll(&_poll_fds[0], _poll_fds.size(), 0);
   while (1) {
+    poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
-      if (_poll_fds[0].revents != 0) {
+      if (it == _poll_fds.begin() && it->revents != 0) {
         struct sockaddr_in
             client_addr;  // would make sense to move this into a client class
         socklen_t client_len = sizeof(
             client_addr);  // would make sense to move this into a client class
         int client_fd =
             accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
+	std::cout << "fd new client " << client_fd << std::endl;
         // TODO: error-check if accept fails
         std::cout << "New client connection from: "
                   << inet_ntoa(client_addr.sin_addr) << std::endl;
-        send(_poll_fds[0].fd, msg_welcome, strlen(msg_welcome), 0);
-        send(_poll_fds[0].fd, msg_waiting, strlen(msg_waiting), 0);
+        send(client_fd, msg_welcome, strlen(msg_welcome), 0);
+        send(client_fd, msg_waiting, strlen(msg_waiting), 0);
         AddNewClient(client_fd);
         // TODO: save client_address to client class?
       } else if (it->revents != 0) {
@@ -110,47 +111,13 @@ int Server::init() {
 #ifdef DEBUG
   std::cout << "Server listening on port: " << _port << std::endl;
 #endif
-  // attempt to establish a server loop that accepts several clients to connect
-  // use the socket_fd to check for new connections with poll-function
+  // 1st element of ServerPoll struct is server-socket(fd)
   struct pollfd ServerPoll;
   ServerPoll.fd = _fd_server;
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
+  _poll_fds.reserve(1024);
   _poll_fds.push_back(ServerPoll);
   InitiatePoll();  // attempt to use poll
-  /*std::vector<int> client_fd;
-  const char *msg_welcome = "Hello from server!\n";
-  const char *msg_waiting= "Please say something, server is waiting on response!\n";
-  ssize_t recv_len = 0;
-  char buf[1024];
-  while (1)
-  {
-	  //std:: cout << "Waiting on new connections ..." << std::endl;
-    int size = client_fd.size();
-  	client_fd.push_back(accept(_fd_server, NULL, NULL)); // waits until connection was created
-    // if (client_fd < 0)
-   	// {
-   	// 	std::cout << "Error: problems with accept" << std::endl;
-   	// 	return (1); // return error or continue loop?
-   	// }
-	  // else if (client_fd > 0) // not necessary as accept waits until there is any connection
-    // {
-      send(client_fd[size - 1], msg_welcome, strlen(msg_welcome), 0);
-
-      //std::cout << "Waiting on response from client" << std::endl;
-      send(client_fd[size - 1], msg_waiting, strlen(msg_waiting), 0);
-      for (std::vector<int>::iterator start = client_fd.begin(); start < client_fd.end(); start++){
-        recv_len = recv(*start, buf, sizeof(buf) - 1, 0); // waits until it receives any responce from client
-        buf[recv_len] = '\0';
-        if (*start != -1) {
-          std::cout << "Message from client fd: " << *start << " - " << buf << "length: " << recv_len << std::endl;
-          std::memset(buf, 0, 1024);
-          recv_len = 0;
-          }
-        }
-    //}
-	// TODO: add client_fd to vector of Client-class to manage connections to different clients
-  }
-  */
   return 0;
 }
