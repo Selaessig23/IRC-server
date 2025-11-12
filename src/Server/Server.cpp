@@ -1,3 +1,4 @@
+#include "CONSTANTS.hpp"
 #include "Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
@@ -10,7 +11,6 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "../CONSTANTS.hpp"
 
 // TODO: validate Port num
 // On Unix/Linux, binding to ports <1024 usually requires root privileges.

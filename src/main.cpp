@@ -13,7 +13,7 @@
 #include <csignal>  //signal
 #include <cstdlib>  //atoi
 #include <iostream>
-#include "Server/Server.hpp"
+#include "Server.hpp"
 
 // TODO:
 // play around with required (& allowed) c-functions
