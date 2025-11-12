@@ -80,18 +80,22 @@ int Server::InitiatePoll() {
         send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
         send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
         AddNewClient(client_fd);
+        std::cout << " revent: "<< it->revents << std::endl;
         // TODO: save client_address to client class?
       } else if (it->revents != 0) {
         char buf[1024];
-        int recv_len =
-            recv(it->fd, buf, sizeof(buf) - 1,
-                 0);  // waits until it receives any responce from client
-        // TODO: error-check if recv_len fails
-        buf[recv_len] = '\0';
-        std::cout << "Message from client fd: " << it->fd << " - " << buf
-                  << "length: " << recv_len << std::endl;
-        std::memset(buf, 0, 1024);  // not necessary
-        recv_len = 0;               // not necessary
+        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);  // waits until it receives any responce from client
+        if (!recv_len) {
+          _poll_fds.erase(it);
+          break;
+        }
+        else {
+          buf[recv_len] = '\0';
+          std::cout << "Message from client fd: " << it->fd << " revent: "<< it->revents <<" - " << buf
+                    << "length: " << recv_len << std::endl;
+          std::memset(buf, 0, 1024);  // not necessary
+          recv_len = 0;               // not necessary
+        }
       }
     }
   }
@@ -99,7 +103,7 @@ int Server::InitiatePoll() {
 }
 
 int Server::init() {
-  fcntl(_fd_server, F_SETFL, O_NONBLOCK);
+  // fcntl(_fd_server, F_SETFL, O_NONBLOCK);
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
