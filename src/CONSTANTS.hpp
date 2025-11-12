@@ -4,4 +4,6 @@
 
 #define MAX_QUEUED 10
 
+#define MSG_WELCOME "Hello from server!\n"
+#define MSG_WAITING "Please say something, server is waiting on response!\n"
 #endif  // CONSTANTS_HPP
