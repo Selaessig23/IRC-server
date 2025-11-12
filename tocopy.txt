@@ -1,0 +1,22 @@
+
+c++ -Wall -Werror -Wextra -std=c++98 -Isrc -Iinclude -MMD -MP -c src/Client.cpp -o obj/Client.o
+In file included from src/Client.cpp:1:
+include/Client.hpp:11:22: error: field ‘_client_addr’ has incomplete type ‘sockaddr_in’
+   11 |   struct sockaddr_in _client_addr;
+      |                      ^~~~~~~~~~~~
+include/Client.hpp:11:10: note: forward declaration of ‘struct sockaddr_in’
+   11 |   struct sockaddr_in _client_addr;
+      |          ^~~~~~~~~~~
+src/Client.cpp:4:44: error: ‘addr’ has incomplete type
+    4 | Client::Client(long id, struct sockaddr_in addr)
+      |                         ~~~~~~~~~~~~~~~~~~~^~~~
+include/Client.hpp:11:10: note: forward declaration of ‘struct sockaddr_in’
+   11 |   struct sockaddr_in _client_addr;
+      |          ^~~~~~~~~~~
+make: *** [Makefile:53: obj/Client.o] Error 1
+c++ -Wall -Werror -Wextra -std=c++98 -Isrc -Iinclude -MMD -MP -c src/Client.cpp -o obj/Client.o
+c++ -Wall -Werror -Wextra -std=c++98 -Isrc -Iinclude -o ircserv obj/main.o obj/Server/Server.o obj/Client.o
+/usr/bin/ld: obj/Server/Server.o: in function `std::__new_allocator<Client>::construct(Client*, Client const&)':
+Server.cpp:(.text._ZNSt15__new_allocatorI6ClientE9constructEPS0_RKS0_[_ZNSt15__new_allocatorI6ClientE9constructEPS0_RKS0_]+0x40): undefined reference to `Client::Client(Client const&)'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:48: ircserv] Error 1

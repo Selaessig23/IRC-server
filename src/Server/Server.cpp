@@ -1,4 +1,3 @@
-#include "CONSTANTS.hpp"
 #include "Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
@@ -11,6 +10,8 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
+#include "CONSTANTS.hpp"
+#include "Client.hpp"
 
 // TODO: validate Port num
 // On Unix/Linux, binding to ports <1024 usually requires root privileges.
@@ -23,7 +24,7 @@
 // destroy socket on error and in destructor
 
 Server::~Server() {
-  std::cout << "destructor called" << std::endl;
+  std::cout << "destructor Server called" << std::endl;
   for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
     close(it->fd);
   }
@@ -73,10 +74,13 @@ int Server::InitiatePoll() {
             client_addr);  // would make sense to move this into a client class
         int client_fd =
             accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
-        std::cout << "fd new client " << client_fd << std::endl;
-        // TODO: error-check if accept fails
+        Client newClient((_client_list.size() + 1), client_addr);
+        _client_list.push_back(newClient);
+#ifdef DEBUG
         std::cout << "New client connection from: "
                   << inet_ntoa(client_addr.sin_addr) << std::endl;
+        std::cout << "fd new client " << client_fd << std::endl;
+#endif
         send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
         send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
         AddNewClient(client_fd);

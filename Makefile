@@ -36,6 +36,7 @@ RED :=			\033[91m
 #sources
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
+SRCS += Client.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 
