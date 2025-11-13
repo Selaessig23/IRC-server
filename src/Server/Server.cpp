@@ -10,19 +10,22 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
+#include <algorithm> // for std::swap
 #include "CONSTANTS.hpp"
 #include "Client.hpp"
 #include "debug.hpp"
 
-// TODO: validate Port num
-// On Unix/Linux, binding to ports <1024 usually requires root privileges.
-// Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
-// Ephemeral ports (49152–65535): These are meant for client-side connections,
-// not servers. 	Technically, you can bind a server here, but clients
-// might have trouble 	connecting due to firewall/NAT setups. Ports
-// that are already in use by another service will throw an error when trying
-// to bind to them
-// destroy socket on error and in destructor
+// TODO: 
+// (1) validate Port num
+//  On Unix/Linux, binding to ports <1024 usually requires root privileges.
+//  Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
+//  Ephemeral ports (49152–65535): These are meant for client-side connections,
+//  not servers. 	Technically, you can bind a server here, but clients
+//  might have trouble 	connecting due to firewall/NAT setups. Ports
+//  that are already in use by another service will throw an error when trying
+//  to bind to them
+// (2) destroy socket on error and in destructor
+// (3) check copy_constructor if there are new variables
 
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
@@ -54,6 +57,19 @@ Server::Server(int port, std::string& pw) {
   _pw = pw;
 }
 
+Server::Server(const Server &other) : _port(other._port), _fd_server(other._fd_server), _addr(other._addr), _pw(other._pw), _poll_fds(other._poll_fds), _client_list(other._client_list) { } 
+
+/**
+ * @brief we could make it more efficient by using our own class-specfic
+ * swap function (e. g. as friend)
+ */
+Server	Server::operator=(const Server &other)
+{
+	Server temp(other);
+	std::swap(*this, temp);
+	return (*this);
+}
+
 /**
  * @brief function to add a new connection to poll struct
  */
@@ -67,10 +83,11 @@ int Server::AddNewClient(int client_fd) {
 }
 
 /**
- * @brief function to initiate the poll loop
+ * @brief function to run the poll loop
  * (main server loop)
- * (1) it checks for new incomming connections (of server/socket-fd)
- * (2) it checks for events of the clients
+ * it checks all fds of clients & server for 
+ * (1) new incomming connections (of server/socket-fd)
+ * (2) events of the clients
  */
 int Server::InitiatePoll() {
   while (1) {

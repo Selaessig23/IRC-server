@@ -28,7 +28,7 @@ class Server {
   // OCF
   Server(int port, std::string& pw);
   Server(const Server& other);
-  Server& operator=(const Server& other);
+  Server operator=(const Server& other);
   ~Server();
 
   // function to activate the IRC-Server (run the server-loop)

@@ -11,6 +11,7 @@ class Client{
   int _client_fd;
   struct sockaddr_in _client_addr;
   std::string _name;
+  std::string _output_buffer;
 
  public:
   Client(long id, int fd, struct sockaddr_in addr);
