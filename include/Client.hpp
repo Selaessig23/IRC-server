@@ -8,11 +8,12 @@
 class Client{
  private:
   long _id;
-  std::string _name;
+  int _client_fd;
   struct sockaddr_in _client_addr;
+  std::string _name;
 
  public:
-  Client(long id, struct sockaddr_in addr);
+  Client(long id, int fd, struct sockaddr_in addr);
   Client(const Client& other);
   Client operator=(const Client& other);
   ~Client();

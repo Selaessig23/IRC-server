@@ -12,6 +12,7 @@
 #include <vector>
 #include "CONSTANTS.hpp"
 #include "Client.hpp"
+#include "debug.hpp"
 
 // TODO: validate Port num
 // On Unix/Linux, binding to ports <1024 usually requires root privileges.
@@ -24,7 +25,7 @@
 // destroy socket on error and in destructor
 
 Server::~Server() {
-  std::cout << "destructor Server called" << std::endl;
+  DEBUG_PRINT("Destructor of Server called.");
   for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
     close(it->fd);
   }
@@ -53,6 +54,9 @@ Server::Server(int port, std::string& pw) {
   _pw = pw;
 }
 
+/**
+ * @brief function to add a new connection to poll struct
+ */
 int Server::AddNewClient(int client_fd) {
   struct pollfd ServerPoll;
   ServerPoll.fd = client_fd;
@@ -62,6 +66,12 @@ int Server::AddNewClient(int client_fd) {
   return (0);
 }
 
+/**
+ * @brief function to initiate the poll loop
+ * (main server loop)
+ * (1) it checks for new incomming connections (of server/socket-fd)
+ * (2) it checks for events of the clients
+ */
 int Server::InitiatePoll() {
   while (1) {
     poll(&_poll_fds[0], _poll_fds.size(), 0);
@@ -74,18 +84,14 @@ int Server::InitiatePoll() {
             client_addr);  // would make sense to move this into a client class
         int client_fd =
             accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
-        Client newClient((_client_list.size() + 1), client_addr);
+        Client newClient((_client_list.size() + 1), client_fd, client_addr);
         _client_list.push_back(newClient);
-#ifdef DEBUG
-        std::cout << "New client connection from: "
-                  << inet_ntoa(client_addr.sin_addr) << std::endl;
-        std::cout << "fd new client " << client_fd << std::endl;
-#endif
+        DEBUG_PRINT("New client connection from: " << inet_ntoa(client_addr.sin_addr));
+        DEBUG_PRINT("FD of new client: " << client_fd);
         send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
         send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
         AddNewClient(client_fd);
-        std::cout << " revent: "<< it->revents << std::endl;
-        // TODO: save client_address to client class?
+        DEBUG_PRINT("Revent: " << it->revents);
       } else if (it->revents != 0) {
         char buf[1024];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);  // waits until it receives any responce from client
@@ -106,24 +112,29 @@ int Server::InitiatePoll() {
   return (0);
 }
 
+/**
+ * @brief function to activate the server
+ * (1) activation (listen)
+ * (2) init poll struct (1st element == socket-fd)
+ * (3) init poll loop
+ *
+ * fcntl commented out as we are still unsure if required
+ * respective if we are allowed to use it
+ */
 int Server::init() {
-  // fcntl(_fd_server, F_SETFL, O_NONBLOCK);
+  // fcntl(_fd_server, F_SETFL, O_NONBLOCK); // 
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
     return 1;
   }
-#ifdef DEBUG
-  std::cout << "Server listening on port: " << _port << std::endl;
-#endif
-
-  // 1st element of ServerPoll struct is server-socket(fd)
+  DEBUG_PRINT("Server listening on port: " << _port);
   struct pollfd ServerPoll;
   ServerPoll.fd = _fd_server;
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.reserve(1024);
   _poll_fds.push_back(ServerPoll);
-  InitiatePoll();  // attempt to use poll
+  InitiatePoll();
   return 0;
 }
