@@ -144,6 +144,7 @@ int Server::InitiatePoll() {
         char buf[1024];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
+	  close(it->fd);
           _poll_fds.erase(it);
           break;
         } else {
