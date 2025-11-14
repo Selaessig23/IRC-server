@@ -111,8 +111,6 @@ int Server::HandleNewClient() {
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
-  DEBUG_PRINT("Out of client: " << newClient.getClientOut());
-  DEBUG_PRINT("Event: " << it->events);
   //   send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
   //   send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
   return (0);
@@ -157,7 +155,6 @@ int Server::InitiatePoll() {
         }
       }
       if (it->revents != 0 && it->events == POLLOUT) {
-        DEBUG_PRINT("Pollout event: ");
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end() &&
                it->fd != it_client->getClientFd();
@@ -165,14 +162,9 @@ int Server::InitiatePoll() {
         if (it_client != _client_list.end()) {
           int size_sent = send(it->fd, it_client->getClientOut().c_str(),
                                strlen(it_client->getClientOut().c_str()), 0);
-          DEBUG_PRINT("Pollout event, client out: "
-                      << it_client->getClientOut().c_str());
-          DEBUG_PRINT("FD of client: " << it_client->getClientFd());
           std::string new_out = it_client->getClientOut();
           new_out.erase(0, size_sent);  // check if I need to set i afterwards
           it_client->setClientOut(new_out);
-          DEBUG_PRINT("Size sent: " << size_sent);
-          DEBUG_PRINT("FD to sent to: " << it->fd);
           if (it_client->getClientOut().empty())
             it->events = POLLIN;
         }
