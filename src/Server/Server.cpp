@@ -84,6 +84,12 @@ int Server::AddNewClientToPoll(int client_fd) {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
+#ifndef debug
+  ServerPoll.fd = STDIN_FILENO;
+  ServerPoll.events = POLLIN;
+  ServerPoll.revents = 0;
+  _poll_fds.push_back(ServerPoll);
+#endif
   return (0);
 }
 
@@ -116,6 +122,15 @@ int Server::HandleNewClient() {
   return (0);
 }
 
+#ifndef debug
+void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
+  for (std::vector<struct pollfd>::iterator it = (pollfd.begin() + 2);
+       it != pollfd.end(); it++) {
+    it->events = POLLOUT;
+  }
+}
+#endif
+
 /**
  * @brief function to run the poll loop
  * (main server loop)
@@ -131,42 +146,54 @@ int Server::InitiatePoll() {
       if (it == _poll_fds.begin() && it->revents != 0) {
         DEBUG_PRINT("Revent: " << it->revents);
         HandleNewClient();
-//         std::list<Client>::iterator it_client = _client_list.begin();
-//         for (; it_client != _client_list.end() &&
-//                it->fd != it_client->getClientFd();
-//              it_client++) {}
-//         DEBUG_PRINT("Out of client in list: " << it_client->getClientOut().c_str());
         break;
       }
-      if (it->revents != 0 && it->events == POLLIN) {
-        char buf[1024];
-        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
-        if (!recv_len) {
-	  close(it->fd);
-          _poll_fds.erase(it);
-          break;
-        } else {
-          buf[recv_len] = '\0';
-          std::cout << "Message from client fd: " << it->fd
-                    << " revent: " << it->revents << " - " << buf
-                    << "length: " << recv_len << std::endl;
-          std::memset(buf, 0, 1024);  // not necessary
-          recv_len = 0;               // not necessary
-        }
-      }
-      if (it->revents != 0 && it->events == POLLOUT) {
+#ifndef debug
+      else if (_client_list.empty() != 0 && it->fd == 0 &&
+               it->revents != 0 && POLLIN) {
+        char stdinbuf[1024];
+        int recv_len = 0;
+        recv_len = recv(it->fd, stdinbuf, sizeof(stdinbuf) - 1, 0);
+        stdinbuf[recv_len] = '\0';
         std::list<Client>::iterator it_client = _client_list.begin();
-        for (; it_client != _client_list.end() &&
-               it->fd != it_client->getClientFd();
-             it_client++) {}
-        if (it_client != _client_list.end()) {
-          int size_sent = send(it->fd, it_client->getClientOut().c_str(),
-                               strlen(it_client->getClientOut().c_str()), 0);
-          std::string new_out = it_client->getClientOut();
-          new_out.erase(0, size_sent);  // check if I need to set i afterwards
-          it_client->setClientOut(new_out);
-          if (it_client->getClientOut().empty())
-            it->events = POLLIN;
+        for (; it_client != _client_list.end(); it_client++) {
+          it_client->setClientOut(stdinbuf);
+        }
+        ft_pollfds_to_out(_poll_fds);
+        break;
+      }
+#endif
+      else if (it != _poll_fds.begin() && it->fd != 0){
+        if (it->revents != 0 && it->events == POLLIN) {
+          char buf[1024];
+          int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
+          if (!recv_len) {
+            close(it->fd);
+            _poll_fds.erase(it);
+            break;
+          } else {
+            buf[recv_len] = '\0';
+            std::cout << "Message from client fd: " << it->fd
+                      << " revent: " << it->revents << " - " << buf
+                      << "length: " << recv_len << std::endl;
+            std::memset(buf, 0, 1024);  // not necessary
+            recv_len = 0;               // not necessary
+          }
+        }
+        if (it->revents != 0 && it->events == POLLOUT) {
+          std::list<Client>::iterator it_client = _client_list.begin();
+          for (; it_client != _client_list.end() &&
+                 it->fd != it_client->getClientFd();
+               it_client++) {}
+          if (it_client != _client_list.end()) {
+            int size_sent = send(it->fd, it_client->getClientOut().c_str(),
+                                 strlen(it_client->getClientOut().c_str()), 0);
+            std::string new_out = it_client->getClientOut();
+            new_out.erase(0, size_sent);  // check if I need to set i afterwards
+            it_client->setClientOut(new_out);
+            if (it_client->getClientOut().empty())
+              it->events = POLLIN;
+          }
         }
       }
     }
