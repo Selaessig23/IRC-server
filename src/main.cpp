@@ -6,15 +6,15 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/11/13 11:14:41 by mstracke         ###   ########.fr       */
+/*   Updated: 2025/11/14 17:49:08 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <csignal>  //signal
 #include <cstdlib>  //atoi
 #include <iostream>
-#include "Server.hpp"
-#include "debug.hpp"
+#include "../include/Server.hpp"
+#include "../include/debug.hpp"
 
 // TODO:
 // play around with required (& allowed) c-functions

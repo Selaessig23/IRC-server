@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../../include/Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
@@ -6,16 +6,16 @@
 #include <stdlib.h>
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>      //for close()
+#include <algorithm>     // for std::swap
 #include <cstring>       //memset
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include <algorithm> // for std::swap
-#include "CONSTANTS.hpp"
-#include "Client.hpp"
-#include "debug.hpp"
+#include "../../include/CONSTANTS.hpp"
+#include "../../include/Client.hpp"
+#include "../../include/debug.hpp"
 
-// TODO: 
+// TODO:
 // (1) validate Port num
 //  On Unix/Linux, binding to ports <1024 usually requires root privileges.
 //  Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
@@ -57,28 +57,64 @@ Server::Server(int port, std::string& pw) {
   _pw = pw;
 }
 
-Server::Server(const Server &other) : _port(other._port), _fd_server(other._fd_server), _addr(other._addr), _pw(other._pw), _poll_fds(other._poll_fds), _client_list(other._client_list) { } 
+Server::Server(const Server& other)
+    : _port(other._port),
+      _fd_server(other._fd_server),
+      _addr(other._addr),
+      _pw(other._pw),
+      _poll_fds(other._poll_fds),
+      _client_list(other._client_list) {}
 
 /**
  * @brief we could make it more efficient by using our own class-specfic
  * swap function (e. g. as friend)
  */
-Server	Server::operator=(const Server &other)
-{
-	Server temp(other);
-	std::swap(*this, temp);
-	return (*this);
+Server Server::operator=(const Server& other) {
+  Server temp(other);
+  std::swap(*this, temp);
+  return (*this);
 }
 
 /**
  * @brief function to add a new connection to poll struct
  */
-int Server::AddNewClient(int client_fd) {
+int Server::AddNewClientToPoll(int client_fd) {
   struct pollfd ServerPoll;
   ServerPoll.fd = client_fd;
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
+  return (0);
+}
+
+/**
+ * @brief function to create and add new client to list of client-class
+ * (1) it creates new client class
+ * (2) client is add to client class
+ * (3) welcome-message from server gets written to client buffer
+ *     and poll event of client fd gets changed to POLLOUT
+ */
+int Server::HandleNewClient() {
+  struct sockaddr_in client_addr;
+  socklen_t client_len = sizeof(client_addr);
+  int client_fd =
+      accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
+  Client newClient((_client_list.size() + 1), client_fd, client_addr);
+  DEBUG_PRINT(
+      "New client connection from: " << inet_ntoa(client_addr.sin_addr));
+  DEBUG_PRINT("FD of new client: " << client_fd);
+  newClient.setClientOut(MSG_WELCOME);
+  newClient.addClientOut(MSG_WAITING);
+  _client_list.push_back(newClient);
+  AddNewClientToPoll(client_fd);
+  std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+  for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
+  if (it != _poll_fds.end())
+    it->events = POLLOUT;
+  DEBUG_PRINT("Out of client: " << newClient.getClientOut());
+  DEBUG_PRINT("Event: " << it->events);
+  //   send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
+  //   send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
   return (0);
 }
 
@@ -95,33 +131,49 @@ int Server::InitiatePoll() {
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it == _poll_fds.begin() && it->revents != 0) {
-        struct sockaddr_in
-            client_addr;  // would make sense to move this into a client class
-        socklen_t client_len = sizeof(
-            client_addr);  // would make sense to move this into a client class
-        int client_fd =
-            accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
-        Client newClient((_client_list.size() + 1), client_fd, client_addr);
-        _client_list.push_back(newClient);
-        DEBUG_PRINT("New client connection from: " << inet_ntoa(client_addr.sin_addr));
-        DEBUG_PRINT("FD of new client: " << client_fd);
-        send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
-        send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
-        AddNewClient(client_fd);
         DEBUG_PRINT("Revent: " << it->revents);
-      } else if (it->revents != 0) {
+        HandleNewClient();
+//         std::list<Client>::iterator it_client = _client_list.begin();
+//         for (; it_client != _client_list.end() &&
+//                it->fd != it_client->getClientFd();
+//              it_client++) {}
+//         DEBUG_PRINT("Out of client in list: " << it_client->getClientOut().c_str());
+        break;
+      }
+      if (it->revents != 0 && it->events == POLLIN) {
         char buf[1024];
-        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);  // waits until it receives any responce from client
+        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
           _poll_fds.erase(it);
           break;
-        }
-        else {
+        } else {
           buf[recv_len] = '\0';
-          std::cout << "Message from client fd: " << it->fd << " revent: "<< it->revents <<" - " << buf
+          std::cout << "Message from client fd: " << it->fd
+                    << " revent: " << it->revents << " - " << buf
                     << "length: " << recv_len << std::endl;
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
+        }
+      }
+      if (it->revents != 0 && it->events == POLLOUT) {
+        DEBUG_PRINT("Pollout event: ");
+        std::list<Client>::iterator it_client = _client_list.begin();
+        for (; it_client != _client_list.end() &&
+               it->fd != it_client->getClientFd();
+             it_client++) {}
+        if (it_client != _client_list.end()) {
+          int size_sent = send(it->fd, it_client->getClientOut().c_str(),
+                               strlen(it_client->getClientOut().c_str()), 0);
+          DEBUG_PRINT("Pollout event, client out: "
+                      << it_client->getClientOut().c_str());
+          DEBUG_PRINT("FD of client: " << it_client->getClientFd());
+          std::string new_out = it_client->getClientOut();
+          new_out.erase(0, size_sent);  // check if I need to set i afterwards
+          it_client->setClientOut(new_out);
+          DEBUG_PRINT("Size sent: " << size_sent);
+          DEBUG_PRINT("FD to sent to: " << it->fd);
+          if (it_client->getClientOut().empty())
+            it->events = POLLIN;
         }
       }
     }
@@ -139,7 +191,7 @@ int Server::InitiatePoll() {
  * respective if we are allowed to use it
  */
 int Server::init() {
-  // fcntl(_fd_server, F_SETFL, O_NONBLOCK); // 
+  // fcntl(_fd_server, F_SETFL, O_NONBLOCK); //
   if (listen(_fd_server, MAX_QUEUED) < 0) {
     close(_fd_server);
     std::cout << "Listen Error" << std::endl;
@@ -150,7 +202,7 @@ int Server::init() {
   ServerPoll.fd = _fd_server;
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
-  _poll_fds.reserve(1024);
+  //   _poll_fds.reserve(1024);
   _poll_fds.push_back(ServerPoll);
   InitiatePoll();
   return 0;

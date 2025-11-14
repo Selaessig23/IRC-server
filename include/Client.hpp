@@ -19,6 +19,13 @@ class Client{
   Client operator=(const Client& other);
   ~Client();
 
+  std::string &getClientOut();
+//   void setClientOut(std::string &newOutput);
+  void setClientOut(std::string newOutput);
+  void addClientOut(std::string &newOutput);
+  void addClientOut(std::string newOutput);
+  int &getClientFd();
+
 } ;
 
 # endif

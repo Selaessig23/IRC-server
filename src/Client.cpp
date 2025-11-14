@@ -1,5 +1,6 @@
-#include "Client.hpp"
-#include "debug.hpp"
+#include "../include/Client.hpp"
+#include "../include/debug.hpp"
+#include <iostream>
 #include <netinet/in.h>   // for sockaddr_in
 #include <sys/socket.h>   // for sockaddr_in
 #include <algorithm> // for std::swap
@@ -26,4 +27,28 @@ Client	Client::operator=(const Client &other)
 
 Client::~Client(){
   DEBUG_PRINT("Destructor of Client called.");
+}
+
+std::string &Client::getClientOut(){
+	return(this->_output_buffer);
+}
+
+// void Client::setClientOut(std::string &newOutput){
+//  this->_output_buffer = newOutput;
+// }
+
+void Client::setClientOut(std::string newOutput){
+ this->_output_buffer = newOutput;
+}
+
+void Client::addClientOut(std::string &newOutput){
+ this->_output_buffer += newOutput;
+}
+
+void Client::addClientOut(std::string newOutput){
+ this->_output_buffer += newOutput;
+}
+
+int &Client::getClientFd(){
+	return (this->_client_fd);
 }

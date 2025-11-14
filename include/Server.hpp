@@ -22,7 +22,8 @@ class Server {
 
   //member function (helper)
   int InitiatePoll();
-  int AddNewClient(int client_fd);
+  int AddNewClientToPoll(int client_fd);
+  int HandleNewClient();
 
  public:
   // OCF
