@@ -84,12 +84,6 @@ int Server::AddNewClientToPoll(int client_fd) {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-#ifndef debug
-  ServerPoll.fd = STDIN_FILENO;
-  ServerPoll.events = POLLIN;
-  ServerPoll.revents = 0;
-  _poll_fds.push_back(ServerPoll);
-#endif
   return (0);
 }
 
@@ -149,22 +143,26 @@ int Server::InitiatePoll() {
         break;
       }
 #ifndef debug
-      else if (_client_list.empty() != 0 && it->fd == 0 &&
+      else if (_client_list.empty() == 0 && it->fd == 0 &&
                it->revents != 0 && POLLIN) {
-        char stdinbuf[1024];
-        int recv_len = 0;
-        recv_len = recv(it->fd, stdinbuf, sizeof(stdinbuf) - 1, 0);
-        stdinbuf[recv_len] = '\0';
+		DEBUG_PRINT("test 1");
+//         char stdinbuf[1024];
+//         int recv_len = 0;
+//         recv_len = recv(it->fd, stdinbuf, sizeof(stdinbuf) - 1, 0);
+//         stdinbuf[recv_len] = '\0';
+        std::string input;
+        std::getline(std::cin, input);
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end(); it_client++) {
-          it_client->setClientOut(stdinbuf);
+//           it_client->setClientOut(stdinbuf);
+          it_client->setClientOut(input + '\n');
         }
         ft_pollfds_to_out(_poll_fds);
         break;
       }
 #endif
-      else if (it != _poll_fds.begin() && it->fd != 0){
-        if (it->revents != 0 && it->events == POLLIN) {
+      else if (it != _poll_fds.begin()){
+        if (it->fd != 0 && it->revents != 0 && it->events == POLLIN) {
           char buf[1024];
           int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
           if (!recv_len) {
@@ -181,6 +179,7 @@ int Server::InitiatePoll() {
           }
         }
         if (it->revents != 0 && it->events == POLLOUT) {
+		DEBUG_PRINT("test 3");
           std::list<Client>::iterator it_client = _client_list.begin();
           for (; it_client != _client_list.end() &&
                  it->fd != it_client->getClientFd();
@@ -224,6 +223,12 @@ int Server::init() {
   ServerPoll.revents = 0;
   //   _poll_fds.reserve(1024);
   _poll_fds.push_back(ServerPoll);
+#ifndef debug
+  ServerPoll.fd = STDIN_FILENO;
+  ServerPoll.events = POLLIN;
+  ServerPoll.revents = 0;
+  _poll_fds.push_back(ServerPoll);
+#endif
   InitiatePoll();
   return 0;
 }

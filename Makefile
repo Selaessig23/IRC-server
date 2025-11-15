@@ -6,7 +6,7 @@
 #    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/06 19:51:10 by mstracke         ###   ########.fr        #
+#    Updated: 2025/11/15 10:04:59 by mstracke         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -76,5 +76,12 @@ valrun: all
 debug: CXXFLAGS += -DDEBUG -g
 debug: fclean $(NAME)
 	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
+
+debugvalrun: CXXFLAGS += -DDEBUG -g
+debugvalrun: fclean $(NAME)
+	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
+	@echo
+	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME) $(ARGS)
+
 
 .PHONY: all clean fclean re run valrun debug 
