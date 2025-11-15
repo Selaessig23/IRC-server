@@ -117,6 +117,9 @@ int Server::HandleNewClient() {
 }
 
 #ifndef debug
+/**
+ * @brief function to set all fds of clients to POLLOUT
+ */
 void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
   for (std::vector<struct pollfd>::iterator it = (pollfd.begin() + 2);
        it != pollfd.end(); it++) {
@@ -130,7 +133,8 @@ void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
  * (main server loop)
  * it checks all fds of clients & server for 
  * (1) new incomming connections (of server/socket-fd)
- * (2) events of the clients
+ * (2) event of stdin of server -- if DEBUG-mode
+ * (3) events of the clients
  */
 int Server::InitiatePoll() {
   while (1) {
@@ -145,12 +149,14 @@ int Server::InitiatePoll() {
 #ifndef debug
       else if (_client_list.empty() == 0 && it->fd == 0 &&
                it->revents != 0 && POLLIN) {
-		DEBUG_PRINT("test 1");
+// 	DEBUG_PRINT("test 1");
+	// stdin does not work well with revc as it is a stream: where is eof?
 //         char stdinbuf[1024];
 //         int recv_len = 0;
 //         recv_len = recv(it->fd, stdinbuf, sizeof(stdinbuf) - 1, 0);
 //         stdinbuf[recv_len] = '\0';
         std::string input;
+	// unsafe to not check for eol when using getline
         std::getline(std::cin, input);
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end(); it_client++) {
@@ -179,7 +185,7 @@ int Server::InitiatePoll() {
           }
         }
         if (it->revents != 0 && it->events == POLLOUT) {
-		DEBUG_PRINT("test 3");
+//           DEBUG_PRINT("test 3");
           std::list<Client>::iterator it_client = _client_list.begin();
           for (; it_client != _client_list.end() &&
                  it->fd != it_client->getClientFd();
