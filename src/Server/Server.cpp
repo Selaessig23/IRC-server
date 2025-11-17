@@ -133,6 +133,7 @@ void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
  * (1) new incomming connections (of server/socket-fd)
  * (2) event of stdin of server -- if DEBUG-mode
  * (3) events of the clients
+ *
  */
 int Server::InitiatePoll() {
   while (1) {
@@ -147,7 +148,6 @@ int Server::InitiatePoll() {
 #ifndef debug
       else if (_client_list.empty() == 0 && it->fd == 0 &&
                it->revents != 0 && POLLIN) {
-// 	DEBUG_PRINT("test 1");
 	// stdin does not work well with revc as it is a stream: where is eof?
 //         char stdinbuf[1024];
 //         int recv_len = 0;
@@ -183,7 +183,6 @@ int Server::InitiatePoll() {
           }
         }
         if (it->revents & POLLOUT) {
-//           DEBUG_PRINT("test 3");
           std::list<Client>::iterator it_client = _client_list.begin();
           for (; it_client != _client_list.end() &&
                  it->fd != it_client->getClientFd();
@@ -192,7 +191,7 @@ int Server::InitiatePoll() {
             int size_sent = send(it->fd, it_client->getClientOut().c_str(),
                                  strlen(it_client->getClientOut().c_str()), 0);
             std::string new_out = it_client->getClientOut();
-            new_out.erase(0, size_sent);  // check if I need to set i afterwards
+            new_out.erase(0, size_sent);
             it_client->setClientOut(new_out);
             if (it_client->getClientOut().empty())
               it->events = POLLIN;
