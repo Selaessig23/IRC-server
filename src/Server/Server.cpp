@@ -1,4 +1,4 @@
-#include "../../include/Server.hpp"
+#include "Server/Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
@@ -11,21 +11,25 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "../../include/CONSTANTS.hpp"
-#include "../../include/Client.hpp"
-#include "../../include/debug.hpp"
+#include "CONSTANTS.hpp"
+#include "Client/Client.hpp"
+#include "debug.hpp"
 
-// TODO:
-// (1) validate Port num
-//  On Unix/Linux, binding to ports <1024 usually requires root privileges.
-//  Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
-//  Ephemeral ports (49152–65535): These are meant for client-side connections,
-//  not servers. 	Technically, you can bind a server here, but clients
-//  might have trouble 	connecting due to firewall/NAT setups. Ports
-//  that are already in use by another service will throw an error when trying
-//  to bind to them
-// (2) destroy socket on error and in destructor
-// (3) check copy_constructor if there are new variables
+/** TODO:
+ * (1) validate Port num
+ * On Unix/Linux, binding to ports <1024 usually requires root privileges.
+ * Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
+ * Ephemeral ports (49152–65535): These are meant for client-side connections,
+ * not servers. 	Technically, you can bind a server here, but clients
+ * might have trouble 	connecting due to firewall/NAT setups. Ports
+ * that are already in use by another service will throw an error when trying
+ * to bind to them
+ * (2) destroy socket on error and in destructor
+ * (3) check copy_constructor if there are new variables
+ * (4) we could make the copy assignment operator more efficient by using our own class-specfic
+ * swap function (e. g. as friend)
+ * (5) check if we need the fcntl function in Server::initiate()
+ */
 
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
@@ -53,7 +57,6 @@ Server::Server(int port, std::string& pw) {
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
   }
-  // TODO:verify pw, if there are function specific rules
   _pw = pw;
 }
 
@@ -65,10 +68,6 @@ Server::Server(const Server& other)
       _poll_fds(other._poll_fds),
       _client_list(other._client_list) {}
 
-/**
- * @brief we could make it more efficient by using our own class-specfic
- * swap function (e. g. as friend)
- */
 Server Server::operator=(const Server& other) {
   Server temp(other);
   std::swap(*this, temp);
@@ -108,11 +107,10 @@ int Server::HandleNewClient() {
   _client_list.push_back(newClient);
   AddNewClientToPoll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+  // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
-  //   send(client_fd, MSG_WELCOME, strlen(MSG_WELCOME), 0);
-  //   send(client_fd, MSG_WAITING, strlen(MSG_WAITING), 0);
   return (0);
 }
 
@@ -184,7 +182,7 @@ int Server::InitiatePoll() {
             recv_len = 0;               // not necessary
           }
         }
-        if (it->revents != 0 && it->events == POLLOUT) {
+        if (it->revents & POLLOUT) {
 //           DEBUG_PRINT("test 3");
           std::list<Client>::iterator it_client = _client_list.begin();
           for (; it_client != _client_list.end() &&
@@ -227,7 +225,6 @@ int Server::init() {
   ServerPoll.fd = _fd_server;
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
-  //   _poll_fds.reserve(1024);
   _poll_fds.push_back(ServerPoll);
 #ifndef debug
   ServerPoll.fd = STDIN_FILENO;

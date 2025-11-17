@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/15 10:04:59 by mstracke         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME = ircserv
 CXX = c++
 CXXFLAGS =  -Wall -Werror -Wextra -std=c++98 -Isrc -Iinclude
@@ -36,7 +24,7 @@ RED :=			\033[91m
 #sources
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
-SRCS += Client.cpp
+SRCS += Client/Client.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 
