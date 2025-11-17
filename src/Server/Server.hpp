@@ -2,7 +2,9 @@
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>
 #include <iostream>
+#include <list>
 #include <vector>
+#include "Client/Client.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -16,16 +18,18 @@ class Server {
   struct sockaddr_in _addr;
   std::string _pw;
   std::vector<struct pollfd> _poll_fds;
+  std::list<Client> _client_list;
 
   //member function (helper)
   int InitiatePoll();
-  int AddNewClient(int client_fd);
+  int AddNewClientToPoll(int client_fd);
+  int HandleNewClient();
 
  public:
   // OCF
   Server(int port, std::string& pw);
   Server(const Server& other);
-  Server& operator=(const Server& other);
+  Server operator=(const Server& other);
   ~Server();
 
   // function to activate the IRC-Server (run the server-loop)

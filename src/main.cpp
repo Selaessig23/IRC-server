@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/11/06 20:29:57 by mstracke         ###   ########.fr       */
+/*   Updated: 2025/11/17 16:41:19 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <cstdlib>  //atoi
 #include <iostream>
 #include "Server/Server.hpp"
+#include "debug.hpp"
 
 // TODO:
 // play around with required (& allowed) c-functions
@@ -26,7 +27,11 @@
 Server* g_server;
 
 void signal_handler(int signal) {
-  std::cout << "\nSIGNAL: " << signal << std::endl;
+  (void)signal;
+#ifndef debug
+  std::cout << std::endl;
+#endif
+  DEBUG_PRINT("Shutdown of server caused by signal: " << signal);
   delete g_server;
   exit(0);
 }
