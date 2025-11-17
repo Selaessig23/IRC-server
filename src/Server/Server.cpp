@@ -1,4 +1,4 @@
-#include "../../include/Server.hpp"
+#include "Server/Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
@@ -11,9 +11,9 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "../../include/CONSTANTS.hpp"
-#include "../../include/Client.hpp"
-#include "../../include/debug.hpp"
+#include "CONSTANTS.hpp"
+#include "Client/Client.hpp"
+#include "debug.hpp"
 
 /** TODO:
  * (1) validate Port num
@@ -135,7 +135,7 @@ int Server::InitiatePoll() {
         char buf[1024];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
-	  close(it->fd);
+          close(it->fd);
           _poll_fds.erase(it);
           break;
         } else {

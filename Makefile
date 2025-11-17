@@ -6,7 +6,7 @@
 #    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/06 19:51:10 by mstracke         ###   ########.fr        #
+#    Updated: 2025/11/17 16:43:06 by mstracke         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,7 +36,7 @@ RED :=			\033[91m
 #sources
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
-SRCS += Client.cpp
+SRCS += Client/Client.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 
