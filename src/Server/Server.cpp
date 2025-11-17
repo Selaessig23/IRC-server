@@ -107,6 +107,7 @@ int Server::HandleNewClient() {
   _client_list.push_back(newClient);
   AddNewClientToPoll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+  // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
@@ -146,7 +147,7 @@ int Server::InitiatePoll() {
           recv_len = 0;               // not necessary
         }
       }
-      if (it->revents != 0 && it->events == POLLOUT) {
+      if (it->revents & POLLOUT) {
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end() &&
                it->fd != it_client->getClientFd();
