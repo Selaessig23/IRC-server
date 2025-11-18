@@ -18,7 +18,7 @@ enum PARSE_ERR {
   EMPTY_CMD = 300,
 };
 
-struct command_obj {
+struct cmd_obj {
   PARSE_ERR error;
   std::string prefix;
   CMD_TYPE command;

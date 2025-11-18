@@ -37,14 +37,19 @@ RED :=			\033[91m
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
 SRCS += Client/Client.cpp
+SRCS += Parser/Parser.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 
 DEPS :=	$(OBJS:.o=.d)
 
+LiBS =
+LIBS += src/includes/types.hpp
+LIBS += src/includes/CONSTANTS.hpp
+
 all:$(NAME)
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) $(LIBS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
 		@echo "-- prog created, try it by using ./ircserv <portno> <password>"
 
