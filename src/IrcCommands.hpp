@@ -1,17 +1,10 @@
 #ifndef IRCCOMMANDS_HPP
 #define IRCCOMMANDS_HPP
 
-#include <iostream>
 #include <list>
 #include <vector>
-#include "IrcCommands.hpp"
-#include "include/Client.hpp"
-
-struct parsed_input {
-  std::string prefix;
-  std::string command;
-  std::vector<std::string> parameters;
-};
+#include "Client/Client.hpp"
+#include "includes/types.hpp"
 
 /**
  * @brief class to check the parsed input of client for command
@@ -28,7 +21,7 @@ struct parsed_input {
 class IrcCommandParsing {
  private:
   typedef void (IrcCommands::*function)(void);
-//   function irccommands[2];
+  //   function irccommands[2];
   std::vector<function> irc_commands;
 
  public:

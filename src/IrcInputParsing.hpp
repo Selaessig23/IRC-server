@@ -1,14 +1,7 @@
 #ifndef IRCINPUTPARSING_HPP
 #define IRCINPUTPARSING_HPP
 
-#include <iostream>
-#include <vector>
-
-struct parsed_input {
-  std::string prefix;
-  std::string command;
-  std::vector<std::string> parameters;
-};
+#include "includes/types.hpp"
 
 /**
  * @brief class to check the clients input
