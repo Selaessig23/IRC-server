@@ -13,6 +13,7 @@
 #include <vector>
 #include "CONSTANTS.hpp"
 #include "Client/Client.hpp"
+#include "IrcInputParsing.hpp"
 #include "debug.hpp"
 
 /** TODO:
@@ -104,7 +105,10 @@ int Server::HandleNewClient() {
   DEBUG_PRINT("FD of new client: " << client_fd);
   newClient.setClientOut(MSG_WELCOME);
   newClient.addClientOut(MSG_WAITING);
-  _client_list.push_back(newClient);
+  struct parsed_input input = {0, 0, 0};
+  if (!IrcInputParsing::parse_input(buf, &parsed_input) &&
+      input.command == "PASS")
+    _client_list.push_back(newClient);
   AddNewClientToPoll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   // check  for find function
@@ -131,7 +135,7 @@ int Server::InitiatePoll() {
         HandleNewClient();
         break;
       }
-      if (it->revents != 0 && it->events == POLLIN) {
+      if (it->revents & POLLIN) {
         char buf[1024];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {

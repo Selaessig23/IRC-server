@@ -11,7 +11,9 @@ class Client{
   long _id;
   int _client_fd;
   struct sockaddr_in _client_addr;
-  std::string _name;
+  std::string _nick;
+  std::string _user;
+  std::string _host;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
 
