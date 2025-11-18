@@ -4,11 +4,14 @@
 #include <string>
 #include <vector>
 
+// IMPORTANT. Unknown serves as the enums size as well, therefore it has to stay the last element
 enum CMD_TYPE {
-  UNKNOWN = -1,
   PRIVMSG,
   PASS,
   JOIN,
+  NICK,
+  CAP,
+  UNKNOWN,
 };
 
 enum PARSE_ERR {
