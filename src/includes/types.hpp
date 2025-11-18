@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 
-struct parsed_input {
+struct command_obj {
   int error;
   std::string prefix;
   std::string command;
   std::vector<std::string> parameters;
 };
+
+enum PARSE_ERR { SYNTHAX = 100, UNKNOWN_CMD = 200 };
 
 #endif  //TYPES_HPP

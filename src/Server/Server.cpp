@@ -11,9 +11,9 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "CONSTANTS.hpp"
 #include "Client/Client.hpp"
 #include "debug.hpp"
+#include "includes/CONSTANTS.hpp"
 
 /** TODO:
  * (1) validate Port num
