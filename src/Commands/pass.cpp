@@ -1,4 +1,7 @@
-#include "IrcCommands.hpp"
+#include <iostream>
+#include "Commands/Commands.hpp"
+#include "includes/types.hpp"
+#include "Client/Client.hpp"
 
 /**
  * @brief function to check if client enters the correct password
@@ -11,13 +14,17 @@
  *
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
-int	IrcCommands::PASS(struct parsed_input &input, std::string &to_compare) const
+int Commands::pass(const struct cmd_obj &cmd, const std::list<Client> &clients, const Client &curr_client, const std::string &to_check)
 {
+	if (curr_client.register == 1)
+		return (462);
+	if (cmd.parameters.empty())
+		return (461);
 	if (input.command == "PASS"
 			&& input.parameters.size() == 1
 			&& *input.parameters.begin() == to_compare)
-		return (1);
-	else
 		return (0);
+	else
+		return (464);
 }
 

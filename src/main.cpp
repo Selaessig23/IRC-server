@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/11/17 16:41:19 by mstracke         ###   ########.fr       */
+/*   Updated: 2025/11/19 10:58:08 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ int main(int argc, char* argv[]) {
     signal(SIGQUIT, signal_handler);
     g_server = new Server(port, pw);
     if (g_server->init()) {
+      delete g_server;
       return 1;
     }
   } catch (const std::runtime_error& e) {

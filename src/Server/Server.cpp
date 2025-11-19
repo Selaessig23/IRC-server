@@ -1,4 +1,4 @@
-#include "Server/Server.hpp"
+#include "Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
@@ -11,10 +11,11 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "CONSTANTS.hpp"
-#include "Client/Client.hpp"
-#include "IrcInputParsing.hpp"
-#include "debug.hpp"
+#include "../Client/Client.hpp"
+#include "../Parser/Parser.hpp"
+#include "../debug.hpp"
+#include "../includes/CONSTANTS.hpp"
+#include "../includes/types.hpp"
 
 /** TODO:
  * (1) validate Port num
@@ -144,6 +145,16 @@ int Server::InitiatePoll() {
           break;
         } else {
           buf[recv_len] = '\0';
+          cmd_obj cmd_body;
+          PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+          if (err) {
+            std::cerr << "ERROR: " << err << std::endl;
+            return err;
+          }
+          std::cout << "CMD_BDY: \n"
+                    << "ERR: " << cmd_body.error
+                    << "\nCMD: " << cmd_body.command << std::endl;
+
           std::cout << "Message from client fd: " << it->fd
                     << " revent: " << it->revents << " - " << buf
                     << "length: " << recv_len << std::endl;
@@ -193,6 +204,7 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  InitiatePoll();
+  if (InitiatePoll())
+	  return (1);
   return 0;
 }
