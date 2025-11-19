@@ -201,6 +201,7 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  InitiatePoll();
+  if (InitiatePoll())
+	  return (1);
   return 0;
 }
