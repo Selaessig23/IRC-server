@@ -1,12 +1,11 @@
 #include <map>
 #include <sstream>
-#include "../debug.hpp"
 #include "../includes/types.hpp"
 
 namespace Parsing {
   /**
  * @brief breaks down incomming string into cmd and params
- * (1 --> commented out for testing reasons) it checks if message ends with CR-LF, if not it returns an individual message
+ * (1) it checks if message ends with CR-LF, if not it returns an individual message
  *     as there is no official one: input line to long (max size of input according to recv-buf is 8750 bytes)
  * (2) tokenizes the string
  * (3) it checks for max size of message (if correclty terminated with CR-LF)
@@ -48,11 +47,8 @@ namespace Parsing {
     std::string token;
     std::vector<std::string> parsed_elements;
 
-    // commented out as it makes testing harder
-    //     if (input[input.size() - 1] != '\n' || input[input.size() - 2] != '\r') {
-    //       command_body.error = ERR_INPUTTOOLONG;
-    //       return (417);
-    //     }
+    if (input[input.size() - 1] != '\n' || input[input.size() - 2] != '\r')
+      return (417);
     command_body.error = NO_ERR;
     while (input_stream >> token) {
       parsed_elements.push_back(token);
@@ -62,15 +58,13 @@ namespace Parsing {
       command_body.error = EMPTY_CMD;
       return command_body.error;
     }
-
-    if (((!(*parsed_elements.begin()).empty()) &&
+    if ((!(*parsed_elements.begin()).empty() &&
          ((*parsed_elements.begin())[0] == '@') &&
          ((parsed_elements.begin()->size() > 4096) ||
           ((input.size() - parsed_elements.begin()->size()) > 512))) ||
-        (input.size() > 512)) {
-      command_body.error = ERR_INPUTTOOLONG;
+        (input.size() > 512))
       return (417);
-    }
+
     std::vector<std::string>::iterator it = parsed_elements.begin();
 
     if ((*it)[0] == '@') {
@@ -88,15 +82,11 @@ namespace Parsing {
       it++;
     }
 
-    if (it != parsed_elements.end() && (*it)[0] == ':') {
+    if ((*it)[0] == ';') {
       command_body.prefix = *it;
       it++;
     }
 
-    if (it == parsed_elements.end()) {
-      command_body.error = EMPTY_CMD;
-      return command_body.error;
-    }
     std::map<std::string, CMD_TYPE> commands;
     commands["PRIVMSG"] = PRIVMSG;
     commands["PASS"] = PASS;
@@ -105,7 +95,7 @@ namespace Parsing {
     commands["CAP"] = CAP;
 
     std::map<std::string, CMD_TYPE>::iterator it_comm;
-    for (it_comm = commands.begin(); it_comm != commands.end(); ++it_comm) {
+    for (it_comm = commands.begin(); it_comm != commands.end(); ++it) {
       if (*it == it_comm->first) {
         command_body.command = it_comm->second;
         break;
@@ -118,17 +108,12 @@ namespace Parsing {
       command_body.error = UNKNOWN_CMD;
       return command_body.error;
     }
-    it++;
 
     for (; it != parsed_elements.end(); it++) {
       command_body.parameters.push_back(*it);
     }
-    if (!command_body.parameters.empty() &&
-        command_body.parameters.size() > 15) {
-      command_body.error = ERR_INPUTTOOLONG;
+    if (command_body.parameters.size() > 15)
       return (417);
-    }
 
     return NO_ERR;
-  }
-}  // namespace Parsing
+  }  // namespace Parsing

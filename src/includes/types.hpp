@@ -19,10 +19,12 @@ enum PARSE_ERR {
   SYNTHAX = 100,
   UNKNOWN_CMD = 200,
   EMPTY_CMD = 300,
+  ERR_INPUTTOOLONG = 417,
 };
 
 struct cmd_obj {
   PARSE_ERR error;
+  std::vector<std::string> tags;
   std::string prefix;
   CMD_TYPE command;
   std::vector<std::string> parameters;
