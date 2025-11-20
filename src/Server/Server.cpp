@@ -137,7 +137,7 @@ int Server::InitiatePoll() {
         break;
       }
       if (it->revents & POLLIN) {
-        char buf[1024];
+        char buf[8750];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
           close(it->fd);
@@ -149,15 +149,25 @@ int Server::InitiatePoll() {
           PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
           if (err) {
             std::cerr << "ERROR: " << err << std::endl;
-            return err;
-          }
-          std::cout << "CMD_BDY: \n"
-                    << "ERR: " << cmd_body.error
-                    << "\nCMD: " << cmd_body.command << std::endl;
+            //             return err;
+          } else {
+            std::cout << "CMD_BDY: " << std::endl;
+            if (cmd_body.error)
+              std::cout << "ERR: " << cmd_body.error << std::endl;
+            if (!cmd_body.tags.empty())
+              std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
+            if (!cmd_body.prefix.empty())
+              std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
+            if (cmd_body.command)
+              std::cout << "CMD: " << cmd_body.command << std::endl;
+            if (!cmd_body.parameters.empty())
+              std::cout << "PARAS: " << *cmd_body.parameters.begin()
+                        << std::endl;
 
-          std::cout << "Message from client fd: " << it->fd
-                    << " revent: " << it->revents << " - " << buf
-                    << "length: " << recv_len << std::endl;
+            std::cout << "Message from client fd: " << it->fd
+                      << " revent: " << it->revents << " - " << buf
+                      << "length: " << recv_len << std::endl;
+          }
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
         }
@@ -205,6 +215,6 @@ int Server::init() {
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
   if (InitiatePoll())
-	  return (1);
+    return (1);
   return 0;
 }
