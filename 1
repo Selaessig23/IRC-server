@@ -1,0 +1,16 @@
+#include "IrcCommands.hpp"
+#include "../includes/types.hpp"
+#include <map>
+
+IrcCommands::IrcCommands()
+{
+	this->_irc_commands.insert(std::make_pair(PASS, &IrcCommands::PASS));
+}
+
+int IrcCommands::exec_command(struct cmd_obj cmd, std::list<Client> client_list, int fd_curr_client, const std::string &to_check){
+	if (_irc_commands.find(cmd.command) == _irc_commands.end())
+		//error: command not found
+		return (1);
+	else
+	 function to_execute = _irc_commands.find(cmd.command)->second;
+	to_execute(cmd, client_list, fd_curr_client, to_check);
