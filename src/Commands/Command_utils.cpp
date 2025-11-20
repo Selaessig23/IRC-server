@@ -42,6 +42,7 @@ void Commands::ft_errorprint(enum PARSE_ERR err, Client& curr_client) {
   if (!curr_client.getNick().empty())
     out = "<" + curr_client.getNick() + ">";
   out += getError(err);
+  out += "\r\n";
   curr_client.setClientOut(out);
   curr_client.setServerPoll();
 }
