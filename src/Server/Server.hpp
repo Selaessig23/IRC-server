@@ -4,7 +4,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
-#include "Client/Client.hpp"
+#include "../Client/Client.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP

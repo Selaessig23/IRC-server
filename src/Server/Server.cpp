@@ -1,4 +1,4 @@
-#include "Server/Server.hpp"
+#include "Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
 #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
@@ -11,9 +11,11 @@
 #include <iostream>
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
-#include "CONSTANTS.hpp"
-#include "Client/Client.hpp"
-#include "debug.hpp"
+#include "../Client/Client.hpp"
+#include "../Parser/Parser.hpp"
+#include "../debug.hpp"
+#include "../includes/CONSTANTS.hpp"
+#include "../includes/types.hpp"
 
 /** TODO:
  * (1) validate Port num
@@ -131,8 +133,8 @@ int Server::InitiatePoll() {
         HandleNewClient();
         break;
       }
-      if (it->revents != 0 && it->events == POLLIN) {
-        char buf[1024];
+      if (it->revents & POLLIN) {
+        char buf[8750];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
           close(it->fd);
@@ -140,9 +142,29 @@ int Server::InitiatePoll() {
           break;
         } else {
           buf[recv_len] = '\0';
-          std::cout << "Message from client fd: " << it->fd
-                    << " revent: " << it->revents << " - " << buf
-                    << "length: " << recv_len << std::endl;
+          cmd_obj cmd_body;
+          PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+          if (err) {
+            std::cerr << "ERROR: " << err << std::endl;
+            //             return err;
+          } else {
+            std::cout << "CMD_BDY: " << std::endl;
+            if (cmd_body.error)
+              std::cout << "ERR: " << cmd_body.error << std::endl;
+            if (!cmd_body.tags.empty())
+              std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
+            if (!cmd_body.prefix.empty())
+              std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
+            if (cmd_body.command)
+              std::cout << "CMD: " << cmd_body.command << std::endl;
+            if (!cmd_body.parameters.empty())
+              std::cout << "PARAS: " << *cmd_body.parameters.begin()
+                        << std::endl;
+
+            std::cout << "Message from client fd: " << it->fd
+                      << " revent: " << it->revents << " - " << buf
+                      << "length: " << recv_len << std::endl;
+          }
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
         }
@@ -189,6 +211,7 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  InitiatePoll();
+  if (InitiatePoll())
+    return (1);
   return 0;
 }
