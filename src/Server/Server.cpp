@@ -100,22 +100,19 @@ int Server::HandleNewClient() {
   socklen_t client_len = sizeof(client_addr);
   int client_fd =
       accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
-  Client newClient((_client_list.size() + 1), client_fd, client_addr);
   DEBUG_PRINT(
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
-  newClient.setClientOut(MSG_WELCOME);
-  newClient.addClientOut(MSG_WAITING);
-  struct parsed_input input = {0, 0, 0};
-  if (!IrcInputParsing::parse_input(buf, &parsed_input) &&
-      input.command == "PASS")
-    _client_list.push_back(newClient);
   AddNewClientToPoll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
+  Client newClient((_client_list.size() + 1), client_fd, client_addr, *it);
+  //   newClient.setClientOut(MSG_WELCOME);
+  //   newClient.addClientOut(MSG_WAITING);
+  _client_list.push_back(newClient);
   return (0);
 }
 
