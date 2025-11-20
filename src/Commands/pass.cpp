@@ -35,6 +35,7 @@ int Commands::pass(const struct cmd_obj& cmd, std::list<Client>& clients,
       *cmd.parameters.begin() == to_check) {
     it->setClientOut(MSG_WELCOME);
     it->addClientOut(MSG_WAITING);
+    it->setServerPoll();
     return (0);
   } else {
     Commands::ft_errorprint(ERR_PASSWDMISMATCH, *it);

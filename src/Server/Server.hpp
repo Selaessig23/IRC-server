@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Commands/IrcCommands.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -19,6 +20,7 @@ class Server {
   std::string _pw;
   std::vector<struct pollfd> _poll_fds;
   std::list<Client> _client_list;
+  IrcCommands _ircCommands;
 
   //member function (helper)
   int InitiatePoll();

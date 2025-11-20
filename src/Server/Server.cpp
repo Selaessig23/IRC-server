@@ -12,6 +12,8 @@
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Commands/Commands.hpp"
+#include "../Commands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -42,7 +44,8 @@ Server::~Server() {
   close(_poll_fds.begin()->fd);
 }
 
-Server::Server(int port, std::string& pw) {
+Server::Server(int port, std::string& pw)
+    : _port(port), _ircCommands(IrcCommands()) {
   _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
@@ -142,10 +145,17 @@ int Server::InitiatePoll() {
           break;
         } else {
           buf[recv_len] = '\0';
+          std::list<Client>::iterator it_clients = _client_list.begin();
+          for (; it_clients != _client_list.end(); it_clients++) {
+            if (it->fd == it_clients->getClientFd())
+              break;
+          }
           cmd_obj cmd_body;
           PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+#ifndef debug
           if (err) {
-            std::cerr << "ERROR: " << err << std::endl;
+            Commands::ft_errorprint(cmd_body.error, *it_clients);
+            //             std::cerr << "ERROR: " << err << std::endl;
             //             return err;
           } else {
             std::cout << "CMD_BDY: " << std::endl;
@@ -165,6 +175,8 @@ int Server::InitiatePoll() {
                       << " revent: " << it->revents << " - " << buf
                       << "length: " << recv_len << std::endl;
           }
+#endif
+          _ircCommands.exec_command(cmd_body, _client_list, it->fd, _pw);
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
         }

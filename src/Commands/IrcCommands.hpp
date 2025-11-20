@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <list>
-#include <vector>
 #include <map>
+#include <vector>
 #include "../Client/Client.hpp"
 #include "Commands.hpp"
 
@@ -25,15 +25,17 @@ struct parsed_input {
  */
 class IrcCommands {
  private:
-//   typedef void (Commands::*function)(void);
-  typedef int (*function) (const struct cmd_obj& cmd, std::list<Client>& client_list,
-           int fd_curr_client, const std::string& to_check);
-  static std::map<enum CMD_TYPE, function> _irc_commands;
+  //   typedef void (Commands::*function)(void);
+  typedef int (*function)(const struct cmd_obj& cmd,
+                          std::list<Client>& client_list, int fd_curr_client,
+                          const std::string& to_check);
+  std::map<enum CMD_TYPE, function> _irc_commands;
 
  public:
-  IrcCommands(); // inits std::map
+  IrcCommands();  // inits std::map
   // OCF missing
-  static int exec_command(struct cmd_obj &cmd, std::list<Client> &client_list, int fd_curr_client, const std::string &to_check);
-} ;
+  int exec_command(struct cmd_obj& cmd, std::list<Client>& client_list,
+                   int fd_curr_client, const std::string& to_check);
+};
 
-# endif
+#endif
