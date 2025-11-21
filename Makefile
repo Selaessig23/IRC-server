@@ -38,6 +38,7 @@ SRCS =	main.cpp
 SRCS += Server/Server.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
+SRCS += Parser/Parser_utils.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 
