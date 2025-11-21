@@ -2,6 +2,7 @@
 #include <sstream>
 #include "../debug.hpp"
 #include "../includes/types.hpp"
+#include "./Parser_utils.cpp"
 
 namespace Parsing {
   /**
@@ -33,9 +34,7 @@ namespace Parsing {
  *      - the messages shall not exceed 512 characters in length (including CR-LF)
  *
  * TODO:
- * (1) if we keep the command check here: consider the command number in command check
- *      - The command must either be a valid IRC command or a three (3) digit number represented in ASCII text.
- * (2) consider different types of parameters:
+ * (1) consider different types of parameters:
  *        + trailing, requires ':': Any, possibly *empty*, sequence of octets not including NUL or CR or LF
  *         (in which case that character is stripped and the rest of the message is treated as the final parameter, including any spaces it contains)
  *        + middle: Any *non-empty* sequence of octets not including SPACE or NUL or CR or LF
@@ -59,6 +58,7 @@ namespace Parsing {
     }
 
     if (parsed_elements.empty()) {
+      // should be treated silently
       command_body.error = EMPTY_CMD;
       return command_body.error;
     }
@@ -97,27 +97,20 @@ namespace Parsing {
       command_body.error = EMPTY_CMD;
       return command_body.error;
     }
-    std::map<std::string, CMD_TYPE> commands;
-    commands["PRIVMSG"] = PRIVMSG;
-    commands["PASS"] = PASS;
-    commands["JOIN"] = JOIN;
-    commands["NICK"] = NICK;
-    commands["CAP"] = CAP;
+    std::map<std::string, CMD_TYPE> commands = build_command_map();
+    std::map<std::string, CMD_TYPE>::iterator it_comm = commands.find(*it);
 
-    std::map<std::string, CMD_TYPE>::iterator it_comm;
-    for (it_comm = commands.begin(); it_comm != commands.end(); ++it_comm) {
-      if (*it == it_comm->first) {
-        command_body.command = it_comm->second;
-        break;
-      }
-    }
-    if (it_comm == commands.end())
+    if (it_comm != commands.end()) {
+      command_body.command = it_comm->second;
+    } else if (isValidNumericCommand(*it)) {
+      command_body.command = NUMERIC;
+      command_body.numeric_code = std::atoi((*it).c_str());
+    } else {
       command_body.command = UNKNOWN;
-
-    if (command_body.command == UNKNOWN) {
       command_body.error = UNKNOWN_CMD;
       return command_body.error;
     }
+
     it++;
 
     for (; it != parsed_elements.end(); it++) {

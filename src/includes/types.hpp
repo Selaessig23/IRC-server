@@ -11,6 +11,7 @@ enum CMD_TYPE {
   JOIN,
   NICK,
   CAP,
+  NUMERIC,
   UNKNOWN,
 };
 
@@ -27,6 +28,7 @@ struct cmd_obj {
   std::vector<std::string> tags;
   std::string prefix;
   CMD_TYPE command;
+  int numeric_code;
   std::vector<std::string> parameters;
 };
 
