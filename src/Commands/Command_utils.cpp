@@ -5,13 +5,32 @@
 #include "../includes/types.hpp"
 
 /**
+ * @brief function to create reply-messages from server to client
+ *
+ * TODO
+ * (1) add all required rpl messags according to rpl_code
+ * (2) as soon as it becomes part of friend: add required paramters
+ */
+static std::string get_rpl(enum RPL_MSG rpl) {
+  std::string out;
+  switch (rpl) {
+    case RPL_WELCOME:
+      return (" :Welcome to the <networkname> Network, <nick>[!<user>@<host>]");
+    case RPL_YOURHOST:
+      return (" :Your host is <servername>, running version <version>");
+    case RPL_CREATED:
+      return (" This server was created <datetime>");
+  }
+}
+
+/**
  * @brief function to return the error message of errorcode
  *
  * TODO
- * (1) add all required error message to corresponding error codes
- * (2) ADD Command struct as parameter and fill out where required
+ * (1) add all required error messages to corresponding error codes
+ * (2) as soon as it becomes part of friend: add required paramters
  */
-static std::string getError(enum PARSE_ERR err) {
+static std::string get_error(enum PARSE_ERR err) {
   std::string out;
   switch (err) {
     case EMPTY_CMD:
@@ -34,27 +53,27 @@ static std::string getError(enum PARSE_ERR err) {
 }
 
 /**
- * @brief function to sent out the error messages
- * to a specific client
+ * @brief function to sent out messages from server to client
  *
  * TODO
  * (1) set tag (only if clients support them, to check with CAP LS negotiation)
- * (2) set prefix: usually servers name (consider key ":" to set prefix)
- * (3) ADD 3-number digit (error-code)
+ * (2) as soon as it becomes part of friend: use private attributes of Server directly
  */
-void Commands::ft_errorprint(enum PARSE_ERR err, Client& curr_client) {
+void Commands::send_message(int numeric_msg_code, bool error, Client& curr_client) {
   std::string out;
-  int error_code = static_cast<int>(err);
   std::stringstream ss;
-  ss << error_code;
+  ss << numeric_msg_code;
 
-  out += ":MUM_s_server";  // servers name
-  out += " " + ss.str();   // numeric reply
+  out += ":MUMs_server";  // servers name
+  out += " " + ss.str(); 
   if (!curr_client.getNick().empty())
     out = " <" + curr_client.getNick() + ">";
-  out += getError(err);
+  if (error == true)
+	  out += get_error(static_cast<PARSE_ERR>(numeric_msg_code));
+  else
+	  out+= get_rpl(static_cast<RPL_MSG>(numeric_msg_code));
   out += "\r\n";
-  curr_client.setClientOut(out);
+  curr_client.addClientOut(out);
   curr_client.setServerPoll();
 }
 
@@ -70,6 +89,6 @@ bool Commands::client_register_check(Client& to_check) {
   if (to_check.getRegisterStatus() == 1)
     return (1);
   // send  error to Client
-  Commands::ft_errorprint(ERR_NOTREGISTERED, to_check);
+  Commands::send_message(ERR_NOTREGISTERED, true, to_check);
   return (0);
 }

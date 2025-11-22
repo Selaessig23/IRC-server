@@ -44,9 +44,9 @@ void Client::setClientOut(std::string newOutput){
  * @brief this function adds new ouput (reference) 
  * to the Clients output buffer
  */
-void Client::addClientOut(std::string &newOutput){
- this->_output_buffer += newOutput;
-}
+// void Client::addClientOut(std::string &newOutput){
+//  this->_output_buffer += newOutput;
+// }
 
 /**
  * @brief this function adds new ouput (copy) 

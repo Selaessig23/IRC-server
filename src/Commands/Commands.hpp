@@ -12,7 +12,7 @@ namespace Commands {
            int fd_curr_client, const std::string& to_check);
   // helper functions
   bool client_register_check(Client& to_check);
-  void ft_errorprint(enum PARSE_ERR err, Client& curr_client);
+  void send_message(int msg, bool error, Client& curr_client);
 };  // namespace Commands
 
 #endif  // Commands.hpp

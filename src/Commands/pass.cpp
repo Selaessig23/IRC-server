@@ -24,21 +24,21 @@ int Commands::pass(const struct cmd_obj& cmd, std::list<Client>& clients,
       break;
   }
   if (it->getRegisterStatus() == 1) {
-    Commands::ft_errorprint(ERR_ALREADYREGISTERED, *it);
+    Commands::send_message(ERR_ALREADYREGISTERED, true, *it);
     return (462);
   }
   if (cmd.parameters.empty()) {
-    Commands::ft_errorprint(ERR_NEEDMOREPARAMS, *it);
+    Commands::send_message(ERR_NEEDMOREPARAMS, true, *it);
     return (461);
   }
   if (cmd.command == PASS && cmd.parameters.size() == 1 &&
       *cmd.parameters.begin() == to_check) {
-    it->setClientOut(MSG_WELCOME);
-    it->addClientOut(MSG_WAITING);
-    it->setServerPoll();
+    Commands::send_message(RPL_WELCOME, false, *it);
+    Commands::send_message(RPL_YOURHOST, false, *it);
+    Commands::send_message(RPL_CREATED, false, *it);
     return (0);
   } else {
-    Commands::ft_errorprint(ERR_PASSWDMISMATCH, *it);
+    Commands::send_message(ERR_PASSWDMISMATCH, true, *it);
     return (464);
   }
 }

@@ -164,7 +164,7 @@ int Server::InitiatePoll() {
           PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
 #ifndef debug
           if (err) {
-            Commands::ft_errorprint(cmd_body.error, *it_clients);
+            Commands::send_message(cmd_body.error, true, *it_clients);
             //             std::cerr << "ERROR: " << err << std::endl;
             //             return err;
           } else {
@@ -180,11 +180,11 @@ int Server::InitiatePoll() {
             if (!cmd_body.parameters.empty())
               std::cout << "PARAS: " << *cmd_body.parameters.begin()
                         << std::endl;
-
-            std::cout << "Message from client fd: " << it->fd
-                      << " revent: " << it->revents << " - " << buf
-                      << "length: " << recv_len << std::endl;
           }
+          DEBUG_PRINT("Message from client fd: " << it->fd);
+          DEBUG_PRINT(" revent: " << it->revents);
+          DEBUG_PRINT(" - " << buf);
+          DEBUG_PRINT("length: " << recv_len);
 #endif
           _ircCommands.exec_command(cmd_body, _client_list, it->fd, _pw);
           std::memset(buf, 0, 1024);  // not necessary

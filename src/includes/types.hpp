@@ -26,6 +26,12 @@ enum PARSE_ERR {
   ERR_PASSWDMISMATCH = 464,
 };
 
+enum RPL_MSG {
+ RPL_WELCOME = 001,
+ RPL_YOURHOST = 002,
+ RPL_CREATED = 003,
+};
+
 struct cmd_obj {
   PARSE_ERR error;
   std::vector<std::string> tags;

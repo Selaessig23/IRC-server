@@ -30,7 +30,7 @@ class Client{
   //getter and setter function
   std::string &getClientOut();
   void setClientOut(std::string newOutput);
-  void addClientOut(std::string &newOutput);
+//   void addClientOut(std::string &newOutput);
   void addClientOut(std::string newOutput);
   int getClientFd();
   std::string &getNick();
