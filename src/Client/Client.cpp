@@ -2,7 +2,6 @@
 #include "../debug.hpp"
 #include <iostream>
 #include <netinet/in.h>   // for sockaddr_in
-#include <sys/socket.h>   // for sockaddr_in
 #include <algorithm> // for std::swap
 #include <poll.h>
 

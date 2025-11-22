@@ -2,7 +2,6 @@
 # define CLIENT_HPP
 
 #include <netinet/in.h>   // for sockaddr_in
-#include <sys/socket.h>   // for sockaddr_in
 #include <iostream>
 #include <map>
 #include <poll.h>
