@@ -1,6 +1,8 @@
 #include <iostream>
+#include <sstream>
 #include "../Client/Client.hpp"
 #include "Commands.hpp"
+#include "../includes/types.hpp"
 
 /**
  * @brief function to return the error message of errorcode
@@ -11,21 +13,24 @@
  */
 static std::string getError(enum PARSE_ERR err) {
   std::string out;
-  if (err == ERR_NOTREGISTERED)
-    out = " :You have not registered";
-  else if (err == EMPTY_CMD)
-    out = "Command empty";
-  else if (err == ERR_UNKNOWNCOMMAND)
-    out = "<command> :Unknown command";
-  else if (err == ERR_ALREADYREGISTERED)
-    out = " :You may not reregister";
-  else if (err == ERR_INPUTTOOLONG)
-    out = " :Input line was too long";
-  else if (err == ERR_PASSWDMISMATCH)
-    out = " :Password incorrect";
-  else if (err == ERR_NEEDMOREPARAMS)
-    out = " :<command> :Not enough parameters";
-  return (out);
+  switch (err) {
+    case EMPTY_CMD:
+      return (" Command empty");
+    case ERR_INPUTTOOLONG:
+      return " :Input line was too long";
+    case ERR_UNKNOWNCOMMAND:
+      return (" <command> :Unknown command");
+    case ERR_NOTREGISTERED:
+      return (" :You have not registered");
+    case ERR_NEEDMOREPARAMS:
+      return " :<command> :Not enough parameters";
+    case ERR_ALREADYREGISTERED:
+      return " :You may not reregister";
+    case ERR_PASSWDMISMATCH:
+      return " :Password incorrect";
+    default:
+      return (out);
+  }
 }
 
 /**
@@ -33,14 +38,20 @@ static std::string getError(enum PARSE_ERR err) {
  * to a specific client
  *
  * TODO
- * (1) set tag
- * (2) set prefix
+ * (1) set tag (only if clients support them, to check with CAP LS negotiation)
+ * (2) set prefix: usually servers name (consider key ":" to set prefix)
  * (3) ADD 3-number digit (error-code)
  */
 void Commands::ft_errorprint(enum PARSE_ERR err, Client& curr_client) {
   std::string out;
+  int error_code = static_cast<int>(err);
+  std::stringstream ss;
+  ss << error_code;
+
+  out += ":MUM_s_server";  // servers name
+  out += " " + ss.str();   // numeric reply
   if (!curr_client.getNick().empty())
-    out = "<" + curr_client.getNick() + ">";
+    out = " <" + curr_client.getNick() + ">";
   out += getError(err);
   out += "\r\n";
   curr_client.setClientOut(out);
