@@ -115,7 +115,7 @@ namespace Parsing {
       command_body.command = UNKNOWN;
 
     if (command_body.command == UNKNOWN) {
-      command_body.error = UNKNOWN_CMD;
+      command_body.error = ERR_UNKNOWNCOMMAND;
       return command_body.error;
     }
     it++;

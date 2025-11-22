@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Commands/IrcCommands.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -13,12 +14,17 @@ class Server {
   typedef std::vector<struct pollfd>::iterator fd_iterator;
 
  private:
+  std::string _network_name;
+  std::string _server_name;
+  std::string _version;
+  std::string _created_at;
   int _port;
   int _fd_server;
   struct sockaddr_in _addr;
   std::string _pw;
   std::vector<struct pollfd> _poll_fds;
   std::list<Client> _client_list;
+  IrcCommands _ircCommands;
 
   //member function (helper)
   int InitiatePoll();
@@ -35,5 +41,7 @@ class Server {
   // function to activate the IRC-Server (run the server-loop)
   int init();
 };
+
+std::string get_current_date_time();
 
 #endif  // SERVER_HPP

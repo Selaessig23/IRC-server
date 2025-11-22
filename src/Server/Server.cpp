@@ -12,6 +12,8 @@
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Commands/Commands.hpp"
+#include "../Commands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -42,7 +44,14 @@ Server::~Server() {
   close(_poll_fds.begin()->fd);
 }
 
-Server::Server(int port, std::string& pw) {
+Server::Server(int port, std::string& pw)
+    : _network_name("MUMs_network"),
+      _server_name("MUMs_server"),
+      _version("0.0.0.0.0.9"),
+      _port(port),
+      _ircCommands(IrcCommands()) {
+  //created at
+  _created_at = get_current_date_time();
   _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
@@ -63,7 +72,11 @@ Server::Server(int port, std::string& pw) {
 }
 
 Server::Server(const Server& other)
-    : _port(other._port),
+    : _network_name(other._network_name),
+      _server_name(other._server_name),
+      _version(other._version),
+      _created_at(other._created_at),
+      _port(other._port),
       _fd_server(other._fd_server),
       _addr(other._addr),
       _pw(other._pw),
@@ -100,19 +113,19 @@ int Server::HandleNewClient() {
   socklen_t client_len = sizeof(client_addr);
   int client_fd =
       accept(_fd_server, (struct sockaddr*)&client_addr, &client_len);
-  Client newClient((_client_list.size() + 1), client_fd, client_addr);
   DEBUG_PRINT(
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
-  newClient.setClientOut(MSG_WELCOME);
-  newClient.addClientOut(MSG_WAITING);
-  _client_list.push_back(newClient);
   AddNewClientToPoll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
+  Client newClient((_client_list.size() + 1), client_fd, client_addr, *it);
+  //   newClient.setClientOut(MSG_WELCOME);
+  //   newClient.addClientOut(MSG_WAITING);
+  _client_list.push_back(newClient);
   return (0);
 }
 
@@ -142,10 +155,17 @@ int Server::InitiatePoll() {
           break;
         } else {
           buf[recv_len] = '\0';
+          std::list<Client>::iterator it_clients = _client_list.begin();
+          for (; it_clients != _client_list.end(); it_clients++) {
+            if (it->fd == it_clients->getClientFd())
+              break;
+          }
           cmd_obj cmd_body;
           PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+#ifndef debug
           if (err) {
-            std::cerr << "ERROR: " << err << std::endl;
+            Commands::send_message(cmd_body.error, true, *it_clients);
+            //             std::cerr << "ERROR: " << err << std::endl;
             //             return err;
           } else {
             std::cout << "CMD_BDY: " << std::endl;
@@ -160,11 +180,13 @@ int Server::InitiatePoll() {
             if (!cmd_body.parameters.empty())
               std::cout << "PARAS: " << *cmd_body.parameters.begin()
                         << std::endl;
-
-            std::cout << "Message from client fd: " << it->fd
-                      << " revent: " << it->revents << " - " << buf
-                      << "length: " << recv_len << std::endl;
           }
+          DEBUG_PRINT("Message from client fd: " << it->fd);
+          DEBUG_PRINT(" revent: " << it->revents);
+          DEBUG_PRINT(" - " << buf);
+          DEBUG_PRINT("length: " << recv_len);
+#endif
+          _ircCommands.exec_command(cmd_body, _client_list, it->fd, _pw);
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
         }
