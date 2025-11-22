@@ -14,6 +14,10 @@ class Server {
   typedef std::vector<struct pollfd>::iterator fd_iterator;
 
  private:
+  std::string _network_name;
+  std::string _server_name;
+  std::string _version;
+  std::string _created_at;
   int _port;
   int _fd_server;
   struct sockaddr_in _addr;
@@ -37,5 +41,7 @@ class Server {
   // function to activate the IRC-Server (run the server-loop)
   int init();
 };
+
+std::string get_current_date_time();
 
 #endif  // SERVER_HPP

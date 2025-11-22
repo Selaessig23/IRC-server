@@ -45,7 +45,13 @@ Server::~Server() {
 }
 
 Server::Server(int port, std::string& pw)
-    : _port(port), _ircCommands(IrcCommands()) {
+    : _network_name("MUMs_network"),
+      _server_name("MUMs_server"),
+      _version("0.0.0.0.0.9"),
+      _port(port),
+      _ircCommands(IrcCommands()) {
+  //created at
+  _created_at = get_current_date_time();
   _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
@@ -66,7 +72,11 @@ Server::Server(int port, std::string& pw)
 }
 
 Server::Server(const Server& other)
-    : _port(other._port),
+    : _network_name(other._network_name),
+      _server_name(other._server_name),
+      _version(other._version),
+      _created_at(other._created_at),
+      _port(other._port),
       _fd_server(other._fd_server),
       _addr(other._addr),
       _pw(other._pw),
