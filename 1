@@ -41,16 +41,13 @@ Server::~Server() {
   }
   //Close Server last
   close(_poll_fds.begin()->fd);
-  delete _irc_commands;
 }
 
 Server::Server(int port, std::string& pw)
     : _network_name("MUMs_network"),
       _server_name("MUMs_server"),
       _version("0.0.0.0.0.9"),
-      _port(port),
-      _pw(pw),
-      _irc_commands(new IrcCommands()) {
+      _port(port) {
   //created at
   _created_at = get_current_date_time();
   _port = port;
@@ -69,6 +66,7 @@ Server::Server(int port, std::string& pw)
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
   }
+  _pw = pw;
 }
 
 Server::Server(const Server& other)
@@ -81,8 +79,7 @@ Server::Server(const Server& other)
       _addr(other._addr),
       _pw(other._pw),
       _poll_fds(other._poll_fds),
-      _client_list(other._client_list),
-      _irc_commands(other._irc_commands) {}
+      _client_list(other._client_list) {}
 
 Server Server::operator=(const Server& other) {
   Server temp(other);
@@ -139,6 +136,7 @@ int Server::HandleNewClient() {
  */
 int Server::InitiatePoll() {
   while (1) {
+    IrcCommands irc_commands;
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
@@ -165,8 +163,9 @@ int Server::InitiatePoll() {
           PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
 #ifndef debug
           if (err) {
-            _irc_commands->send_message(*this, cmd_body.error, true,
-                                        *it_clients);
+            IrcCommands::send_message(*this, cmd_body.error, true, *it_clients);
+            //             std::cerr << "ERROR: " << err << std::endl;
+            //             return err;
           } else {
             std::cout << "CMD_BDY: " << std::endl;
             if (cmd_body.error)
@@ -186,7 +185,7 @@ int Server::InitiatePoll() {
           DEBUG_PRINT(" - " << buf);
           DEBUG_PRINT("length: " << recv_len);
 #endif
-          _irc_commands->exec_command(*this, cmd_body, it->fd);
+          irc_commands.exec_command(*this, cmd_body, it->fd);
           std::memset(buf, 0, 1024);  // not necessary
           recv_len = 0;               // not necessary
         }

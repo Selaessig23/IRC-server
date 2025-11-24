@@ -6,7 +6,7 @@
 #    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/22 14:28:06 by mstracke         ###   ########.fr        #
+#    Updated: 2025/11/24 10:40:16 by mstracke         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,9 +39,9 @@ SRCS += Server/Server.cpp
 SRCS += Server/Server_utils.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
-SRCS += Commands/pass.cpp
-SRCS += Commands/Command_utils.cpp
-SRCS += Commands/IrcCommands.cpp
+SRCS += IrcCommands/Commands/Pass.cpp
+SRCS += IrcCommands/IrcCommands_utils.cpp
+SRCS += IrcCommands/IrcCommands.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 

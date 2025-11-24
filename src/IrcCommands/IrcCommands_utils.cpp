@@ -1,25 +1,28 @@
+#include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
 #include <sstream>
 #include "../Client/Client.hpp"
-#include "Commands.hpp"
+#include "../Server/Server.hpp"
 #include "../includes/types.hpp"
+#include "IrcCommands.hpp"
 
 /**
  * @brief function to create reply-messages from server to client
  *
  * TODO
  * (1) add all required rpl messags according to rpl_code
- * (2) as soon as it becomes part of friend: add required paramters
  */
-static std::string get_rpl(enum RPL_MSG rpl) {
+std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
   std::string out;
   switch (rpl) {
     case RPL_WELCOME:
-      return (" :Welcome to the <networkname> Network, <nick>[!<user>@<host>]");
+      return (" :Welcome to the " + base._network_name + " Network, " +
+              "<nick>[!<user>@<host>]");
     case RPL_YOURHOST:
-      return (" :Your host is <servername>, running version <version>");
+      return (" :Your host is " + base._server_name + " , running version " +
+              base._version);
     case RPL_CREATED:
-      return (" This server was created <datetime>");
+      return (" :This server was created " + base._created_at);
   }
 }
 
@@ -28,9 +31,9 @@ static std::string get_rpl(enum RPL_MSG rpl) {
  *
  * TODO
  * (1) add all required error messages to corresponding error codes
- * (2) as soon as it becomes part of friend: add required paramters
  */
-static std::string get_error(enum PARSE_ERR err) {
+std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
+  (void)base;
   std::string out;
   switch (err) {
     case EMPTY_CMD:
@@ -57,21 +60,22 @@ static std::string get_error(enum PARSE_ERR err) {
  *
  * TODO
  * (1) set tag (only if clients support them, to check with CAP LS negotiation)
- * (2) as soon as it becomes part of friend: use private attributes of Server directly
  */
-void Commands::send_message(int numeric_msg_code, bool error, Client& curr_client) {
+void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
+                               Client& curr_client) {
   std::string out;
   std::stringstream ss;
-  ss << numeric_msg_code;
+  ss << std::setfill('0') << std::setw(2) << numeric_msg_code;
 
-  out += ":MUMs_server";  // servers name
-  out += " " + ss.str(); 
+  out += ":";
+  out += base._server_name;
+  out += " " + ss.str();
   if (!curr_client.getNick().empty())
     out = " <" + curr_client.getNick() + ">";
   if (error == true)
-	  out += get_error(static_cast<PARSE_ERR>(numeric_msg_code));
+    out += get_error(base, static_cast<PARSE_ERR>(numeric_msg_code));
   else
-	  out+= get_rpl(static_cast<RPL_MSG>(numeric_msg_code));
+    out += get_rpl(base, static_cast<RPL_MSG>(numeric_msg_code));
   out += "\r\n";
   curr_client.addClientOut(out);
   curr_client.setServerPoll();
@@ -85,10 +89,9 @@ void Commands::send_message(int numeric_msg_code, bool error, Client& curr_clien
  *
  * @return 1 in case of registered, 0 if not
  */
-bool Commands::client_register_check(Client& to_check) {
+bool IrcCommands::client_register_check(Server& base, Client& to_check) {
   if (to_check.getRegisterStatus() == 1)
     return (1);
-  // send  error to Client
-  Commands::send_message(ERR_NOTREGISTERED, true, to_check);
+  send_message(base, ERR_NOTREGISTERED, true, to_check);
   return (0);
 }

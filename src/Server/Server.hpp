@@ -5,10 +5,12 @@
 #include <list>
 #include <vector>
 #include "../Client/Client.hpp"
-#include "../Commands/IrcCommands.hpp"
+// #include "../IrcCommands/IrcCommands.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
+
+class IrcCommands;  // forward declaration
 
 class Server {
   typedef std::vector<struct pollfd>::iterator fd_iterator;
@@ -24,7 +26,7 @@ class Server {
   std::string _pw;
   std::vector<struct pollfd> _poll_fds;
   std::list<Client> _client_list;
-  IrcCommands _ircCommands;
+  IrcCommands* _irc_commands;
 
   //member function (helper)
   int InitiatePoll();
@@ -40,6 +42,8 @@ class Server {
 
   // function to activate the IRC-Server (run the server-loop)
   int init();
+
+  friend class IrcCommands;
 };
 
 std::string get_current_date_time();
