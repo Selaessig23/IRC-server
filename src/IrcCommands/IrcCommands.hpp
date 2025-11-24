@@ -16,7 +16,7 @@ class IrcCommands {
   typedef int (IrcCommands::*function)(Server& base, const struct cmd_obj& cmd,
                                        int fd_curr_client);
 
-  std::map<enum CMD_TYPE, function> _irc_commands;
+  std::map<std::string, function> _irc_commands;
 
   // Commands
   int pass(Server& base, const struct cmd_obj& cmd, int fd_curr_client);

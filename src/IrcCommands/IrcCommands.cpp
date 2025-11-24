@@ -5,8 +5,8 @@
 #include "../includes/types.hpp"
 
 IrcCommands::IrcCommands() {
-  _irc_commands.insert(std::make_pair(PASS, &IrcCommands::pass));
-  _irc_commands.insert(std::make_pair(PASS, &IrcCommands::pong));
+  _irc_commands.insert(std::make_pair("PASS", &IrcCommands::pass));
+  _irc_commands.insert(std::make_pair("PING", &IrcCommands::pong));
 }
 
 IrcCommands::IrcCommands(const IrcCommands& other)
@@ -32,7 +32,7 @@ IrcCommands::~IrcCommands() {}
 int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd,
                               int fd_curr_client) {
   function to_execute;
-  std::map<enum CMD_TYPE, function>::iterator it =
+  std::map<std::string, function>::iterator it =
       _irc_commands.find(cmd.command);
   if (it == _irc_commands.end())
     return (1);

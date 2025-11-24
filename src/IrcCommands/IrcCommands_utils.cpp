@@ -61,18 +61,23 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
  * TODO
  * (1) set tag (only if clients support them, to check with CAP LS negotiation)
  */
-void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error, std::string *msg,
-                               Client& curr_client) {
+void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
+                               std::string* msg, Client& curr_client) {
   std::string out;
   std::stringstream ss;
   ss << std::setfill('0') << std::setw(2) << numeric_msg_code;
 
   out += ":";
   out += base._server_name;
-  out += " " + ss.str();
+  if (!msg)
+   out += " " + ss.str();
+  else
+   out += " ";
   if (!curr_client.getNick().empty())
     out = " <" + curr_client.getNick() + ">";
-  if (error == true)
+  if (msg)
+	  out += *msg;
+  else if (error == true)
     out += get_error(base, static_cast<PARSE_ERR>(numeric_msg_code));
   else
     out += get_rpl(base, static_cast<RPL_MSG>(numeric_msg_code));
@@ -92,6 +97,6 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error, s
 bool IrcCommands::client_register_check(Server& base, Client& to_check) {
   if (to_check.getRegisterStatus() == 1)
     return (1);
-  send_message(base, ERR_NOTREGISTERED, true, to_check);
+  send_message(base, ERR_NOTREGISTERED, true, NULL, to_check);
   return (0);
 }

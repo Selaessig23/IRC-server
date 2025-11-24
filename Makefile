@@ -6,7 +6,7 @@
 #    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/24 14:29:11 by mstracke         ###   ########.fr        #
+#    Updated: 2025/11/24 15:13:44 by mstracke         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,6 +40,7 @@ SRCS += Server/ServerUtils.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
 SRCS += IrcCommands/Commands/Pass.cpp
+SRCS += IrcCommands/Commands/Pong.cpp
 SRCS += IrcCommands/IrcCommands_utils.cpp
 SRCS += IrcCommands/IrcCommands.cpp
 

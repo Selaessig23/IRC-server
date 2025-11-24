@@ -175,7 +175,7 @@ int Server::initiate_poll() {
               std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
             if (!cmd_body.prefix.empty())
               std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
-            if (cmd_body.command)
+            if (!cmd_body.command.empty())
               std::cout << "CMD: " << cmd_body.command << std::endl;
             if (!cmd_body.parameters.empty())
               std::cout << "PARAS: " << *cmd_body.parameters.begin()
