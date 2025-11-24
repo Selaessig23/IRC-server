@@ -70,15 +70,15 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
   out += ":";
   out += base._server_name;
   out += " " + ss.str();
-  if (!curr_client.getNick().empty())
-    out = " <" + curr_client.getNick() + ">";
+  if (!curr_client.get_nick().empty())
+    out = " <" + curr_client.get_nick() + ">";
   if (error == true)
     out += get_error(base, static_cast<PARSE_ERR>(numeric_msg_code));
   else
     out += get_rpl(base, static_cast<RPL_MSG>(numeric_msg_code));
   out += "\r\n";
-  curr_client.addClientOut(out);
-  curr_client.setServerPoll();
+  curr_client.add_client_out(out);
+  curr_client.set_server_poll();
 }
 
 /**
@@ -90,7 +90,7 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
  * @return 1 in case of registered, 0 if not
  */
 bool IrcCommands::client_register_check(Server& base, Client& to_check) {
-  if (to_check.getRegisterStatus() == 1)
+  if (to_check.get_register_status() == 1)
     return (1);
   send_message(base, ERR_NOTREGISTERED, true, to_check);
   return (0);

@@ -34,4 +34,4 @@ class IrcCommands {
   void send_message(Server& base, int msg, bool error, Client& curr_client);
 };
 
-#endif
+#endif  //IRCCOMMANDS_HPP
