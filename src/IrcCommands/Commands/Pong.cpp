@@ -13,15 +13,12 @@ int IrcCommands::pong(Server& base, const struct cmd_obj& cmd,
     if (it->getClientFd() == fd_curr_client)
       break;
   }
-	  std::string out;
-	  out += "PONG";
-	  out += " ";
-	  out += base._server_name;
-	  out += " ";
-	  out += cmd.parameters[0];
-    send_message(base, RPL_CREATED, false, *it);
-    return (0);
-  }
-
-
+  std::string out;
+  out += "PONG";
+  out += " ";
+  out += base._server_name;
+  out += " ";
+  out += cmd.parameters[0];
+  send_message(base, RPL_CREATED, false, out, *it);
+  return (0);
 }

@@ -6,6 +6,7 @@
 
 IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair(PASS, &IrcCommands::pass));
+  _irc_commands.insert(std::make_pair(PASS, &IrcCommands::pong));
 }
 
 IrcCommands::IrcCommands(const IrcCommands& other)

@@ -61,7 +61,7 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
  * TODO
  * (1) set tag (only if clients support them, to check with CAP LS negotiation)
  */
-void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
+void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error, std::string *msg,
                                Client& curr_client) {
   std::string out;
   std::stringstream ss;
