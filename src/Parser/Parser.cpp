@@ -43,7 +43,7 @@ namespace Parsing {
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
  *
  */
-  int ParseCommand(std::string input, cmd_obj& command_body) {
+  int parse_command(std::string input, cmd_obj& command_body) {
     std::istringstream input_stream(input);
     std::string token;
     std::vector<std::string> parsed_elements;

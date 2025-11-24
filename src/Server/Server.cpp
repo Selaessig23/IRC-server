@@ -123,10 +123,8 @@ int Server::handle_new_client() {
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
-  Client newClient((_client_list.size() + 1), client_fd, client_addr, *it);
-  //   newClient.setClientOut(MSG_WELCOME);
-  //   newClient.addClientOut(MSG_WAITING);
-  _client_list.push_back(newClient);
+  Client NewClient((_client_list.size() + 1), client_fd, client_addr, *it);
+  _client_list.push_back(NewClient);
   return (0);
 }
 
@@ -158,11 +156,11 @@ int Server::initiate_poll() {
           buf[recv_len] = '\0';
           std::list<Client>::iterator it_clients = _client_list.begin();
           for (; it_clients != _client_list.end(); it_clients++) {
-            if (it->fd == it_clients->getClientFd())
+            if (it->fd == it_clients->get_client_fd())
               break;
           }
           cmd_obj cmd_body;
-          PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+          PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
 #ifndef debug
           if (err) {
             _irc_commands->send_message(*this, cmd_body.error, true, NULL, 
@@ -194,15 +192,15 @@ int Server::initiate_poll() {
       if (it->revents & POLLOUT) {
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end() &&
-               it->fd != it_client->getClientFd();
+               it->fd != it_client->get_client_fd();
              it_client++) {}
         if (it_client != _client_list.end()) {
-          int size_sent = send(it->fd, it_client->getClientOut().c_str(),
-                               strlen(it_client->getClientOut().c_str()), 0);
-          std::string new_out = it_client->getClientOut();
+          int size_sent = send(it->fd, it_client->get_client_out().c_str(),
+                               strlen(it_client->get_client_out().c_str()), 0);
+          std::string new_out = it_client->get_client_out();
           new_out.erase(0, size_sent);
-          it_client->setClientOut(new_out);
-          if (it_client->getClientOut().empty())
+          it_client->set_client_out(new_out);
+          if (it_client->get_client_out().empty())
             it->events = POLLIN;
         }
       }

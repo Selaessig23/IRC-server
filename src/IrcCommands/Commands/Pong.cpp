@@ -10,7 +10,7 @@ int IrcCommands::pong(Server& base, const struct cmd_obj& cmd,
                       int fd_curr_client) {
   std::list<Client>::iterator it = base._client_list.begin();
   for (; it != base._client_list.end(); it++) {
-    if (it->getClientFd() == fd_curr_client)
+    if (it->get_client_fd() == fd_curr_client)
       break;
   }
   std::string out;
