@@ -1,22 +1,26 @@
 #ifndef CLIENT_HPP
-# define CLIENT_HPP
+#define CLIENT_HPP
 
-#include <netinet/in.h>   // for sockaddr_in
-#include <sys/socket.h>   // for sockaddr_in
+#include <netinet/in.h>  // for sockaddr_in
+#include <poll.h>
 #include <iostream>
 #include <map>
 
-class Client{
+class Client {
  private:
   long _id;
   int _client_fd;
+  bool _registered;
   struct sockaddr_in _client_addr;
-  std::string _name;
+  struct pollfd* _poll;
+  std::string _nick;
+  std::string _user;
+  std::string _host;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
 
  public:
-  Client(long id, int fd, struct sockaddr_in addr);
+  Client(long id, int fd, struct sockaddr_in addr, struct pollfd& poll_struct);
   Client(const Client& other);
   Client operator=(const Client& other);
   ~Client();
@@ -24,12 +28,14 @@ class Client{
   //member functions
 
   //getter and setter function
-  std::string &getClientOut();
-  void setClientOut(std::string newOutput);
-  void addClientOut(std::string &newOutput);
-  void addClientOut(std::string newOutput);
-  int getClientFd();
+  std::string& get_client_out();
+  void set_client_out(std::string new_output);
+  //   void add_client_out(std::string &new_output);
+  void add_client_out(std::string newOutput);
+  int get_client_fd();
+  std::string& get_nick();
+  bool get_register_status();
+  void set_server_poll();
+};
 
-} ;
-
-# endif
+#endif  //CLIENT_HPP
