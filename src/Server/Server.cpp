@@ -12,8 +12,7 @@
 #include <stdexcept>  // to throw exceptions for runtime
 #include <vector>
 #include "../Client/Client.hpp"
-#include "../Commands/Commands.hpp"
-#include "../Commands/IrcCommands.hpp"
+#include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -42,10 +41,18 @@ Server::~Server() {
   }
   //Close Server last
   close(_poll_fds.begin()->fd);
+  delete _irc_commands;
 }
 
 Server::Server(int port, std::string& pw)
-    : _port(port), _ircCommands(IrcCommands()) {
+    : _network_name("MUMs_network"),
+      _server_name("MUMs_server"),
+      _version("0.0.0.0.0.9"),
+      _port(port),
+      _pw(pw),
+      _irc_commands(new IrcCommands()) {
+  //created at
+  _created_at = get_current_date_time();
   _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
@@ -62,16 +69,20 @@ Server::Server(int port, std::string& pw)
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
   }
-  _pw = pw;
 }
 
 Server::Server(const Server& other)
-    : _port(other._port),
+    : _network_name(other._network_name),
+      _server_name(other._server_name),
+      _version(other._version),
+      _created_at(other._created_at),
+      _port(other._port),
       _fd_server(other._fd_server),
       _addr(other._addr),
       _pw(other._pw),
       _poll_fds(other._poll_fds),
-      _client_list(other._client_list) {}
+      _client_list(other._client_list),
+      _irc_commands(other._irc_commands) {}
 
 Server Server::operator=(const Server& other) {
   Server temp(other);
@@ -82,7 +93,7 @@ Server Server::operator=(const Server& other) {
 /**
  * @brief function to add a new connection to poll struct
  */
-int Server::AddNewClientToPoll(int client_fd) {
+int Server::add_new_client_to_poll(int client_fd) {
   struct pollfd ServerPoll;
   ServerPoll.fd = client_fd;
   ServerPoll.events = POLLIN;
@@ -98,7 +109,7 @@ int Server::AddNewClientToPoll(int client_fd) {
  * (3) welcome-message from server gets written to client buffer
  *     and poll event of client fd gets changed to POLLOUT
  */
-int Server::HandleNewClient() {
+int Server::handle_new_client() {
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
   int client_fd =
@@ -106,16 +117,14 @@ int Server::HandleNewClient() {
   DEBUG_PRINT(
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
-  AddNewClientToPoll(client_fd);
+  add_new_client_to_poll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
-  Client newClient((_client_list.size() + 1), client_fd, client_addr, *it);
-  //   newClient.setClientOut(MSG_WELCOME);
-  //   newClient.addClientOut(MSG_WAITING);
-  _client_list.push_back(newClient);
+  Client NewClient((_client_list.size() + 1), client_fd, client_addr, *it);
+  _client_list.push_back(NewClient);
   return (0);
 }
 
@@ -140,17 +149,17 @@ void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
  * (3) events of the clients
  *
  */
-int Server::InitiatePoll() {
+int Server::initiate_poll() {
   while (1) {
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it == _poll_fds.begin() && it->revents != 0) {
         DEBUG_PRINT("Revent: " << it->revents);
-        HandleNewClient();
+        handle_new_client();
         break;
       }
-#ifndef debug
+#ifdef debug
       else if (_client_list.empty() == 0 && it->fd == 0 &&
                it->revents & POLLIN) {
 	// stdin does not work well with revc as it is a stream: where is eof?
@@ -164,70 +173,74 @@ int Server::InitiatePoll() {
         std::list<Client>::iterator it_client = _client_list.begin();
         for (; it_client != _client_list.end(); it_client++) {
 //           it_client->setClientOut(stdinbuf);
-          it_client->setClientOut(input + '\n');
-        }
+          it_client->set_client_out(input + '\n');
+                 }
         ft_pollfds_to_out(_poll_fds);
         break;
       }
 #endif
-      else if (it != _poll_fds.begin()){
+     else if (it != _poll_fds.begin()){
+
         if (it->fd != 0 && it->revents & POLLIN) {
           char buf[8750];
-          int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
-          if (!recv_len) {
-            close(it->fd);
-            _poll_fds.erase(it);
-            break;
-          } else {
-            buf[recv_len] = '\0';
-            std::list<Client>::iterator it_clients = _client_list.begin();
-            for (; it_clients != _client_list.end(); it_clients++) {
-              if (it->fd == it_clients->getClientFd())
-                break;
-            }
-            cmd_obj cmd_body;
-            PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
-  #ifndef debug
-            if (err) {
-              Commands::ft_errorprint(cmd_body.error, *it_clients);
-              //             std::cerr << "ERROR: " << err << std::endl;
-              //             return err;
-            } else {
-              std::cout << "CMD_BDY: " << std::endl;
-              if (cmd_body.error)
-                std::cout << "ERR: " << cmd_body.error << std::endl;
-              if (!cmd_body.tags.empty())
-                std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
-              if (!cmd_body.prefix.empty())
-                std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
-              if (cmd_body.command)
-                std::cout << "CMD: " << cmd_body.command << std::endl;
-              if (!cmd_body.parameters.empty())
-                std::cout << "PARAS: " << *cmd_body.parameters.begin()
-                          << std::endl;
-
-              std::cout << "Message from client fd: " << it->fd
-                        << " revent: " << it->revents << " - " << buf
-                        << "length: " << recv_len << std::endl;
-            }
-  #endif
-            _ircCommands.exec_command(cmd_body, _client_list, it->fd, _pw);
-            std::memset(buf, 0, 1024);  // not necessary
-            recv_len = 0;               // not necessary
+        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
+        if (!recv_len) {
+          close(it->fd);
+          _poll_fds.erase(it);
+          break;
+        } else {
+          buf[recv_len] = '\0';
+          std::list<Client>::iterator it_clients = _client_list.begin();
+          for (; it_clients != _client_list.end(); it_clients++) {
+            if (it->fd == it_clients->get_client_fd())
+              break;
           }
+          cmd_obj cmd_body;
+          PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
+#ifndef debug
+          if (err) {
+            _irc_commands->send_message(*this, cmd_body.error, true, NULL, 
+                                        *it_clients);
+          } else {
+            std::cout << "CMD_BDY: " << std::endl;
+            if (cmd_body.error)
+              std::cout << "ERR: " << cmd_body.error << std::endl;
+            if (!cmd_body.tags.empty())
+              std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
+            if (!cmd_body.prefix.empty())
+              std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
+            if (!cmd_body.command.empty())
+              std::cout << "CMD: " << cmd_body.command << std::endl;
+            if (!cmd_body.parameters.empty())
+              std::cout << "PARAS: " << *cmd_body.parameters.begin()
+                        << std::endl;
+          }
+          DEBUG_PRINT("Message from client fd: " << it->fd);
+          DEBUG_PRINT(" revent: " << it->revents);
+          DEBUG_PRINT(" - " << buf);
+          DEBUG_PRINT("length: " << recv_len);
+#endif
+          _irc_commands->exec_command(*this, cmd_body, it->fd);
+          std::memset(buf, 0, 1024);  // not necessary
+          recv_len = 0;               // not necessary
         }
-        if (it->revents & POLLOUT) {
-          std::list<Client>::iterator it_client = _client_list.begin();
-          for (; it_client != _client_list.end() &&
-                 it->fd != it_client->getClientFd();
-               it_client++) {}
-          if (it_client != _client_list.end()) {
-            int size_sent = send(it->fd, it_client->getClientOut().c_str(),
-                                 strlen(it_client->getClientOut().c_str()), 0);
-            std::string new_out = it_client->getClientOut();
-            new_out.erase(0, size_sent);
-            it_client->setClientOut(new_out);
-            if (it_client->getClientOut().empty())
+      }
+      if (it->revents & POLLOUT) {
+        std::list<Client>::iterator it_client = _client_list.begin();
+        for (; it_client != _client_list.end() &&
+               it->fd != it_client->get_client_fd();
+             it_client++) {}
+        if (it_client != _client_list.end()) {
+          int size_sent = send(it->fd, it_client->get_client_out().c_str(),
+                               strlen(it_client->get_client_out().c_str()), 0);
+          std::string new_out = it_client->get_client_out();
+          new_out.erase(0, size_sent);
+          it_client->set_client_out(new_out);
+          if (it_client->get_client_out().empty())
+            it->events = POLLIN;
+ 
+ 
+
               it->events = POLLIN;
           }
         }
@@ -266,7 +279,7 @@ int Server::init() {
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
 #endif
-  if (InitiatePoll())
+  if (initiate_poll())
     return (1);
   return 0;
 }

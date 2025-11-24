@@ -24,11 +24,13 @@ RED :=			\033[91m
 #sources
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
+SRCS += Server/ServerUtils.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
-SRCS += Commands/pass.cpp
-SRCS += Commands/Command_utils.cpp
-SRCS += Commands/IrcCommands.cpp
+SRCS += IrcCommands/Commands/Pass.cpp
+SRCS += IrcCommands/Commands/Pong.cpp
+SRCS += IrcCommands/IrcCommandsUtils.cpp
+SRCS += IrcCommands/IrcCommands.cpp
 
 OBJS = $(SRCS:%.cpp=obj/%.o)
 

@@ -43,7 +43,7 @@ namespace Parsing {
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
  *
  */
-  int ParseCommand(std::string input, cmd_obj& command_body) {
+  int parse_command(std::string input, cmd_obj& command_body) {
     std::istringstream input_stream(input);
     std::string token;
     std::vector<std::string> parsed_elements;
@@ -97,27 +97,7 @@ namespace Parsing {
       command_body.error = EMPTY_CMD;
       return command_body.error;
     }
-    std::map<std::string, CMD_TYPE> commands;
-    commands["PRIVMSG"] = PRIVMSG;
-    commands["PASS"] = PASS;
-    commands["JOIN"] = JOIN;
-    commands["NICK"] = NICK;
-    commands["CAP"] = CAP;
-
-    std::map<std::string, CMD_TYPE>::iterator it_comm;
-    for (it_comm = commands.begin(); it_comm != commands.end(); ++it_comm) {
-      if (*it == it_comm->first) {
-        command_body.command = it_comm->second;
-        break;
-      }
-    }
-    if (it_comm == commands.end())
-      command_body.command = UNKNOWN;
-
-    if (command_body.command == UNKNOWN) {
-      command_body.error = ERR_UNKNOWNCOMMAND;
-      return command_body.error;
-    }
+    command_body.command = *it;
     it++;
 
     for (; it != parsed_elements.end(); it++) {
