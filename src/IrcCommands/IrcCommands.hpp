@@ -6,7 +6,6 @@
 #include <map>
 #include <vector>
 #include "../Client/Client.hpp"
-// #include "../Server/Server.hpp"
 #include "../includes/types.hpp"
 
 class Server;  //forward declaration

@@ -123,10 +123,8 @@ int Server::handle_new_client() {
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT;
-  Client newClient((_client_list.size() + 1), client_fd, client_addr, *it);
-  //   newClient.setClientOut(MSG_WELCOME);
-  //   newClient.addClientOut(MSG_WAITING);
-  _client_list.push_back(newClient);
+  Client NewClient((_client_list.size() + 1), client_fd, client_addr, *it);
+  _client_list.push_back(NewClient);
   return (0);
 }
 
@@ -162,7 +160,7 @@ int Server::initiate_poll() {
               break;
           }
           cmd_obj cmd_body;
-          PARSE_ERR err = Parsing::ParseCommand(buf, cmd_body);
+          PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
 #ifndef debug
           if (err) {
             _irc_commands->send_message(*this, cmd_body.error, true,
