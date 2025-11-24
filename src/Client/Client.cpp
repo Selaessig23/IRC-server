@@ -1,9 +1,9 @@
 #include "Client.hpp"
-#include "../debug.hpp"
-#include <iostream>
-#include <netinet/in.h>   // for sockaddr_in
-#include <algorithm> // for std::swap
+#include <netinet/in.h>  // for sockaddr_in
 #include <poll.h>
+#include <algorithm>  // for std::swap
+#include <iostream>
+#include "../debug.hpp"
 
 /** TODO:
  * (1) check copy constructor for new variables 
@@ -11,40 +11,49 @@
  * swap function (e. g. as friend)
  */
 
-Client::Client(long id, int fd, struct sockaddr_in addr, struct pollfd &pollstruct)
-    : _id(id), _client_fd(fd), _registered(0), _client_addr(addr), _poll(&pollstruct){}
+Client::Client(long id, int fd, struct sockaddr_in addr,
+               struct pollfd& poll_struct)
+    : _id(id),
+      _client_fd(fd),
+      _registered(0),
+      _client_addr(addr),
+      _poll(&poll_struct) {}
 
 Client::Client(const Client& other)
-    : _id(other._id), _client_fd(other._client_fd), _registered(other._registered),_client_addr(other._client_addr), _poll(other._poll), _output_buffer(other._output_buffer) {}
+    : _id(other._id),
+      _client_fd(other._client_fd),
+      _registered(other._registered),
+      _client_addr(other._client_addr),
+      _poll(other._poll),
+      _output_buffer(other._output_buffer) {}
 
-Client	Client::operator=(const Client &other)
-{
-	Client temp(other);
-	std::swap(*this, temp);
-	return (*this);
+Client Client::operator=(const Client& other) {
+  Client temp(other);
+  std::swap(*this, temp);
+  return (*this);
 }
 
-Client::~Client(){
+Client::~Client() {
   DEBUG_PRINT("Destructor of Client called.");
 }
 
-std::string &Client::getClientOut(){
-	return(this->_output_buffer);
+std::string& Client::get_client_out() {
+  return (this->_output_buffer);
 }
 
 /**
  * @brief this function overwrites Clients ouput
  * with newOutput (copy)
  */
-void Client::setClientOut(std::string newOutput){
- this->_output_buffer = newOutput;
+void Client::set_client_out(std::string new_output) {
+  this->_output_buffer = new_output;
 }
 
 /**
  * @brief this function adds new ouput (reference) 
  * to the Clients output buffer
  */
-// void Client::addClientOut(std::string &newOutput){
+// void Client::add_client_out(std::string &newOutput){
 //  this->_output_buffer += newOutput;
 // }
 
@@ -52,25 +61,25 @@ void Client::setClientOut(std::string newOutput){
  * @brief this function adds new ouput (copy) 
  * to the Clients output buffer
  */
-void Client::addClientOut(std::string newOutput){
- this->_output_buffer += newOutput;
+void Client::add_client_out(std::string new_output) {
+  this->_output_buffer += new_output;
 }
 
-int Client::getClientFd(){
-	return (this->_client_fd);
+int Client::get_client_fd() {
+  return (this->_client_fd);
 }
 
-std::string &Client::getNick(){
-	return (this->_nick);
+std::string& Client::get_nick() {
+  return (this->_nick);
 }
 
-bool Client::getRegisterStatus(){
-	return(this->_registered);
+bool Client::get_register_status() {
+  return (this->_registered);
 }
 
-void Client::setServerPoll(){
- if (_poll->events == POLLIN)
-	 _poll->events = POLLOUT;
- else if (_poll->events == POLLOUT)
-	 _poll->events = POLLIN;
+void Client::set_server_poll() {
+  if (_poll->events == POLLIN)
+    _poll->events = POLLOUT;
+  else if (_poll->events == POLLOUT)
+    _poll->events = POLLIN;
 }
