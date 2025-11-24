@@ -163,7 +163,7 @@ int Server::initiate_poll() {
           PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
 #ifndef debug
           if (err) {
-            _irc_commands->send_message(*this, cmd_body.error, true,
+            _irc_commands->send_message(*this, cmd_body.error, true, NULL, 
                                         *it_clients);
           } else {
             std::cout << "CMD_BDY: " << std::endl;
@@ -173,7 +173,7 @@ int Server::initiate_poll() {
               std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
             if (!cmd_body.prefix.empty())
               std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
-            if (cmd_body.command)
+            if (!cmd_body.command.empty())
               std::cout << "CMD: " << cmd_body.command << std::endl;
             if (!cmd_body.parameters.empty())
               std::cout << "PARAS: " << *cmd_body.parameters.begin()

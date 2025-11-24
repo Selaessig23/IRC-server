@@ -25,21 +25,21 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
       break;
   }
   if (it->get_register_status() == 1) {
-    send_message(base, ERR_ALREADYREGISTERED, true, *it);
+    send_message(base, ERR_ALREADYREGISTERED, true, NULL, *it);
     return (462);
   }
   if (cmd.parameters.empty()) {
-    send_message(base, ERR_NEEDMOREPARAMS, true, *it);
+    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
     return (461);
   }
-  if (cmd.command == PASS && cmd.parameters.size() == 1 &&
+  if (cmd.parameters.size() == 1 &&
       *cmd.parameters.begin() == base._pw) {
-    send_message(base, RPL_WELCOME, false, *it);
-    send_message(base, RPL_YOURHOST, false, *it);
-    send_message(base, RPL_CREATED, false, *it);
+    send_message(base, RPL_WELCOME, false, NULL, *it);
+    send_message(base, RPL_YOURHOST, false, NULL, *it);
+    send_message(base, RPL_CREATED, false, NULL, *it);
     return (0);
   } else {
-    send_message(base, ERR_PASSWDMISMATCH, true, *it);
+    send_message(base, ERR_PASSWDMISMATCH, true, NULL, *it);
     return (464);
   }
 }

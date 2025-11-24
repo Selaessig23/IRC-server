@@ -97,27 +97,7 @@ namespace Parsing {
       command_body.error = EMPTY_CMD;
       return command_body.error;
     }
-    std::map<std::string, CMD_TYPE> commands;
-    commands["PRIVMSG"] = PRIVMSG;
-    commands["PASS"] = PASS;
-    commands["JOIN"] = JOIN;
-    commands["NICK"] = NICK;
-    commands["CAP"] = CAP;
-
-    std::map<std::string, CMD_TYPE>::iterator it_comm;
-    for (it_comm = commands.begin(); it_comm != commands.end(); ++it_comm) {
-      if (*it == it_comm->first) {
-        command_body.command = it_comm->second;
-        break;
-      }
-    }
-    if (it_comm == commands.end())
-      command_body.command = UNKNOWN;
-
-    if (command_body.command == UNKNOWN) {
-      command_body.error = ERR_UNKNOWNCOMMAND;
-      return command_body.error;
-    }
+    command_body.command = *it;
     it++;
 
     for (; it != parsed_elements.end(); it++) {
