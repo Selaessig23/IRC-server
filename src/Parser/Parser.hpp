@@ -15,4 +15,4 @@ namespace Parsing {
   PARSE_ERR ParseCommand(std::string input, cmd_obj& command_obj);
 };
 
-#endif
+#endif  //PARSING_HPP

@@ -53,8 +53,8 @@ void Client::set_client_out(std::string new_output) {
  * @brief this function adds new ouput (reference) 
  * to the Clients output buffer
  */
-// void Client::add_client_out(std::string &newOutput){
-//  this->_output_buffer += newOutput;
+// void Client::add_client_out(std::string &new_output){
+//  this->_output_buffer += new_output;
 // }
 
 /**
