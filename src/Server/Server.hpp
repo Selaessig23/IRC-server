@@ -29,9 +29,9 @@ class Server {
   IrcCommands* _irc_commands;
 
   //member function (helper)
-  int InitiatePoll();
-  int AddNewClientToPoll(int client_fd);
-  int HandleNewClient();
+  int initiate_poll();
+  int add_new_client_to_poll(int client_fd);
+  int handle_new_client();
 
  public:
   // OCF

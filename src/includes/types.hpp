@@ -11,6 +11,7 @@ enum CMD_TYPE {
   JOIN,
   NICK,
   CAP,
+  PING,
   UNKNOWN,
 };
 

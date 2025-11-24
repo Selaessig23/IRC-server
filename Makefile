@@ -6,7 +6,7 @@
 #    By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/09 13:50:36 by mstracke          #+#    #+#              #
-#    Updated: 2025/11/24 10:40:16 by mstracke         ###   ########.fr        #
+#    Updated: 2025/11/24 14:29:11 by mstracke         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,7 +36,7 @@ RED :=			\033[91m
 #sources
 SRCS =	main.cpp 
 SRCS += Server/Server.cpp
-SRCS += Server/Server_utils.cpp
+SRCS += Server/ServerUtils.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
 SRCS += IrcCommands/Commands/Pass.cpp

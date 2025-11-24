@@ -93,7 +93,7 @@ Server Server::operator=(const Server& other) {
 /**
  * @brief function to add a new connection to poll struct
  */
-int Server::AddNewClientToPoll(int client_fd) {
+int Server::add_new_client_to_poll(int client_fd) {
   struct pollfd ServerPoll;
   ServerPoll.fd = client_fd;
   ServerPoll.events = POLLIN;
@@ -109,7 +109,7 @@ int Server::AddNewClientToPoll(int client_fd) {
  * (3) welcome-message from server gets written to client buffer
  *     and poll event of client fd gets changed to POLLOUT
  */
-int Server::HandleNewClient() {
+int Server::handle_new_client() {
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
   int client_fd =
@@ -117,7 +117,7 @@ int Server::HandleNewClient() {
   DEBUG_PRINT(
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
-  AddNewClientToPoll(client_fd);
+  add_new_client_to_poll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
@@ -137,14 +137,14 @@ int Server::HandleNewClient() {
  * (1) new incomming connections (of server/socket-fd)
  * (2) events of the clients
  */
-int Server::InitiatePoll() {
+int Server::initiate_poll() {
   while (1) {
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it == _poll_fds.begin() && it->revents != 0) {
         DEBUG_PRINT("Revent: " << it->revents);
-        HandleNewClient();
+        handle_new_client();
         break;
       }
       if (it->revents & POLLIN) {
@@ -233,7 +233,7 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-  if (InitiatePoll())
+  if (initiate_poll())
     return (1);
   return 0;
 }
