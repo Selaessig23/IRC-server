@@ -12,12 +12,12 @@
  */
 
 Client::Client(long id, int fd, struct sockaddr_in addr,
-               struct pollfd& pollstruct)
+               struct pollfd& poll_struct)
     : _id(id),
       _client_fd(fd),
       _registered(0),
       _client_addr(addr),
-      _poll(&pollstruct) {}
+      _poll(&poll_struct) {}
 
 Client::Client(const Client& other)
     : _id(other._id),
@@ -45,8 +45,8 @@ std::string& Client::get_client_out() {
  * @brief this function overwrites Clients ouput
  * with newOutput (copy)
  */
-void Client::set_client_out(std::string newOutput) {
-  this->_output_buffer = newOutput;
+void Client::set_client_out(std::string new_output) {
+  this->_output_buffer = new_output;
 }
 
 /**
