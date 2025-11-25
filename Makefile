@@ -35,8 +35,8 @@ RED :=			\033[91m
 
 #sources
 SRCS =	main.cpp 
-SRCS += Server/Server.cpp
 SRCS += Server/ServerUtils.cpp
+SRCS += Server/Server.cpp
 SRCS += Client/Client.cpp
 SRCS += Parser/Parser.cpp
 SRCS += IrcCommands/Commands/Pass.cpp

@@ -163,36 +163,10 @@ int Server::initiate_poll() {
                 cmd_obj cmd_body;
                 cmd_body.client = &(*it_clients);
                 PARSE_ERR err = Parsing::parse_command(cmd_body);
-                std::cout << "ERR: " << err << std::endl;
+                if (err)
+                  std::cout << "\nERR: " << err << std::endl;
 #ifdef DEBUG
-                if (err) {
-                  _irc_commands->send_message(*this, cmd_body.error, true, NULL,
-                                              *it_clients);
-                  std::cout << "ERR: " << err << std::endl;
-                } else {
-                  std::cout << "\nCMD_BDY: " << std::endl;
-                  if (cmd_body.error)
-                    std::cout << "ERR: " << cmd_body.error << std::endl;
-                  if (!cmd_body.tags.empty())
-                    std::cout << "TAGS: " << *cmd_body.tags.begin()
-                              << std::endl;
-                  if (!cmd_body.prefix.empty())
-                    std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
-                  if (!cmd_body.command.empty())
-                    std::cout << "CMD: " << cmd_body.command << std::endl;
-                  if (!cmd_body.parameters.empty()) {
-                    std::cout << "PARAS:";
-                    std::vector<std::string>::iterator it =
-                        cmd_body.parameters.begin();
-                    for (; it != cmd_body.parameters.end(); it++) {
-                      std::cout << "\n  " << *it << std::endl;
-                    }
-                  }
-                }
-                DEBUG_PRINT("Message from client fd: " << it->fd);
-                DEBUG_PRINT(" revent: " << it->revents);
-                DEBUG_PRINT(" - " << buf);
-                DEBUG_PRINT("length: " << recv_len);
+                debug_parsed_cmds(cmd_body);
 #endif
                 _irc_commands->exec_command(*this, cmd_body, it->fd);
                 std::memset(buf, 0, 1024);  // not necessary
