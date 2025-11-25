@@ -1,6 +1,7 @@
 #include <map>
 #include <sstream>
 #include "../debug.hpp"
+#include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
 
 namespace Parsing {
@@ -36,15 +37,27 @@ namespace Parsing {
  *
  */
   int parse_command(std::string input, cmd_obj& command_body) {
-    std::istringstream input_stream(input);
+
+    command_body.client->add_to_received_packs(input);
+    std::string received_packs = command_body.client->get_received_packs();
+    size_t delimiter = received_packs.find("\r\n");
+    if (delimiter == std::string::npos) {
+      command_body.error = ERR_NEEDMOREPARAMS;
+      return (ERR_NEEDMOREPARAMS);
+    }
+    std::string current_command = received_packs.substr(0, delimiter);
+    command_body.client->clip_current_command(delimiter);
+    if (current_command.size() > MAX_CMD_BYTES) {
+      command_body.error = ERR_INPUTTOOLONG;
+      return (ERR_INPUTTOOLONG);
+    }
+    command_body.error = NO_ERR;
+    std::cout << "Current command: " << current_command << std::endl;
+
     std::string token;
     std::vector<std::string> parsed_elements;
+    std::istringstream input_stream(current_command);
 
-    // if (input[input.size() - 1] != '\n' && input[input.size() - 2] != '\r') {
-    //   command_body.error = ERR_INPUTTOOLONG;
-    //   return (ERR_INPUTTOOLONG);
-    // }
-    command_body.error = NO_ERR;
     while (input_stream >> token) {
       parsed_elements.push_back(token);
     }
@@ -65,7 +78,7 @@ namespace Parsing {
     std::vector<std::string>::iterator it = parsed_elements.begin();
 
     if ((*it)[0] == '@') {
-      std::string tags = *parsed_elements.begin();
+      std::string tags = parsed_elements.begin()->substr(1);
       unsigned long cut = 0;
       unsigned long pos = tags.find(';', cut);
       while (pos != std::string::npos) {

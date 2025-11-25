@@ -137,6 +137,7 @@ int Server::handle_new_client() {
  */
 int Server::initiate_poll() {
   while (1) {
+    cmd_obj cmd_body;
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
@@ -156,10 +157,11 @@ int Server::initiate_poll() {
           buf[recv_len] = '\0';
           std::list<Client>::iterator it_clients = _client_list.begin();
           for (; it_clients != _client_list.end(); it_clients++) {
-            if (it->fd == it_clients->get_client_fd())
+            if (it->fd == it_clients->get_client_fd()) {
+              cmd_body.client = &(*it_clients);
               break;
+            }
           }
-          cmd_obj cmd_body;
           PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
           std::cout << "ERR: " << err << std::endl;
 #ifdef DEBUG

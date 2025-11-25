@@ -6,4 +6,5 @@
 
 #define MSG_WELCOME "Hello from server!\n"
 #define MSG_WAITING "Please say something, server is waiting on response!\n"
+#define MAX_CMD_BYTES 8750
 #endif  // CONSTANTS_HPP
