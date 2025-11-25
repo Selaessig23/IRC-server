@@ -17,7 +17,6 @@
 #include "debug.hpp"
 
 // TODO:
-// play around with required (& allowed) c-functions
 // ERROR handling using exceptions
 // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
 // protocl number (if several)
@@ -28,9 +27,6 @@ Server* g_server;
 
 void signal_handler(int signal) {
   (void)signal;
-#ifndef DEBUG
-  std::cout << "DEBUG MODE" << std::endl;
-#endif
   DEBUG_PRINT("Shutdown of server caused by signal: " << signal);
   delete g_server;
   exit(0);
