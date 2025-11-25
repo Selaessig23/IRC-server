@@ -33,6 +33,7 @@ class Server {
   int initiate_poll();
   int add_new_client_to_poll(int client_fd);
   int handle_new_client();
+  void handle_pollin(struct pollfd& poll_fd);
 
  public:
   // OCF
@@ -41,6 +42,7 @@ class Server {
   Server operator=(const Server& other);
   ~Server();
 
+  Client* find_client_by_fd(int fd);
   // function to activate the IRC-Server (run the server-loop)
   int init();
 

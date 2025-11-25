@@ -1,6 +1,8 @@
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
 #include <sstream>  // for std::ostringstream
+#include "../IrcCommands/IrcCommands.hpp"
+#include "../Parser/Parser.hpp"
 #include "../includes/types.hpp"
 #include "Server.hpp"
 
@@ -37,4 +39,57 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
       std::cout << "\n  " << *it << std::endl;
     }
   }
+}
+
+void Server::handle_pollin(struct pollfd& pfd) {
+
+  char buf[8750];
+  int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
+
+  if (recv_len <= 0) {
+    close(pfd.fd);
+
+    for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+         it != _poll_fds.end(); ++it) {
+      if (it->fd == pfd.fd) {
+        _poll_fds.erase(it);
+        break;
+      }
+    }
+    return;
+  }
+
+  buf[recv_len] = '\0';
+
+  Client* client = find_client_by_fd(pfd.fd);
+  if (!client)
+    return;
+
+  client->add_to_received_packs(buf);
+
+  while (client->get_received_packs().find("\r\n") != std::string::npos) {
+
+    cmd_obj cmd_body;
+    cmd_body.client = client;
+
+    PARSE_ERR err = Parsing::parse_command(cmd_body);
+
+    if (err)
+      std::cout << "\nERR: " << err << std::endl;
+
+#ifdef DEBUG
+    debug_parsed_cmds(cmd_body);
+#endif
+
+    _irc_commands->exec_command(*this, cmd_body, pfd.fd);
+  }
+}
+
+Client* Server::find_client_by_fd(int fd) {
+  std::list<Client>::iterator it = _client_list.begin();
+  for (; it != _client_list.end(); ++it) {
+    if (it->get_client_fd() == fd)
+      return &(*it);
+  }
+  return NULL;
 }

@@ -13,7 +13,6 @@
 #include <vector>
 #include "../Client/Client.hpp"
 #include "../IrcCommands/IrcCommands.hpp"
-#include "../Parser/Parser.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
@@ -146,36 +145,7 @@ int Server::initiate_poll() {
         break;
       }
       if (it->revents & POLLIN) {
-        char buf[8750];
-        int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
-        if (!recv_len) {
-          close(it->fd);
-          _poll_fds.erase(it);
-          break;
-        } else {
-          buf[recv_len] = '\0';
-          std::list<Client>::iterator it_clients = _client_list.begin();
-          for (; it_clients != _client_list.end(); it_clients++) {
-            if (it->fd == it_clients->get_client_fd()) {
-              it_clients->add_to_received_packs(buf);
-              while (it_clients->get_received_packs().find("\r\n") !=
-                     std::string::npos) {
-                cmd_obj cmd_body;
-                cmd_body.client = &(*it_clients);
-                PARSE_ERR err = Parsing::parse_command(cmd_body);
-                if (err)
-                  std::cout << "\nERR: " << err << std::endl;
-#ifdef DEBUG
-                debug_parsed_cmds(cmd_body);
-#endif
-                _irc_commands->exec_command(*this, cmd_body, it->fd);
-                std::memset(buf, 0, 1024);  // not necessary
-                recv_len = 0;               // not necessary
-              }
-              break;
-            }
-          }
-        }
+        handle_pollin(*it);
       }
       if (it->revents & POLLOUT) {
         std::list<Client>::iterator it_client = _client_list.begin();
