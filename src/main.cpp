@@ -28,8 +28,8 @@ Server* g_server;
 
 void signal_handler(int signal) {
   (void)signal;
-#ifndef debug
-  std::cout << std::endl;
+#ifndef DEBUG
+  std::cout << "DEBUG MODE" << std::endl;
 #endif
   DEBUG_PRINT("Shutdown of server caused by signal: " << signal);
   delete g_server;

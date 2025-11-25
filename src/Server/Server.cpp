@@ -162,7 +162,7 @@ int Server::initiate_poll() {
           cmd_obj cmd_body;
           PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
           std::cout << "ERR: " << err << std::endl;
-#ifndef DEBUG
+#ifdef DEBUG
           if (err) {
             _irc_commands->send_message(*this, cmd_body.error, true, NULL,
                                         *it_clients);

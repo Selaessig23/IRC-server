@@ -32,12 +32,6 @@ namespace Parsing {
  *      - IRC messages are always lines of characters terminated with a CR-LF (Carriage Return - Line Feed) pair, 
  *      - the messages shall not exceed 512 characters in length (including CR-LF)
  *
- * TODO:
- * (2) consider different types of parameters:
- *        + trailing, requires ':': Any, possibly *empty*, sequence of octets not including NUL or CR or LF
- *         (in which case that character is stripped and the rest of the message is treated as the final parameter, including any spaces it contains)
- *        + middle: Any *non-empty* sequence of octets not including SPACE or NUL or CR or LF
- *
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
  *
  */
@@ -46,11 +40,10 @@ namespace Parsing {
     std::string token;
     std::vector<std::string> parsed_elements;
 
-    // commented out as it makes testing harder
-    //     if (input[input.size() - 1] != '\n' || input[input.size() - 2] != '\r') {
-    //       command_body.error = ERR_INPUTTOOLONG;
-    //       return (417);
-    //     }
+    // if (input[input.size() - 1] != '\n' && input[input.size() - 2] != '\r') {
+    //   command_body.error = ERR_INPUTTOOLONG;
+    //   return (ERR_INPUTTOOLONG);
+    // }
     command_body.error = NO_ERR;
     while (input_stream >> token) {
       parsed_elements.push_back(token);
