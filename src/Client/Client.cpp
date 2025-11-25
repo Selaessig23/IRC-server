@@ -50,14 +50,6 @@ void Client::set_client_out(std::string new_output) {
 }
 
 /**
- * @brief this function adds new ouput (reference) 
- * to the Clients output buffer
- */
-// void Client::add_client_out(std::string &new_output){
-//  this->_output_buffer += new_output;
-// }
-
-/**
  * @brief this function adds new ouput (copy) 
  * to the Clients output buffer
  */
@@ -82,4 +74,9 @@ void Client::set_server_poll() {
     _poll->events = POLLOUT;
   else if (_poll->events == POLLOUT)
     _poll->events = POLLIN;
+}
+
+void Client::set_nick(std::string nick)
+{
+	this->_nick = nick;
 }

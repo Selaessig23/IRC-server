@@ -41,17 +41,25 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
     case EMPTY_CMD:
       return (" Command empty");
     case ERR_INPUTTOOLONG:
-      return " :Input line was too long";
+      return (" :Input line was too long");
     case ERR_UNKNOWNCOMMAND:
       return (" <command> :Unknown command");
+    case ERR_NONICKNAMEGIVEN: 
+      return ("<client> :No nickname given");
+    case ERR_ERRONEUSNICKNAME:
+      return ("<client> <nick> :Erroneus nickname");
+    case ERR_NICKNAMEINUSE:
+      return ("<client> <nick> :Nickname is already in use");
+    case ERR_NICKCOLLISION:
+      return ("<client> <nick> :Nickname collision KILL from <user>@<host>");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
-      return " :<command> :Not enough parameters";
+      return (" :<command> :Not enough parameters");
     case ERR_ALREADYREGISTERED:
-      return " :You may not reregister";
+      return (" :You may not reregister");
     case ERR_PASSWDMISMATCH:
-      return " :Password incorrect";
+      return (" :Password incorrect");
     default:
       return (out);
   }
