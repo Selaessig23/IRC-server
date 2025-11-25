@@ -32,14 +32,6 @@ namespace Parsing {
  *      - IRC messages are always lines of characters terminated with a CR-LF (Carriage Return - Line Feed) pair, 
  *      - the messages shall not exceed 512 characters in length (including CR-LF)
  *
- * TODO:
- * (1) if we keep the command check here: consider the command number in command check
- *      - The command must either be a valid IRC command or a three (3) digit number represented in ASCII text.
- * (2) consider different types of parameters:
- *        + trailing, requires ':': Any, possibly *empty*, sequence of octets not including NUL or CR or LF
- *         (in which case that character is stripped and the rest of the message is treated as the final parameter, including any spaces it contains)
- *        + middle: Any *non-empty* sequence of octets not including SPACE or NUL or CR or LF
- *
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
  *
  */
@@ -48,11 +40,10 @@ namespace Parsing {
     std::string token;
     std::vector<std::string> parsed_elements;
 
-    // commented out as it makes testing harder
-    //     if (input[input.size() - 1] != '\n' || input[input.size() - 2] != '\r') {
-    //       command_body.error = ERR_INPUTTOOLONG;
-    //       return (417);
-    //     }
+    // if (input[input.size() - 1] != '\n' && input[input.size() - 2] != '\r') {
+    //   command_body.error = ERR_INPUTTOOLONG;
+    //   return (ERR_INPUTTOOLONG);
+    // }
     command_body.error = NO_ERR;
     while (input_stream >> token) {
       parsed_elements.push_back(token);
@@ -69,7 +60,7 @@ namespace Parsing {
           ((input.size() - parsed_elements.begin()->size()) > 512))) ||
         (input.size() > 512)) {
       command_body.error = ERR_INPUTTOOLONG;
-      return (417);
+      return (ERR_INPUTTOOLONG);
     }
     std::vector<std::string>::iterator it = parsed_elements.begin();
 
@@ -89,7 +80,7 @@ namespace Parsing {
     }
 
     if (it != parsed_elements.end() && (*it)[0] == ':') {
-      command_body.prefix = *it;
+      command_body.prefix = it->substr(1);
       it++;
     }
 
@@ -101,14 +92,24 @@ namespace Parsing {
     it++;
 
     for (; it != parsed_elements.end(); it++) {
-      command_body.parameters.push_back(*it);
+      if ((*it)[0] == ':') {
+        std::string concated_param = it->substr(1);
+        it++;
+        for (; it != parsed_elements.end(); it++) {
+          concated_param += " ";
+          concated_param += *it;
+        }
+        command_body.parameters.push_back(concated_param);
+        return NO_ERR;
+      } else {
+        command_body.parameters.push_back(*it);
+      }
+      if (!command_body.parameters.empty() &&
+          command_body.parameters.size() > 15) {
+        command_body.error = ERR_INPUTTOOLONG;
+        return (ERR_INPUTTOOLONG);
+      }
     }
-    if (!command_body.parameters.empty() &&
-        command_body.parameters.size() > 15) {
-      command_body.error = ERR_INPUTTOOLONG;
-      return (417);
-    }
-
     return NO_ERR;
   }
 }  // namespace Parsing

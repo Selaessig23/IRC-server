@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-// IMPORTANT. Unknown serves as the enums size as well, therefore it has to stay the last element
-
 enum PARSE_ERR {
   NO_ERR = 0,
   SYNTHAX = 100,
