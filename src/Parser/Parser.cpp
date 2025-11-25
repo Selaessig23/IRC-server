@@ -38,6 +38,7 @@ namespace Parsing {
  */
   int parse_command(std::string input, cmd_obj& command_body) {
 
+    command_body.error = NO_ERR;
     command_body.client->add_to_received_packs(input);
     std::string received_packs = command_body.client->get_received_packs();
     size_t delimiter = received_packs.find("\r\n");
@@ -45,83 +46,86 @@ namespace Parsing {
       command_body.error = ERR_NEEDMOREPARAMS;
       return (ERR_NEEDMOREPARAMS);
     }
-    std::string current_command = received_packs.substr(0, delimiter);
-    command_body.client->clip_current_command(delimiter);
-    if (current_command.size() > MAX_CMD_BYTES) {
-      command_body.error = ERR_INPUTTOOLONG;
-      return (ERR_INPUTTOOLONG);
-    }
-    command_body.error = NO_ERR;
-    std::cout << "Current command: " << current_command << std::endl;
-
-    std::string token;
-    std::vector<std::string> parsed_elements;
-    std::istringstream input_stream(current_command);
-
-    while (input_stream >> token) {
-      parsed_elements.push_back(token);
-    }
-
-    if (parsed_elements.empty()) {
-      command_body.error = EMPTY_CMD;
-      return command_body.error;
-    }
-
-    if (((!(*parsed_elements.begin()).empty()) &&
-         ((*parsed_elements.begin())[0] == '@') &&
-         ((parsed_elements.begin()->size() > 4096) ||
-          ((input.size() - parsed_elements.begin()->size()) > 512))) ||
-        (input.size() > 512)) {
-      command_body.error = ERR_INPUTTOOLONG;
-      return (ERR_INPUTTOOLONG);
-    }
-    std::vector<std::string>::iterator it = parsed_elements.begin();
-
-    if ((*it)[0] == '@') {
-      std::string tags = parsed_elements.begin()->substr(1);
-      unsigned long cut = 0;
-      unsigned long pos = tags.find(';', cut);
-      while (pos != std::string::npos) {
-        command_body.tags.push_back(tags.substr(cut, pos - cut));
-        cut = pos + 1;
-        pos = tags.find(';', cut);
-      }
-      if (cut < tags.size()) {
-        command_body.tags.push_back(tags.substr(cut));
-      }
-      it++;
-    }
-
-    if (it != parsed_elements.end() && (*it)[0] == ':') {
-      command_body.prefix = it->substr(1);
-      it++;
-    }
-
-    if (it == parsed_elements.end()) {
-      command_body.error = EMPTY_CMD;
-      return command_body.error;
-    }
-    command_body.command = *it;
-    it++;
-
-    for (; it != parsed_elements.end(); it++) {
-      if ((*it)[0] == ':') {
-        std::string concated_param = it->substr(1);
-        it++;
-        for (; it != parsed_elements.end(); it++) {
-          concated_param += " ";
-          concated_param += *it;
-        }
-        command_body.parameters.push_back(concated_param);
-        return NO_ERR;
-      } else {
-        command_body.parameters.push_back(*it);
-      }
-      if (!command_body.parameters.empty() &&
-          command_body.parameters.size() > 15) {
+    while (delimiter != std::string::npos) {
+      std::string current_command = received_packs.substr(0, delimiter);
+      command_body.client->clip_current_command(delimiter);
+      if (current_command.size() > MAX_CMD_BYTES) {
         command_body.error = ERR_INPUTTOOLONG;
         return (ERR_INPUTTOOLONG);
       }
+      std::cout << "Current command: " << current_command << std::endl;
+
+      std::string token;
+      std::vector<std::string> parsed_elements;
+      std::istringstream input_stream(current_command);
+
+      while (input_stream >> token) {
+        parsed_elements.push_back(token);
+      }
+
+      if (parsed_elements.empty()) {
+        command_body.error = EMPTY_CMD;
+        return command_body.error;
+      }
+
+      if (((!(*parsed_elements.begin()).empty()) &&
+           ((*parsed_elements.begin())[0] == '@') &&
+           ((parsed_elements.begin()->size() > 4096) ||
+            ((input.size() - parsed_elements.begin()->size()) > 512))) ||
+          (input.size() > 512)) {
+        command_body.error = ERR_INPUTTOOLONG;
+        return (ERR_INPUTTOOLONG);
+      }
+      std::vector<std::string>::iterator it = parsed_elements.begin();
+
+      if ((*it)[0] == '@') {
+        std::string tags = parsed_elements.begin()->substr(1);
+        unsigned long cut = 0;
+        unsigned long pos = tags.find(';', cut);
+        while (pos != std::string::npos) {
+          command_body.tags.push_back(tags.substr(cut, pos - cut));
+          cut = pos + 1;
+          pos = tags.find(';', cut);
+        }
+        if (cut < tags.size()) {
+          command_body.tags.push_back(tags.substr(cut));
+        }
+        it++;
+      }
+
+      if (it != parsed_elements.end() && (*it)[0] == ':') {
+        command_body.prefix = it->substr(1);
+        it++;
+      }
+
+      if (it == parsed_elements.end()) {
+        command_body.error = EMPTY_CMD;
+        return command_body.error;
+      }
+      command_body.command = *it;
+      it++;
+
+      for (; it != parsed_elements.end(); it++) {
+        if ((*it)[0] == ':') {
+          std::string concated_param = it->substr(1);
+          it++;
+          for (; it != parsed_elements.end(); it++) {
+            concated_param += " ";
+            concated_param += *it;
+          }
+          command_body.parameters.push_back(concated_param);
+          return NO_ERR;
+        } else {
+          command_body.parameters.push_back(*it);
+        }
+        if (!command_body.parameters.empty() &&
+            command_body.parameters.size() > 15) {
+          command_body.error = ERR_INPUTTOOLONG;
+          return (ERR_INPUTTOOLONG);
+        }
+      }
+      received_packs = command_body.client->get_received_packs();
+      delimiter = received_packs.find("\r\n");
     }
     return NO_ERR;
   }
