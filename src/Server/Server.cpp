@@ -137,7 +137,6 @@ int Server::handle_new_client() {
  */
 int Server::initiate_poll() {
   while (1) {
-    cmd_obj cmd_body;
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
@@ -158,44 +157,50 @@ int Server::initiate_poll() {
           std::list<Client>::iterator it_clients = _client_list.begin();
           for (; it_clients != _client_list.end(); it_clients++) {
             if (it->fd == it_clients->get_client_fd()) {
-              cmd_body.client = &(*it_clients);
+              it_clients->add_to_received_packs(buf);
+              while (it_clients->get_received_packs().find("\r\n") !=
+                     std::string::npos) {
+                cmd_obj cmd_body;
+                cmd_body.client = &(*it_clients);
+                PARSE_ERR err = Parsing::parse_command(cmd_body);
+                std::cout << "ERR: " << err << std::endl;
+#ifdef DEBUG
+                if (err) {
+                  _irc_commands->send_message(*this, cmd_body.error, true, NULL,
+                                              *it_clients);
+                  std::cout << "ERR: " << err << std::endl;
+                } else {
+                  std::cout << "\nCMD_BDY: " << std::endl;
+                  if (cmd_body.error)
+                    std::cout << "ERR: " << cmd_body.error << std::endl;
+                  if (!cmd_body.tags.empty())
+                    std::cout << "TAGS: " << *cmd_body.tags.begin()
+                              << std::endl;
+                  if (!cmd_body.prefix.empty())
+                    std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
+                  if (!cmd_body.command.empty())
+                    std::cout << "CMD: " << cmd_body.command << std::endl;
+                  if (!cmd_body.parameters.empty()) {
+                    std::cout << "PARAS:";
+                    std::vector<std::string>::iterator it =
+                        cmd_body.parameters.begin();
+                    for (; it != cmd_body.parameters.end(); it++) {
+                      std::cout << "\n  " << *it << std::endl;
+                    }
+                  }
+                }
+                DEBUG_PRINT("Message from client fd: " << it->fd);
+                DEBUG_PRINT(" revent: " << it->revents);
+                DEBUG_PRINT(" - " << buf);
+                DEBUG_PRINT("length: " << recv_len);
+#endif
+                _irc_commands->exec_command(*this, cmd_body, it->fd);
+                std::memset(buf, 0, 1024);  // not necessary
+                recv_len = 0;               // not necessary
+              }
               break;
             }
           }
-          PARSE_ERR err = Parsing::parse_command(buf, cmd_body);
-          std::cout << "ERR: " << err << std::endl;
-#ifdef DEBUG
-          if (err) {
-            _irc_commands->send_message(*this, cmd_body.error, true, NULL,
-                                        *it_clients);
-            std::cout << "ERR: " << err << std::endl;
-          } else {
-            std::cout << "\nCMD_BDY: " << std::endl;
-            if (cmd_body.error)
-              std::cout << "ERR: " << cmd_body.error << std::endl;
-            if (!cmd_body.tags.empty())
-              std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
-            if (!cmd_body.prefix.empty())
-              std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
-            if (!cmd_body.command.empty())
-              std::cout << "CMD: " << cmd_body.command << std::endl;
-            if (!cmd_body.parameters.empty()) {
-              std::cout << "PARAS:";
-              std::vector<std::string>::iterator it =
-                  cmd_body.parameters.begin();
-              for (; it != cmd_body.parameters.end(); it++) {
-                std::cout << "\n  " << *it << std::endl;
-              }
-            }
-          }
-          DEBUG_PRINT("Message from client fd: " << it->fd);
-          DEBUG_PRINT(" revent: " << it->revents);
-          DEBUG_PRINT(" - " << buf);
-          DEBUG_PRINT("length: " << recv_len);
-#endif
-          _irc_commands->exec_command(*this, cmd_body, it->fd);
-          std::memset(buf, 0, 1024);  // not necessary
-          recv_len = 0;               // not necessary
         }
       }
       if (it->revents & POLLOUT) {
