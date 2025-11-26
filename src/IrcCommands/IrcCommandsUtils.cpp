@@ -48,10 +48,10 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
       return (" :Input line was too long");
     case ERR_UNKNOWNCOMMAND:
       return (" <command> :Unknown command");
-    case ERR_NONICKNAMEGIVEN: 
+    case ERR_NONICKNAMEGIVEN:
       return (" <client> :No nickname given");
     case ERR_ERRONEUSNICKNAME:
-      return (" <client> <nick> :Erroneus nickname");
+      return (" <client> <nick> :Erroneous nickname");
     case ERR_NICKNAMEINUSE:
       return (" <client> <nick> :Nickname is already in use");
     case ERR_NICKCOLLISION:
