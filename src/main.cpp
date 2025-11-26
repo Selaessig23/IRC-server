@@ -15,13 +15,11 @@
 #include <iostream>
 #include "Server/Server.hpp"
 #include "debug.hpp"
+#include "includes/CONSTANTS.hpp"
 
 // TODO:
-// ERROR handling using exceptions
 // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
 // protocl number (if several)
-// int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-// verify port is int
 
 Server* g_server;
 
@@ -44,6 +42,10 @@ int main(int argc, char* argv[]) {
     return (1);
   }
   int port = std::atoi(argv[1]);
+  if (port < PORT_MIN || port > PORT_MAX) {
+    std::cerr << "Provided port no " << port << " out of range!" << std::endl;
+    return (1);
+  }
   std::string pw(argv[2]);
   try {
     signal(SIGINT, signal_handler);
