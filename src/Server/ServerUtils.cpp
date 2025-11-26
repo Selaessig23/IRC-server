@@ -1,5 +1,7 @@
+#include <cstring>  //memset
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
+#include <iostream>
 #include <sstream>  // for std::ostringstream
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
@@ -85,6 +87,22 @@ void Server::handle_pollin(struct pollfd& pfd) {
   }
 }
 
+void Server::handle_pollout(struct pollfd& pfd) {
+
+  std::list<Client>::iterator it_client = _client_list.begin();
+  for (;
+       it_client != _client_list.end() && pfd.fd != it_client->get_client_fd();
+       it_client++) {}
+  if (it_client != _client_list.end()) {
+    int size_sent = send(pfd.fd, it_client->get_client_out().c_str(),
+                         strlen(it_client->get_client_out().c_str()), 0);
+    std::string new_out = it_client->get_client_out();
+    new_out.erase(0, size_sent);
+    it_client->set_client_out(new_out);
+    if (it_client->get_client_out().empty())
+      pfd.events = POLLIN;
+  }
+}
 Client* Server::find_client_by_fd(int fd) {
   std::list<Client>::iterator it = _client_list.begin();
   for (; it != _client_list.end(); ++it) {

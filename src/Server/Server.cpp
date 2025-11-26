@@ -148,19 +148,7 @@ int Server::initiate_poll() {
         handle_pollin(*it);
       }
       if (it->revents & POLLOUT) {
-        std::list<Client>::iterator it_client = _client_list.begin();
-        for (; it_client != _client_list.end() &&
-               it->fd != it_client->get_client_fd();
-             it_client++) {}
-        if (it_client != _client_list.end()) {
-          int size_sent = send(it->fd, it_client->get_client_out().c_str(),
-                               strlen(it_client->get_client_out().c_str()), 0);
-          std::string new_out = it_client->get_client_out();
-          new_out.erase(0, size_sent);
-          it_client->set_client_out(new_out);
-          if (it_client->get_client_out().empty())
-            it->events = POLLIN;
-        }
+        handle_pollout(*it);
       }
     }
   }

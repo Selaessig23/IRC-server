@@ -34,6 +34,7 @@ class Server {
   int add_new_client_to_poll(int client_fd);
   int handle_new_client();
   void handle_pollin(struct pollfd& poll_fd);
+  void handle_pollout(struct pollfd& poll_fd);
 
  public:
   // OCF
