@@ -41,13 +41,11 @@ namespace Parsing {
     command_body.error = NO_ERR;
     std::string received_packs = command_body.client->get_received_packs();
     size_t delimiter = received_packs.find("\r\n");
-    if (delimiter == std::string::npos) {
-      command_body.error = ERR_NEEDMOREPARAMS;
-      return (ERR_NEEDMOREPARAMS);
-    }
     std::string current_command = received_packs.substr(0, delimiter);
     command_body.client->clip_current_command(delimiter);
+#ifdef DEBUG
     std::cout << "Current command: " << current_command << std::endl;
+#endif
 
     std::string token;
     std::vector<std::string> parsed_elements;
