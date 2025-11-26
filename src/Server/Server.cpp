@@ -128,26 +128,12 @@ int Server::handle_new_client() {
   return (0);
 }
 
-#ifndef debug
-/**
- * @brief function to set all fds of clients to POLLOUT
- */
-void ft_pollfds_to_out(std::vector<struct pollfd>& pollfd) {
-  for (std::vector<struct pollfd>::iterator it = (pollfd.begin() + 2);
-       it != pollfd.end(); it++) {
-    it->events = POLLOUT;
-  }
-}
-#endif
-
 /**
  * @brief function to run the poll loop
  * (main server loop)
  * it checks all fds of clients & server for 
  * (1) new incomming connections (of server/socket-fd)
- * (2) event of stdin of server -- if DEBUG-mode
- * (3) events of the clients
- *
+ * (2) events of the clients
  */
 int Server::initiate_poll() {
   while (1) {
@@ -159,30 +145,8 @@ int Server::initiate_poll() {
         handle_new_client();
         break;
       }
-#ifdef debug
-      else if (_client_list.empty() == 0 && it->fd == 0 &&
-               it->revents & POLLIN) {
-	// stdin does not work well with revc as it is a stream: where is eof?
-//         char stdinbuf[1024];
-//         int recv_len = 0;
-//         recv_len = recv(it->fd, stdinbuf, sizeof(stdinbuf) - 1, 0);
-//         stdinbuf[recv_len] = '\0';
-        std::string input;
-	// unsafe to not check for eol when using getline
-        std::getline(std::cin, input);
-        std::list<Client>::iterator it_client = _client_list.begin();
-        for (; it_client != _client_list.end(); it_client++) {
-//           it_client->setClientOut(stdinbuf);
-          it_client->set_client_out(input + '\n');
-                 }
-        ft_pollfds_to_out(_poll_fds);
-        break;
-      }
-#endif
-     else if (it != _poll_fds.begin()){
-
-        if (it->fd != 0 && it->revents & POLLIN) {
-          char buf[8750];
+      if (it->revents & POLLIN) {
+        char buf[8750];
         int recv_len = recv(it->fd, buf, sizeof(buf) - 1, 0);
         if (!recv_len) {
           close(it->fd);
@@ -245,13 +209,7 @@ int Server::initiate_poll() {
           it_client->set_client_out(new_out);
           if (it_client->get_client_out().empty())
             it->events = POLLIN;
- 
- 
-
-              it->events = POLLIN;
-          }
         }
-    
       }
     }
   }
@@ -280,12 +238,6 @@ int Server::init() {
   ServerPoll.events = POLLIN;
   ServerPoll.revents = 0;
   _poll_fds.push_back(ServerPoll);
-#ifndef debug
-  ServerPoll.fd = STDIN_FILENO;
-  ServerPoll.events = POLLIN;
-  ServerPoll.revents = 0;
-  _poll_fds.push_back(ServerPoll);
-#endif
   if (initiate_poll())
     return (1);
   return 0;

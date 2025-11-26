@@ -26,9 +26,9 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
     case RPL_INTERN_SETNICK:
       return (" :Nickname was set.");
     case RPL_INTERN_CHANGENICK:
-      return (" :Nickname was changed to " + base._created_at);
+      return (" :Nickname was changed to ");
     default:
-      return ("UNKNOWN REPLY");
+      return (" UNKNOWN REPLY");
   }
 }
 
@@ -49,13 +49,13 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
     case ERR_UNKNOWNCOMMAND:
       return (" <command> :Unknown command");
     case ERR_NONICKNAMEGIVEN: 
-      return ("<client> :No nickname given");
+      return (" <client> :No nickname given");
     case ERR_ERRONEUSNICKNAME:
-      return ("<client> <nick> :Erroneus nickname");
+      return (" <client> <nick> :Erroneus nickname");
     case ERR_NICKNAMEINUSE:
-      return ("<client> <nick> :Nickname is already in use");
+      return (" <client> <nick> :Nickname is already in use");
     case ERR_NICKCOLLISION:
-      return ("<client> <nick> :Nickname collision KILL from <user>@<host>");
+      return (" <client> <nick> :Nickname collision KILL from <user>@<host>");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:

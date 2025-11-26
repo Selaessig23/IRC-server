@@ -31,28 +31,31 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
     if (it_client->get_client_fd() == fd_curr_client)
       break;
   }
-  //check for parameters
-  if (cmd.parameters.empty())
+
+  if (cmd.parameters.empty()){
 	  send_message(base, ERR_NONICKNAMEGIVEN, true, NULL, *it_client);
-  //check if there are chars within the nickname that are not allowed
-  for (std::string::iterator it; it != cmd.parameters[0].end(); it++){
+	  return (ERR_NONICKNAMEGIVEN);
+  }
+
+  for (std::string::const_iterator it = cmd.parameters[0].begin(); it != cmd.parameters[0].end(); it++){
 	  if (*it == ' ' || *it == ':' || *it == '#' || *it == '&' || *it == '@'){
-	   send_message(base, ERR_NONICKNAMEGIVEN, true, NULL, *it_client);
-	   return(ERR_NONICKNAMEGIVEN);
+	   send_message(base, ERR_ERRONEUSNICKNAME, true, NULL, *it_client);
+	   return(ERR_ERRONEUSNICKNAME);
 	  }
   }
-  //check if nickname already exists
+
   for (std::list<Client>::iterator it = base._client_list.begin(); it != base._client_list.end(); it ++) {
-    if (it_client->get_nick() == cmd.parameters[0]){
-	   send_message(base, ERR_ALREADYREGISTERED, true, NULL, *it_client);
-	   return(ERR_NONICKNAMEGIVEN);
+    if (!it_client->get_nick().empty() && it_client->get_nick() == cmd.parameters[0]){
+	   send_message(base, ERR_NICKNAMEINUSE, true, NULL, *it_client);
+	   return(ERR_NICKNAMEINUSE);
     }
   }
+
   std::string nick_old = it_client->get_nick();
   it_client->set_nick(*cmd.parameters.begin());
   if (it_client->get_nick().empty())
     send_message(base, RPL_INTERN_SETNICK, false, NULL, *it_client);
   else
-    send_message(base, RPL_INTERN_CHANGENICK, false, &nick_old, *it_client);
+    send_message(base, RPL_INTERN_CHANGENICK, false, NULL, *it_client);
   return(0);
 }
