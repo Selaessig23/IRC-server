@@ -51,8 +51,8 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
   std::string nick_old = it_client->get_nick();
   it_client->set_nick(*cmd.parameters.begin());
   if (it_client->get_nick().empty())
-	   send_message(base, RPL_INTERN_SETNICK, false, NULL, *it_client);
+    send_message(base, RPL_INTERN_SETNICK, false, NULL, *it_client);
   else
-	   send_message(base, RPL_INTER_CHANGENICK, false, &nick_old, *it_client);
+    send_message(base, RPL_INTERN_CHANGENICK, false, &nick_old, *it_client);
   return(0);
 }

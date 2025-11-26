@@ -23,8 +23,12 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
               base._version);
     case RPL_CREATED:
       return (" :This server was created " + base._created_at);
+    case RPL_INTERN_SETNICK:
+      return (" :Nickname was set.");
+    case RPL_INTERN_CHANGENICK:
+      return (" :Nickname was changed to " + base._created_at);
     default:
-      return "UNKNOWN REPLY";
+      return ("UNKNOWN REPLY");
   }
 }
 
