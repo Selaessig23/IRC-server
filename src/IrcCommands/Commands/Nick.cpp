@@ -7,7 +7,7 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief functin to create or change the nickname of a certain client
+ * @brief function to create or change the nickname of a certain client
  *
  * TODO:
  * (1) think about client feedback in case of success
@@ -15,9 +15,9 @@
  * of the client has changed his nick (maybe only as a channel notice)
  *
  * @return 0, in case of an error it returns error codes:
- * ERR_NEEDMOREPARAMS (461)
- * ERR_ALREADYREGISTERED (462)
- * ERR_PASSWDMISMATCH (464)
+ * ERR_NONICKNAMEGIVEN (431)
+ * ERR_ERRONEUSNICKNAME (432)
+ * ERR_NICKNAMEINUSE (433)
  *  ->chars that introduce ambiguity in other commands 
  *    (prefix, tags, channels, spaces)
  *
@@ -47,8 +47,8 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
 
   for (std::list<Client>::iterator it = base._client_list.begin();
        it != base._client_list.end(); it++) {
-    if (!it_client->get_nick().empty() &&
-        it_client->get_nick() == cmd.parameters[0]) {
+    if (it != it_client && !it->get_nick().empty() &&
+        it->get_nick() == cmd.parameters[0]) {
       send_message(base, ERR_NICKNAMEINUSE, true, NULL, *it_client);
       return (ERR_NICKNAMEINUSE);
     }
@@ -56,7 +56,7 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
 
   std::string nick_old = it_client->get_nick();
   it_client->set_nick(*cmd.parameters.begin());
-  if (it_client->get_nick().empty())
+  if (nick_old.empty())
     send_message(base, RPL_INTERN_SETNICK, false, NULL, *it_client);
   else
     send_message(base, RPL_INTERN_CHANGENICK, false, &nick_old, *it_client);

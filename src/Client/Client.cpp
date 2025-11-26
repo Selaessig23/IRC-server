@@ -95,7 +95,6 @@ void Client::set_server_poll() {
     _poll->events = POLLIN;
 }
 
-void Client::set_nick(std::string nick)
-{
-	this->_nick = nick;
+void Client::set_nick(std::string nick) {
+  this->_nick = nick;
 }
