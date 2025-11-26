@@ -49,6 +49,25 @@ void Client::set_client_out(std::string new_output) {
   this->_output_buffer = new_output;
 }
 
+void Client::add_to_received_packs(std::string new_pack) {
+  _received_packs += new_pack;
+};
+
+std::string Client::get_received_packs() {
+  return _received_packs;
+};
+
+/**
+ * @brief Remove command AND the \r\n delimiter
+ */
+void Client::clip_current_command(size_t delimiter) {
+  if (delimiter + 2 <= _received_packs.size()) {
+    _received_packs = _received_packs.substr(delimiter + 2);
+  } else {
+    _received_packs.clear();
+  }
+}
+
 /**
  * @brief this function adds new ouput (copy) 
  * to the Clients output buffer

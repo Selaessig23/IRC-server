@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "../Client/Client.hpp"
 
 enum PARSE_ERR {
   NO_ERR = 0,
@@ -33,6 +34,7 @@ struct cmd_obj {
   std::vector<std::string> tags;
   std::string prefix;
   std::string command;
+  Client* client;
   std::vector<std::string> parameters;
 };
 

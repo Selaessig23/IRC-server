@@ -1,6 +1,7 @@
 #include <map>
 #include <sstream>
 #include "../debug.hpp"
+#include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
 
 namespace Parsing {
@@ -35,16 +36,21 @@ namespace Parsing {
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
  *
  */
-  int parse_command(std::string input, cmd_obj& command_body) {
-    std::istringstream input_stream(input);
+  int parse_command(cmd_obj& command_body) {
+
+    command_body.error = NO_ERR;
+    std::string received_packs = command_body.client->get_received_packs();
+    size_t delimiter = received_packs.find("\r\n");
+    std::string current_command = received_packs.substr(0, delimiter);
+    command_body.client->clip_current_command(delimiter);
+#ifdef DEBUG
+    std::cout << "Current command: " << current_command << std::endl;
+#endif
+
     std::string token;
     std::vector<std::string> parsed_elements;
+    std::istringstream input_stream(current_command);
 
-    // if (input[input.size() - 1] != '\n' && input[input.size() - 2] != '\r') {
-    //   command_body.error = ERR_INPUTTOOLONG;
-    //   return (ERR_INPUTTOOLONG);
-    // }
-    command_body.error = NO_ERR;
     while (input_stream >> token) {
       parsed_elements.push_back(token);
     }
@@ -56,16 +62,17 @@ namespace Parsing {
 
     if (((!(*parsed_elements.begin()).empty()) &&
          ((*parsed_elements.begin())[0] == '@') &&
-         ((parsed_elements.begin()->size() > 4096) ||
-          ((input.size() - parsed_elements.begin()->size()) > 512))) ||
-        (input.size() > 512)) {
+         ((parsed_elements.begin()->size() > MAX_TAG_BYTES) ||
+          ((current_command.size() - parsed_elements.begin()->size()) >
+           512))) ||
+        (current_command.size() > MAX_CMD_BYTES)) {
       command_body.error = ERR_INPUTTOOLONG;
       return (ERR_INPUTTOOLONG);
     }
     std::vector<std::string>::iterator it = parsed_elements.begin();
 
     if ((*it)[0] == '@') {
-      std::string tags = *parsed_elements.begin();
+      std::string tags = parsed_elements.begin()->substr(1);
       unsigned long cut = 0;
       unsigned long pos = tags.find(';', cut);
       while (pos != std::string::npos) {
