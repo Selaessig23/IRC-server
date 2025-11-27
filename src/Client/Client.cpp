@@ -49,14 +49,6 @@ void Client::set_client_out(std::string new_output) {
   this->_output_buffer = new_output;
 }
 
-void Client::set_auth_state(CLIENT_AUTH_STATE auth_state) {
-  _auth_state = auth_state;
-}
-
-CLIENT_AUTH_STATE Client::get_auth_state() {
-  return _auth_state;
-}
-
 void Client::add_to_received_packs(std::string new_pack) {
   _received_packs += new_pack;
 };

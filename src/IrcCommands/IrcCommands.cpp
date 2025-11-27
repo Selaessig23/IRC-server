@@ -9,8 +9,6 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("PING", &IrcCommands::pong));
   _irc_commands.insert(std::make_pair("NICK", &IrcCommands::nick));
   _irc_commands.insert(std::make_pair("CAP", &IrcCommands::cap));
-  _irc_commands.insert(
-      std::make_pair("AUTHENTICATE", &IrcCommands::authenticate));
 }
 
 IrcCommands::IrcCommands(const IrcCommands& other)
