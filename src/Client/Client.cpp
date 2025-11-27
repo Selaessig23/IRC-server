@@ -25,6 +25,10 @@ Client::Client(const Client& other)
       _registered(other._registered),
       _client_addr(other._client_addr),
       _poll(other._poll),
+      _received_packs(other._received_packs),
+      _nick(other._nick),
+      _host(other._host),
+      _realname(other._realname),
       _output_buffer(other._output_buffer) {}
 
 Client Client::operator=(const Client& other) {

@@ -17,6 +17,7 @@ class Client {
   std::string _nick;
   std::string _user;
   std::string _host;
+  std::string _realname;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
 
