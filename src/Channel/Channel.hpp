@@ -17,7 +17,7 @@
 // · k: Set/remove the channel key (password)
 // · o: Give/take channel operator privilege
 // · l: Set/remove the user limit to channel
-// a single integer to check the modes by bit operations maybe?
+// a single integer to check the modes by bitwise operations maybe?
 
 class   Channel {
 
