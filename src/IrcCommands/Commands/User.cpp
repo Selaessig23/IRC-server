@@ -29,7 +29,6 @@ int IrcCommands::user(Server& base, const struct cmd_obj& cmd,
     return (ERR_NEEDMOREPARAMS);
   }
   else if (!cmd.client->get_user().empty()) {
-    std::cout << "whey? " << cmd.client->get_user().empty() <<std::endl;
     send_message(base, ERR_ALREADYREGISTERED, true, NULL, *cmd.client);
     return (ERR_ALREADYREGISTERED);
   }
