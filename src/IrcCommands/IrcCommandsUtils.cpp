@@ -27,6 +27,10 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
       return (" :Nickname was set.");
     case RPL_INTERN_CHANGENICK:
       return (" :Nickname was changed to ");
+    case RPL_INTERN_SETUSER:
+      return (
+          " :No ident server\nUser gets registered with username\n~ _username "
+          "and real name _realname");
     default:
       return (" UNKNOWN REPLY");
   }
@@ -84,13 +88,13 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
   out += ":";
   out += base._server_name;
   if (!msg)
-   out += " " + ss.str();
+    out += " " + ss.str();
   else
-   out += " ";
+    out += " ";
   if (!curr_client.get_nick().empty())
     out = " <" + curr_client.get_nick() + ">";
   if (msg)
-	  out += *msg;
+    out += *msg;
   else if (error == true)
     out += get_error(base, static_cast<PARSE_ERR>(numeric_msg_code));
   else

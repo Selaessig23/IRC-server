@@ -39,6 +39,7 @@ class Client {
   void add_client_out(std::string newOutput);
   int get_client_fd();
   std::string& get_nick();
+  std::string& get_user();
   bool get_register_status();
   void set_server_poll();
   void set_nick(std::string nick);

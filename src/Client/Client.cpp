@@ -88,6 +88,10 @@ std::string& Client::get_nick() {
   return (this->_nick);
 }
 
+std::string& Client::get_user() {
+  return (this->_user);
+}
+
 bool Client::get_register_status() {
   return (this->_registered);
 }
