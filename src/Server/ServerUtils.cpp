@@ -35,7 +35,7 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
   if (!cmd_body.command.empty())
     std::cout << "CMD: " << cmd_body.command << std::endl;
   if (!cmd_body.parameters.empty()) {
-    std::cout << "PARAS:";
+    std::cout << "PARAS:" << std::endl;
     std::vector<std::string>::iterator it = cmd_body.parameters.begin();
     for (; it != cmd_body.parameters.end(); it++) {
       std::cout << *it << std::endl;
