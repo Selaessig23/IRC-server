@@ -3,8 +3,7 @@
 
 #include <string>
 #include <vector>
-
-class Client;
+#include "../Client/Client.hpp"
 
 enum PARSE_ERR {
   NO_ERR = 0,
@@ -23,14 +22,13 @@ enum PARSE_ERR {
 };
 
 enum RPL_MSG {
+  RPL_NONE = 000,
   RPL_WELCOME = 001,
   RPL_YOURHOST = 002,
   RPL_CREATED = 003,
   RPL_INTERN_SETNICK = 101,
   RPL_INTERN_CHANGENICK = 102,
 };
-
-enum CLIENT_AUTH_STATE { AUTH_NEW = 0, AUTH_SASL = 1, AUTHENTIFICATED = 2 };
 
 struct cmd_obj {
   PARSE_ERR error;

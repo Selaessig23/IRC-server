@@ -30,6 +30,7 @@ SRCS += Parser/Parser.cpp
 SRCS += IrcCommands/Commands/Pass.cpp
 SRCS += IrcCommands/Commands/Pong.cpp
 SRCS += IrcCommands/Commands/Nick.cpp
+SRCS += IrcCommands/Commands/CAP.cpp
 SRCS += IrcCommands/IrcCommandsUtils.cpp
 SRCS += IrcCommands/IrcCommands.cpp
 

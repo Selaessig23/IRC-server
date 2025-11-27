@@ -5,14 +5,21 @@
 #include <poll.h>
 #include <iostream>
 #include <map>
-#include "../includes/types.hpp"
+
+enum CLIENT_AUTH_STATE {
+  AUTH_NEW,
+  AUTH_CAP,
+  AUTH_SASL,
+  AUTH_CAP_DONE,
+  AUTHENTIFICATED
+};
 
 class Client {
  private:
   long _id;
   int _client_fd;
   bool _registered;
-  CLIENT_AUTH_STATE _client_auth_state;
+  CLIENT_AUTH_STATE _auth_state;
   struct sockaddr_in _client_addr;
   struct pollfd* _poll;
   std::string _received_packs;
@@ -34,6 +41,8 @@ class Client {
   //getter and setter function
   std::string& get_client_out();
   void set_client_out(std::string new_output);
+  void set_auth_state(CLIENT_AUTH_STATE auth_state);
+  CLIENT_AUTH_STATE get_auth_state(void);
   void add_to_received_packs(std::string new_pack);
   void clip_current_command(size_t delimiter);
   std::string get_received_packs();
