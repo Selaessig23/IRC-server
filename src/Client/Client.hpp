@@ -5,12 +5,14 @@
 #include <poll.h>
 #include <iostream>
 #include <map>
+#include "../includes/types.hpp"
 
 class Client {
  private:
   long _id;
   int _client_fd;
   bool _registered;
+  CLIENT_AUTH_STATE _client_auth_state;
   struct sockaddr_in _client_addr;
   struct pollfd* _poll;
   std::string _received_packs;
