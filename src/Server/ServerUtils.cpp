@@ -38,7 +38,7 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
     std::cout << "PARAS:";
     std::vector<std::string>::iterator it = cmd_body.parameters.begin();
     for (; it != cmd_body.parameters.end(); it++) {
-      std::cout << "\n  " << *it << std::endl;
+      std::cout << *it << std::endl;
     }
   }
 }

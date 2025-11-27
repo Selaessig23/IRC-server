@@ -50,7 +50,7 @@ class Client {
   int get_client_fd();
   std::string& get_nick();
   bool get_register_status();
-  void set_server_poll();
+  void set_server_poll(int event);
   void set_nick(std::string nick);
 };
 

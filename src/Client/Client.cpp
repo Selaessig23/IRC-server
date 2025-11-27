@@ -96,11 +96,11 @@ bool Client::get_register_status() {
   return (this->_registered);
 }
 
-void Client::set_server_poll() {
-  if (_poll->events == POLLIN)
-    _poll->events = POLLOUT;
-  else if (_poll->events == POLLOUT)
+void Client::set_server_poll(int event) {
+  if (event == POLLIN)
     _poll->events = POLLIN;
+  else if (event == POLLOUT)
+    _poll->events = POLLOUT;
 }
 
 void Client::set_nick(std::string nick) {
