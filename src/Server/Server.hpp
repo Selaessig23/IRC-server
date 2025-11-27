@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../includes/types.hpp"
 // #include "../IrcCommands/IrcCommands.hpp"
 
 #ifndef SERVER_HPP
@@ -32,6 +33,8 @@ class Server {
   int initiate_poll();
   int add_new_client_to_poll(int client_fd);
   int handle_new_client();
+  void handle_pollin(struct pollfd& poll_fd);
+  void handle_pollout(struct pollfd& poll_fd);
 
  public:
   // OCF
@@ -40,12 +43,14 @@ class Server {
   Server operator=(const Server& other);
   ~Server();
 
+  Client* find_client_by_fd(int fd);
   // function to activate the IRC-Server (run the server-loop)
   int init();
 
   friend class IrcCommands;
 };
 
+void debug_parsed_cmds(cmd_obj& cmd_body);
 std::string get_current_date_time();
 
 #endif  // SERVER_HPP

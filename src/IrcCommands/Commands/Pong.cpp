@@ -19,8 +19,8 @@ int IrcCommands::pong(Server& base, const struct cmd_obj& cmd,
   out += base._server_name;
   if (!cmd.parameters.empty())
   {
-   out += " ";
-   out += cmd.parameters[0];
+    out += " ";
+    out += cmd.parameters[0];
   }
   send_message(base, RPL_CREATED, false, &out, *it);
   return (0);
