@@ -42,6 +42,9 @@ class Client {
   bool get_register_status();
   void set_server_poll();
   void set_nick(std::string nick);
+  void set_user(std::string user);
+  void set_host(std::string host);
+  void set_realname(std::string realname);
 };
 
 #endif  //CLIENT_HPP

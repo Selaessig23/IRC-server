@@ -102,3 +102,15 @@ void Client::set_server_poll() {
 void Client::set_nick(std::string nick) {
   this->_nick = nick;
 }
+
+void Client::set_user(std::string user) {
+  this->_user = user;
+}
+
+void Client::set_host(std::string host) {
+  this->_host = host;
+}
+
+void Client::set_realname(std::string realname) {
+  this->_realname = realname;
+}
