@@ -9,8 +9,4 @@
 #define MAX_CMD_BYTES 512
 #define MAX_TAG_BYTES 4096
 
-#define RES_CAP_LS "CAP * LS :sasl"
-#define RES_CAP_SASL "CAP * ACK :sasl"
-#define RES_CAP_UNKNOWN "CAP UNKNOWN PARAMS"
-#define RES_AUTH "AUTHENTICATE PLAIN"
 #endif  // CONSTANTS_HPP

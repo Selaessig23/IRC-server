@@ -15,7 +15,6 @@ int IrcCommands::authenticate(Server& base, const struct cmd_obj& cmd,
   }
   std::string pw = cmd.parameters[0];
   std::string response = "START AUTH: " + pw;
-  std::cout << "AUTH" << std::endl;
   send_message(base, RPL_NONE, false, &response, *client);
   return (0);
 }
