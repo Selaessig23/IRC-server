@@ -27,6 +27,7 @@ Client::Client(const Client& other)
       _poll(other._poll),
       _received_packs(other._received_packs),
       _nick(other._nick),
+      _user(other._user),
       _host(other._host),
       _realname(other._realname),
       _output_buffer(other._output_buffer) {}
