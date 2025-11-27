@@ -38,7 +38,7 @@ int IrcCommands::user(Server& base, const struct cmd_obj& cmd,
   it++;
   cmd.client->set_host(*it);
   it++;
-  cmd.client->set_realname(*cmd.parameters.begin());
+  cmd.client->set_realname(*it);
   send_message(base, RPL_INTERN_SETUSER, false, NULL, *cmd.client);
   return (0);
 }
