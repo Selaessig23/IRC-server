@@ -29,6 +29,7 @@ Client::Client(const Client& other)
       _nick(other._nick),
       _user(other._user),
       _host(other._host),
+      _servername(other._servername),
       _realname(other._realname),
       _output_buffer(other._output_buffer) {}
 
@@ -117,5 +118,9 @@ void Client::set_host(std::string host) {
 }
 
 void Client::set_realname(std::string realname) {
+  this->_realname = realname;
+}
+
+void Client::set_servername(std::string realname) {
   this->_realname = realname;
 }

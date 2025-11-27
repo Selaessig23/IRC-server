@@ -17,6 +17,7 @@ class Client {
   std::string _nick;
   std::string _user;
   std::string _host;
+  std::string _servername;
   std::string _realname;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
@@ -46,6 +47,7 @@ class Client {
   void set_user(std::string user);
   void set_host(std::string host);
   void set_realname(std::string realname);
+  void set_servername(std::string realname);
 };
 
 #endif  //CLIENT_HPP
