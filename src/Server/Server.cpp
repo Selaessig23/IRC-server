@@ -17,22 +17,6 @@
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
 
-/** TODO:
- * (1) validate Port num
- * On Unix/Linux, binding to ports <1024 usually requires root privileges.
- * Ports like 53 (DNS) or 123 (NTP) are either UDP or reserved
- * Ephemeral ports (49152–65535): These are meant for client-side connections,
- * not servers. 	Technically, you can bind a server here, but clients
- * might have trouble 	connecting due to firewall/NAT setups. Ports
- * that are already in use by another service will throw an error when trying
- * to bind to them
- * (2) destroy socket on error and in destructor
- * (3) check copy_constructor if there are new variables
- * (4) we could make the copy assignment operator more efficient by using our own class-specfic
- * swap function (e. g. as friend)
- * (5) check if we need the fcntl function in Server::initiate()
- */
-
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
   for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
@@ -145,7 +129,8 @@ int Server::initiate_poll() {
         break;
       }
       if (it->revents & POLLIN) {
-        handle_pollin(*it);
+        if (handle_pollin(*it))
+         break;
       }
       if (it->revents & POLLOUT) {
         handle_pollout(*it);

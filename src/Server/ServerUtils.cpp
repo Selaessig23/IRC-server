@@ -43,7 +43,7 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
   }
 }
 
-void Server::handle_pollin(struct pollfd& pfd) {
+int Server::handle_pollin(struct pollfd& pfd) {
 
   char buf[8750];
   int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
@@ -58,14 +58,14 @@ void Server::handle_pollin(struct pollfd& pfd) {
         break;
       }
     }
-    return;
+    return (1);
   }
 
   buf[recv_len] = '\0';
 
   Client* client = find_client_by_fd(pfd.fd);
   if (!client)
-    return;
+    return (1);
 
   client->add_to_received_packs(buf);
 
@@ -85,6 +85,7 @@ void Server::handle_pollin(struct pollfd& pfd) {
 
     _irc_commands->exec_command(*this, cmd_body, pfd.fd);
   }
+  return (0);
 }
 
 void Server::handle_pollout(struct pollfd& pfd) {
