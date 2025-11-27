@@ -129,7 +129,8 @@ int Server::initiate_poll() {
         break;
       }
       if (it->revents & POLLIN) {
-        handle_pollin(*it);
+        if (handle_pollin(*it))
+         break;
       }
       if (it->revents & POLLOUT) {
         handle_pollout(*it);
