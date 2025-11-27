@@ -40,6 +40,7 @@ class Client {
   std::string& get_nick();
   bool get_register_status();
   void set_server_poll();
+  void set_nick(std::string nick);
 };
 
 #endif  //CLIENT_HPP

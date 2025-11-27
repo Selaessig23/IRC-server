@@ -14,8 +14,6 @@
  * ERR_NEEDMOREPARAMS (461)
  * ERR_ALREADYREGISTERED (462)
  * ERR_PASSWDMISMATCH (464)
- *
- * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
 int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
                       int fd_curr_client) {
@@ -26,11 +24,11 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
   }
   if (it->get_register_status() == 1) {
     send_message(base, ERR_ALREADYREGISTERED, true, NULL, *it);
-    return (462);
+    return (ERR_ALREADYREGISTERED);
   }
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
-    return (461);
+    return (ERR_NEEDMOREPARAMS);
   }
   if (cmd.parameters.size() == 1 &&
       *cmd.parameters.begin() == base._pw) {
@@ -40,6 +38,6 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
     return (0);
   } else {
     send_message(base, ERR_PASSWDMISMATCH, true, NULL, *it);
-    return (464);
+    return (ERR_PASSWDMISMATCH);
   }
 }
