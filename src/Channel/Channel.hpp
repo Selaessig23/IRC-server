@@ -57,7 +57,11 @@ class   Channel {
         bool        get_topic_mode();
         bool        get_limit_mode();
         int         get_user_limit();
-    
+        size_t      get_members_size();
+        void         get_members_fds();
+        int         get_operators_fds();
+        int         get_invited_fds();
+
         // setters
         // void        set_name();
         void        set_topic(std::string topic);
@@ -65,6 +69,8 @@ class   Channel {
         void        set_key(std::string key);
         void        set_invite_mode();
         void        set_user_limit(size_t limit);
+
+        void        print_channel_info();
 
 };
 #endif

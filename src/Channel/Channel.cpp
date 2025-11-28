@@ -1,10 +1,9 @@
 #include "Channel.hpp"
-#include <map>
 #include <list>
 #include <string>
 #include <iostream>
-#include <vector>
 #include "../debug.hpp"
+#include "../Client/Client.hpp"
 
 // Channel::Channel() : _name("default") {}
 Channel::Channel(std::string name)  
@@ -14,7 +13,8 @@ Channel::Channel(std::string name)
         _key_mode(false),
         _invite_mode(false),
         _topic_mode(false) {
-    DEBUG_PRINT("Channel is created"); 
+    DEBUG_PRINT("Channel is created");
+    print_channel_info();
 }
 
 Channel::Channel(const Channel& other) 
@@ -39,16 +39,19 @@ Channel::~Channel() {
 void    Channel::new_member(Client* _new) {
     _members.push_back(_new);
     DEBUG_PRINT("New member is added to the channel");
+    print_channel_info();
 }
 
 void    Channel::new_operator(Client* _new) {
     _operators.push_back(_new);
     DEBUG_PRINT("New operator is assigned for the channel");
+    print_channel_info();
 }
 
 void    Channel::new_invited(Client* _new) {
     _invited.push_back(_new);
     DEBUG_PRINT("The user is invited to the channel");
+    print_channel_info();
 }
 
 // SETTERS
@@ -104,6 +107,36 @@ bool    Channel::get_limit_mode() {
 
 int     Channel::get_user_limit() {
     return (_user_limit);
+}
+
+size_t  Channel::get_members_size() {
+    return (_members.size());
+}
+
+void     Channel::get_members_fds() {
+        std::list<Client*>::iterator it = _members.begin();
+        for (; it != _members.end(); it++)
+            std::cout << *it << std::endl;
+        // return (_members);
+}
+
+// int     Channel::get_operators_fds() {
+
+// }
+
+// int     Channel::get_invited_fds() {
+
+// }
+
+
+void    Channel::print_channel_info() {
+        std::cout << get_name()   
+                    << " [+i]:" << get_invite_mode()
+                    << " [+t]:" << get_topic_mode()
+                    << " [+k]:" << get_key_mode()
+                    << " [+l]:" << get_limit_mode()
+                    << " Members:"<< get_members_size() << std::endl;  
+        get_members_fds();
 }
 
 // int main (void) {
