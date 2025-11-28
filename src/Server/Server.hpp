@@ -4,8 +4,8 @@
 #include <iostream>
 #include <list>
 #include <vector>
-#include "../Client/Client.hpp"
 #include "../Channel/Channel.hpp"
+#include "../Client/Client.hpp"
 #include "../includes/types.hpp"
 // #include "../IrcCommands/IrcCommands.hpp"
 
