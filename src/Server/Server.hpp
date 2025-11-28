@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../includes/types.hpp"
 // #include "../IrcCommands/IrcCommands.hpp"
@@ -27,6 +28,7 @@ class Server {
   std::string _pw;
   std::vector<struct pollfd> _poll_fds;
   std::list<Client> _client_list;
+  std::list<Channel> _channel_list;
   IrcCommands* _irc_commands;
 
   //member function (helper)
