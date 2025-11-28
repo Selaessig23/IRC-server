@@ -62,13 +62,13 @@ class Channel {
   bool get_limit_mode();
   int get_user_limit();
   size_t get_members_size();
-  void get_members_fds();
-  int get_operators_fds();
-  int get_invited_fds();
+  //   void get_members_fds();
+  //   int get_operators_fds();
+  //   int get_invited_fds();
 
   // Setters
   void set_topic(std::string topic);
-  void set_limit_mode(size_t limit);
+  //   void set_limit_mode(size_t limit);
   void set_key(std::string key);
   void set_invite_mode();
   void set_user_limit(size_t limit);

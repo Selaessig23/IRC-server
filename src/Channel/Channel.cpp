@@ -44,13 +44,13 @@ void Channel::new_member(Client* _new) {
 void Channel::new_operator(Client* _new) {
   _operators.push_back(_new);
   DEBUG_PRINT("New operator is assigned for the channel");
-  print_channel_info();
+  //   print_channel_info();
 }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
   DEBUG_PRINT("The user is invited to the channel");
-  print_channel_info();
+  //   print_channel_info();
 }
 
 // SETTERS
@@ -113,7 +113,10 @@ size_t Channel::get_members_size() {
 }
 
 void Channel::print_channel_info() {
-  std::cout << get_name() << " [+i]:" << get_invite_mode()
-            << " [+t]:" << get_topic_mode() << " [+k]:" << get_key_mode()
-            << " [+l]:" << get_limit_mode() << std::endl;
+  std::cout << get_name() << " Members: " << get_members_size()
+            << " [+i]:" << get_invite_mode() << " [+t]:" << get_topic_mode()
+            << " [+k]:" << get_key_mode() << " [+l]:" << get_limit_mode()
+            << std::endl;
+  //   DEBUG_PRINT(get_name());
+  //   DEBUG_PRINT(get_members_size());
 }
