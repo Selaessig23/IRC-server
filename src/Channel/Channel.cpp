@@ -112,6 +112,15 @@ size_t Channel::get_members_size() {
   return (_members.size());
 }
 
+std::list<Client*> Channel::get_members() {
+  return (this->_members);
+}
+
+//overload for find-functionality
+bool Channel::operator==(const std::string& other) const {
+  return this->_name == other;
+}
+
 void Channel::print_channel_info() {
   std::cout << get_name() << " [+i]:" << get_invite_mode()
             << " [+t]:" << get_topic_mode() << " [+k]:" << get_key_mode()

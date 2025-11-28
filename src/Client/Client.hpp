@@ -48,6 +48,9 @@ class Client {
   void set_host(std::string host);
   void set_realname(std::string realname);
   void set_servername(std::string realname);
+
+  //overload for find-functionality
+  bool operator==(const std::string& other) const;
 };
 
 #endif  //CLIENT_HPP

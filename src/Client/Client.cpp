@@ -124,3 +124,8 @@ void Client::set_realname(std::string realname) {
 void Client::set_servername(std::string realname) {
   this->_realname = realname;
 }
+
+//overload for find-functionality
+bool Client::operator==(const std::string& other) const {
+  return this->_nick== other;
+}

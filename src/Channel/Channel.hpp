@@ -63,6 +63,7 @@ class Channel {
   int get_user_limit();
   size_t get_members_size();
   void get_members_fds();
+  std::list<Client*> get_members();
   int get_operators_fds();
   int get_invited_fds();
 
@@ -72,6 +73,9 @@ class Channel {
   void set_key(std::string key);
   void set_invite_mode();
   void set_user_limit(size_t limit);
+
+  //overload for find-functionality
+  bool operator==(const std::string& other) const;
 
   void print_channel_info();
 };
