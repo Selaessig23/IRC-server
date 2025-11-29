@@ -94,10 +94,18 @@ std::string& Client::get_user() {
   return (this->_user);
 }
 
+std::string& Client::get_host() {
+  return (this->_host);
+}
+
 bool Client::get_register_status() {
   return (this->_registered);
 }
 
+/**
+ * @brief function to set the event of the pollfd struct
+ * to defined value (it overwrites previous event assignments)
+ */
 void Client::set_server_poll() {
   if (_poll->events == POLLIN)
     _poll->events = POLLOUT;
@@ -125,7 +133,12 @@ void Client::set_servername(std::string realname) {
   this->_realname = realname;
 }
 
-//overload for find-functionality
+/**
+ * @brief overload for find-functionality
+ * it checks for _nick
+ *
+ * @return it returns true if nick == other
+ */
 bool Client::operator==(const std::string& other) const {
-  return this->_nick== other;
+  return this->_nick == other;
 }

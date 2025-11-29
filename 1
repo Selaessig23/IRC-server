@@ -53,7 +53,7 @@ static int send_privmsg(Client& sender, Client& receiver, std::string msg,
  *    ERR_NOTEXTTOSEND (412)
  *
  *
- * reply | error codes from IRC-protocoll that are not considered in this implementation:
+ * error codes from IRC-protocoll that are not considered in this implementation:
  *    ERR_NOSUCHSERVER (402) -> multy-server not implemented
  *    ERR_TOOMANYTARGETS (407) -> how to implement?
  *    ERR_NOTOPLEVEL (413) -> USE CASE?
@@ -75,7 +75,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
     recipients.push_back(*it_para);
   }
 
-  if (it_para == cmd.parameters.end() || it_para->empty()) {
+  if (it_para == cmd.parameters.end() && it_para->empty()) {
     send_message(base, ERR_NOTEXTTOSEND, true, NULL, *cmd.client);
     return (ERR_NOTEXTTOSEND);
   }
