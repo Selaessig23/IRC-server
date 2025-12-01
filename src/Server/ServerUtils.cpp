@@ -43,13 +43,16 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
   }
 }
 
-void Server::set_server_poll(int fd) {
+void Server::set_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
-    if (it->events & POLLOUT)
-      it->events &= ~POLLOUT;
-    else
-      it->events |= POLLOUT;
+      it->events |= event;
+}
+
+void Server::remove_pollevent(int fd, int event) {
+  std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+  for (; it != _poll_fds.end() && it->fd != fd; it++) {}
+      it->events &= ~event;
 }
 
 int Server::handle_pollin(struct pollfd& pfd) {
@@ -110,7 +113,8 @@ void Server::handle_pollout(struct pollfd& pfd) {
     new_out.erase(0, size_sent);
     it_client->set_client_out(new_out);
     if (it_client->get_client_out().empty())
-      pfd.events = POLLIN;
+//       pfd.events = POLLIN;
+    remove_pollevent(it_client->get_client_fd(), POLLOUT);
   }
 }
 Client* Server::find_client_by_fd(int fd) {
