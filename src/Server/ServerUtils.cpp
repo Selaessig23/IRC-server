@@ -43,6 +43,15 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
   }
 }
 
+void Server::set_server_poll(int fd) {
+  std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+  for (; it != _poll_fds.end() && it->fd != fd; it++) {}
+    if (it->events & POLLOUT)
+      it->events &= ~POLLOUT;
+    else
+      it->events |= POLLOUT;
+}
+
 int Server::handle_pollin(struct pollfd& pfd) {
 
   char buf[8750];
