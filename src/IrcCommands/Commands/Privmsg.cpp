@@ -16,7 +16,8 @@
  * (according to IRC protocol (RFC 1459 / 2812))
  */
 int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
-                              const std::string& msg, const std::string& channel) {
+                              const std::string& msg,
+                              const std::string& channel) {
   std::string out;
   out += ":" + sender.get_nick();
   out += "!" + sender.get_user();
@@ -46,6 +47,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  *     (founder and operator prefix are the only ones of interest)
  * (3) think about using wildcards for identifying users and channels (recipients)
  * (4) what should happen if user sends a message to his own?
+ * (5) what should happen if user sends more than 2 parameters? Recently it simply ignoes them
  *
  * @return 0, in case of an error it returns error codes:
  *    ERR_NOSUCHNICK (401)
@@ -71,12 +73,15 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
 
   std::vector<std::string> recipients;
   std::vector<std::string>::const_iterator it_para = cmd.parameters.begin();
-  recipients.push_back(*it_para);
-  it_para++;
-  for (; it_para != cmd.parameters.end() && *it_para->begin() == ',';
-       it_para++) {
-    recipients.push_back(*it_para);
+  size_t start = 0;
+  size_t end = it_para->find(',', start);
+  while (end != std::string::npos) {
+    recipients.push_back(it_para->substr(start, end - start));
+    end = it_para->find(',', start);
+    start = end + 1;
   }
+  recipients.push_back(it_para->substr(start));
+  it_para++;
 
   if (it_para == cmd.parameters.end() || it_para->empty()) {
     send_message(base, ERR_NOTEXTTOSEND, true, NULL, *cmd.client);
@@ -88,37 +93,30 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
   for (std::vector<std::string>::iterator it_rec = recipients.begin();
        it_rec != recipients.end(); it_rec++) {
     if (*it_rec->begin() == '#' || *it_rec->begin() == '&') {
-      std::list<Channel>::iterator it_chan =
-          std::find(base._channel_list.begin(), base._channel_list.end(), *it_rec);
-      //checks if Channel exists and if current client is member of channel (==allowed to send messages)
+      std::list<Channel>::iterator it_chan = std::find(
+          base._channel_list.begin(), base._channel_list.end(), *it_rec);
       if (it_chan != base._channel_list.end() &&
           std::find(it_chan->get_members_nicks().begin(),
                     it_chan->get_members_nicks().end(),
                     cmd.client->get_nick()) !=
               it_chan->get_members_nicks().end()) {
-        //send message to each channel members
         std::list<Client*> chan_members = it_chan->get_members();
         for (std::list<Client*>::iterator it_chan_member = chan_members.begin();
-             it_chan_member != it_chan->get_members().end(); it_chan_member++) {
+             it_chan_member != chan_members.end(); it_chan_member++) {
           send_privmsg(base, *cmd.client, *(*it_chan_member), msg,
                        it_chan->get_name());
         }
       } else {
-        //send error message
         send_message(base, ERR_CANNOTSENDTOCHAN, true, NULL, *cmd.client);
         return (ERR_CANNOTSENDTOCHAN);
       }
     } else {
-      std::list<Client>::iterator it_nick =
-          std::find(base._client_list.begin(), base._client_list.end(),
-                    *it_rec);
+      std::list<Client>::iterator it_nick = std::find(
+          base._client_list.begin(), base._client_list.end(), *it_rec);
       if (it_nick->get_client_fd() != cmd.client->get_client_fd() &&
           it_nick != base._client_list.end()) {
-        //send message to client
         send_privmsg(base, *cmd.client, *it_nick, msg, "");
       } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()) {
-        // 	DEBUG_PRINT("Nick not found to send PRIVMSG: &" << it_rec->get)
-        //send error message
         send_message(base, ERR_NOSUCHNICK, true, NULL, *cmd.client);
         return (ERR_NOSUCHNICK);
       }
