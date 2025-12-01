@@ -45,6 +45,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  * (2) think about using Channel Membership Prefixes to address messages to certain group of people with a channel
  *     (founder and operator prefix are the only ones of interest)
  * (3) think about using wildcards for identifying users and channels (recipients)
+ * (4) what should happen if user sends a message to his own?
  *
  * @return 0, in case of an error it returns error codes:
  *    ERR_NOSUCHNICK (401)
