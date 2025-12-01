@@ -11,20 +11,17 @@
  * swap function (e. g. as friend)
  */
 
-Client::Client(long id, int fd, struct sockaddr_in addr,
-               struct pollfd& poll_struct)
+Client::Client(long id, int fd, struct sockaddr_in addr)
     : _id(id),
       _client_fd(fd),
       _registered(0),
-      _client_addr(addr),
-      _poll(&poll_struct) {}
+      _client_addr(addr) {}
 
 Client::Client(const Client& other)
     : _id(other._id),
       _client_fd(other._client_fd),
       _registered(other._registered),
       _client_addr(other._client_addr),
-      _poll(other._poll),
       _received_packs(other._received_packs),
       _nick(other._nick),
       _user(other._user),

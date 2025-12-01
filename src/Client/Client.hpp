@@ -12,7 +12,6 @@ class Client {
   int _client_fd;
   bool _registered;
   struct sockaddr_in _client_addr;
-  struct pollfd* _poll;
   std::string _received_packs;
   std::string _nick;
   std::string _user;
@@ -24,7 +23,7 @@ class Client {
 
  public:
   Client();
-  Client(long id, int fd, struct sockaddr_in addr, struct pollfd& poll_struct);
+  Client(long id, int fd, struct sockaddr_in addr);
   Client(const Client& other);
   Client operator=(const Client& other);
   ~Client();
