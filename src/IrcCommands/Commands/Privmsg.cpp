@@ -70,6 +70,8 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
 
   std::vector<std::string> recipients;
   std::vector<std::string>::const_iterator it_para = cmd.parameters.begin();
+  recipients.push_back(*it_para);
+  it_para++;
   for (; it_para != cmd.parameters.end() && *it_para->begin() == ',';
        it_para++) {
     recipients.push_back(*it_para);
@@ -108,10 +110,10 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
     } else {
       std::list<Client>::iterator it_nick =
           std::find(base._client_list.begin(), base._client_list.end(), msg);
-      if (it_nick != base._client_list.end()) {
+      if (it_nick->get_client_fd() != cmd.client->get_client_fd() && it_nick != base._client_list.end()) {
         //send message to client
         send_privmsg(*cmd.client, *it_nick, msg, "");
-      } else {
+      } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()){
         //send error message
         send_message(base, ERR_NOSUCHNICK, true, NULL, *cmd.client);
         return (ERR_NOSUCHNICK);

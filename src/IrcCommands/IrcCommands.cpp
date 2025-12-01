@@ -39,7 +39,7 @@ int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd,
       _irc_commands.find(cmd.command);
   if (it == _irc_commands.end()){
     send_message(base, ERR_UNKNOWNCOMMAND, true, NULL, *cmd.client);
-    return (1);
+    return (ERR_UNKNOWNCOMMAND);
   }
   else
     to_execute = _irc_commands.find(cmd.command)->second;

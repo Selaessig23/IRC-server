@@ -6,6 +6,7 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../includes/types.hpp"
+#include "../debug.hpp"
 #include "Server.hpp"
 
 std::string get_current_date_time() {
@@ -50,10 +51,10 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
   if (recv_len <= 0) {
     close(pfd.fd);
-
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); ++it) {
       if (it->fd == pfd.fd) {
+            DEBUG_PRINT("Case delete client: " << pfd.fd);
         _poll_fds.erase(it);
         break;
       }
@@ -101,7 +102,7 @@ void Server::handle_pollout(struct pollfd& pfd) {
     new_out.erase(0, size_sent);
     it_client->set_client_out(new_out);
     if (it_client->get_client_out().empty())
-      pfd.events = POLLIN;
+      pfd.events &= ~POLLOUT;
   }
 }
 Client* Server::find_client_by_fd(int fd) {

@@ -107,10 +107,10 @@ bool Client::get_register_status() {
  * to defined value (it overwrites previous event assignments)
  */
 void Client::set_server_poll() {
-  if (_poll->events == POLLIN)
-    _poll->events = POLLOUT;
-  else if (_poll->events == POLLOUT)
-    _poll->events = POLLIN;
+  if (_poll->events & POLLOUT)
+    _poll->events &= ~POLLOUT;
+  else
+    _poll->events |= POLLOUT;
 }
 
 void Client::set_nick(std::string nick) {
