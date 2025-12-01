@@ -25,6 +25,12 @@ Client::Client(const Client& other)
       _registered(other._registered),
       _client_addr(other._client_addr),
       _poll(other._poll),
+      _received_packs(other._received_packs),
+      _nick(other._nick),
+      _user(other._user),
+      _host(other._host),
+      _servername(other._servername),
+      _realname(other._realname),
       _output_buffer(other._output_buffer) {}
 
 Client Client::operator=(const Client& other) {
@@ -84,6 +90,10 @@ std::string& Client::get_nick() {
   return (this->_nick);
 }
 
+std::string& Client::get_user() {
+  return (this->_user);
+}
+
 bool Client::get_register_status() {
   return (this->_registered);
 }
@@ -97,4 +107,20 @@ void Client::set_server_poll(int event) {
 
 void Client::set_nick(std::string nick) {
   this->_nick = nick;
+}
+
+void Client::set_user(std::string user) {
+  this->_user = user;
+}
+
+void Client::set_host(std::string host) {
+  this->_host = host;
+}
+
+void Client::set_realname(std::string realname) {
+  this->_realname = realname;
+}
+
+void Client::set_servername(std::string realname) {
+  this->_realname = realname;
 }
