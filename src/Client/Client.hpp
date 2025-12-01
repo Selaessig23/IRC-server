@@ -42,7 +42,6 @@ class Client {
   std::string& get_nick();
   std::string& get_user();
   bool get_register_status();
-  void set_server_poll();
   void set_nick(std::string nick);
   void set_user(std::string user);
   void set_host(std::string host);
