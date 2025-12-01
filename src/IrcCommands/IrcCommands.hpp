@@ -27,6 +27,8 @@ class IrcCommands {
   bool client_register_check(Server& base, Client& to_check);
   std::string get_error(Server& base, enum PARSE_ERR err);
   std::string get_rpl(Server& base, enum RPL_MSG rpl);
+  int send_privmsg(Server &base, Client& sender, Client& receiver, std::string msg,
+                        std::string channel);
 
  public:
   IrcCommands();

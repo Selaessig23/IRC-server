@@ -15,7 +15,7 @@
  * :<nick>!<user>@<host> PRIVMSG <channel_name> :<message>
  * (according to IRC protocol (RFC 1459 / 2812))
  */
-static int send_privmsg(Client& sender, Client& receiver, std::string msg,
+int IrcCommands::send_privmsg(Server &base, Client& sender, Client& receiver, std::string msg,
                         std::string channel) {
   std::string out;
   out += ":" + sender.get_nick();
@@ -29,7 +29,7 @@ static int send_privmsg(Client& sender, Client& receiver, std::string msg,
   out += " :" + msg;
   out += "\r\n";
   receiver.add_client_out(out);
-  receiver.set_server_poll();
+  base.set_server_poll(receiver.get_client_fd());
   return (0);
 }
 
@@ -99,7 +99,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
         std::list<Client*> chan_members = it_chan->get_members();
         for (std::list<Client*>::iterator it_chan_member = chan_members.begin();
              it_chan_member != it_chan->get_members().end(); it_chan_member++) {
-          send_privmsg(*cmd.client, *(*it_chan_member), msg,
+          send_privmsg(base, *cmd.client, *(*it_chan_member), msg,
                        it_chan->get_name());
         }
       } else {
@@ -112,7 +112,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
           std::find(base._client_list.begin(), base._client_list.end(), msg);
       if (it_nick->get_client_fd() != cmd.client->get_client_fd() && it_nick != base._client_list.end()) {
         //send message to client
-        send_privmsg(*cmd.client, *it_nick, msg, "");
+        send_privmsg(base, *cmd.client, *it_nick, msg, "");
       } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()){
         //send error message
         send_message(base, ERR_NOSUCHNICK, true, NULL, *cmd.client);
