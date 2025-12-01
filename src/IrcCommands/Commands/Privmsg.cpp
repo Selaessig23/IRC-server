@@ -89,7 +89,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
        it_rec != recipients.end(); it_rec++) {
     if (*it_rec->begin() == '#' || *it_rec->begin() == '&') {
       std::list<Channel>::iterator it_chan =
-          std::find(base._channel_list.begin(), base._channel_list.end(), msg);
+          std::find(base._channel_list.begin(), base._channel_list.end(), *it_rec);
       //checks if Channel exists and if current client is member of channel (==allowed to send messages)
       if (it_chan != base._channel_list.end() &&
           std::find(it_chan->get_members_nicks().begin(),
