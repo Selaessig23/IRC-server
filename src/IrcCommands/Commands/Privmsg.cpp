@@ -8,7 +8,7 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief function to send private messages from server to client
+ * @brief function to format and send private messages from one client to another or to a channel
  * FORMAT:
  * :<nick>!<user>@<host> PRIVMSG <target_nick> :<message>
  * OR
