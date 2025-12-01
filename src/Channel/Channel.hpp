@@ -1,10 +1,13 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+#include <ctime>  // for time-related functions
 #include <iostream>
 #include <list>
 #include <string>
 #include "../Client/Client.hpp"
+
+#define INVITE_ONLY
 
 /**
  * @brief
@@ -34,9 +37,10 @@ class Channel {
   std::list<Client*> _members;
   std::list<Client*> _operators;
   std::list<Client*> _invited;
+  std
 
-  // booleans for Channel MODES:
-  bool _limit_mode;
+      // booleans for Channel MODES:
+      bool _limit_mode;
   bool _key_mode;
   bool _invite_mode;
   bool _topic_mode;
