@@ -22,7 +22,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
   out += "!" + sender.get_user();
   out += "@" + sender.get_host();
   out += " PRIVMSG ";
-  if (channel.empty())
+  if (!channel.empty())
     out += channel;
   else
     out += receiver.get_nick();
