@@ -21,7 +21,7 @@
  *
  * TODO 
  * (1) a bitmask to check the modes 
- * (2) if channel ıs mutable we'll need a setter function
+ * (2) if channel is mutable we'll need a setter function
  */
 
 class Channel {
@@ -62,6 +62,7 @@ class Channel {
   bool get_limit_mode();
   int get_user_limit();
   size_t get_members_size();
+  size_t get_operators_size();
   //   void get_members_fds();
   //   int get_operators_fds();
   //   int get_invited_fds();

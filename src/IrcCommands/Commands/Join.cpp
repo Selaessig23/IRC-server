@@ -9,9 +9,11 @@
 #include "../IrcCommands.hpp"
 
 /**
- * TODO 
+ * TODO:
  * (1) check if there is enough parameters
- * (2) check and implement respective errors from the protocol
+ * (2) check for parameter prefix
+ * (3) implement respective ERR
+ * (4) implement resprective RPL
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -35,8 +37,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
   std::list<Client>::iterator it = base._client_list.begin();
   for (; it != base._client_list.end(); it++) {
     if (it->get_client_fd() == fd_curr_client)
-      DEBUG_PRINT("JOIN1");
-    break;
+      break;
   }
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
@@ -44,23 +45,32 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
   }
   if (base._channel_list.empty()) {
     Channel NewChannel(cmd.parameters[0]);
-    NewChannel.new_member(cmd.client);
     base._channel_list.push_back(NewChannel);
-    DEBUG_PRINT("JOIN2");
-    return (0);
+    base._channel_list.back().new_member(cmd.client);
+    base._channel_list.back().new_operator(cmd.client);
+    base._channel_list.back().print_channel_info();
+    // return (0);
   } else {
     std::list<Channel>::iterator iter = base._channel_list.begin();
-    if (cmd.parameters.size() >= 1) {
-      for (; iter != base._channel_list.end(); iter++) {
-        if (iter->get_name() == cmd.parameters[0]) {
-          iter->new_member(cmd.client);
-          DEBUG_PRINT("JOIN3");
-          return (0);
-        }
+    for (; iter != base._channel_list.end(); iter++) {
+      if (iter->get_name() == cmd.parameters[0]) {
+        iter->new_member(cmd.client);
+
+        iter->print_channel_info();
+        break;
+      } else {
+        Channel NewChannel(cmd.parameters[0]);
+        base._channel_list.push_back(NewChannel);
+        base._channel_list.back().new_member(cmd.client);
+        base._channel_list.back().new_operator(cmd.client);
+        base._channel_list.back().print_channel_info();
+        // return (0);
       }
     }
-    // iter->print_channel_info();
   }
+  std::cout << "Total Channels: " << base._channel_list.size() << std::endl;
+
+  // }
   //   if (cmd.parameters.size() == 1) {  // check needed for if channel already exists
 
   //   } else {
