@@ -11,20 +11,17 @@
  * swap function (e. g. as friend)
  */
 
-Client::Client(long id, int fd, struct sockaddr_in addr,
-               struct pollfd& poll_struct)
+Client::Client(long id, int fd, struct sockaddr_in addr)
     : _id(id),
       _client_fd(fd),
       _registered(0),
-      _client_addr(addr),
-      _poll(&poll_struct) {}
+      _client_addr(addr) {}
 
 Client::Client(const Client& other)
     : _id(other._id),
       _client_fd(other._client_fd),
       _registered(other._registered),
       _client_addr(other._client_addr),
-      _poll(other._poll),
       _received_packs(other._received_packs),
       _nick(other._nick),
       _user(other._user),
@@ -96,13 +93,6 @@ std::string& Client::get_user() {
 
 bool Client::get_register_status() {
   return (this->_registered);
-}
-
-void Client::set_server_poll() {
-  if (_poll->events == POLLIN)
-    _poll->events = POLLOUT;
-  else if (_poll->events == POLLOUT)
-    _poll->events = POLLIN;
 }
 
 void Client::set_nick(std::string nick) {

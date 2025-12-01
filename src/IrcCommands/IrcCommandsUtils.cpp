@@ -101,7 +101,7 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
     out += get_rpl(base, static_cast<RPL_MSG>(numeric_msg_code));
   out += "\r\n";
   curr_client.add_client_out(out);
-  curr_client.set_server_poll();
+  base.set_server_poll(curr_client.get_client_fd());
 }
 
 /**
