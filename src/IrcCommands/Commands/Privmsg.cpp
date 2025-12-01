@@ -15,8 +15,8 @@
  * :<nick>!<user>@<host> PRIVMSG <channel_name> :<message>
  * (according to IRC protocol (RFC 1459 / 2812))
  */
-int IrcCommands::send_privmsg(Server &base, Client& sender, Client& receiver, std::string msg,
-                        std::string channel) {
+int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
+                              std::string msg, std::string channel) {
   std::string out;
   out += ":" + sender.get_nick();
   out += "!" + sender.get_user();
@@ -109,11 +109,14 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
       }
     } else {
       std::list<Client>::iterator it_nick =
-          std::find(base._client_list.begin(), base._client_list.end(), msg);
-      if (it_nick->get_client_fd() != cmd.client->get_client_fd() && it_nick != base._client_list.end()) {
+          std::find(base._client_list.begin(), base._client_list.end(),
+                    *it_rec);
+      if (it_nick->get_client_fd() != cmd.client->get_client_fd() &&
+          it_nick != base._client_list.end()) {
         //send message to client
         send_privmsg(base, *cmd.client, *it_nick, msg, "");
-      } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()){
+      } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()) {
+        // 	DEBUG_PRINT("Nick not found to send PRIVMSG: &" << it_rec->get)
         //send error message
         send_message(base, ERR_NOSUCHNICK, true, NULL, *cmd.client);
         return (ERR_NOSUCHNICK);
