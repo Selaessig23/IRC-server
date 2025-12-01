@@ -17,7 +17,6 @@
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
- * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_TOOMANYCHANNELS (405)
  * ERR_BADCHANNELKEY (475)
@@ -53,29 +52,19 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
   } else {
     std::list<Channel>::iterator iter = base._channel_list.begin();
     for (; iter != base._channel_list.end(); iter++) {
-      if (iter->get_name() == cmd.parameters[0]) {
-        iter->new_member(cmd.client);
-
-        iter->print_channel_info();
+      if (iter->get_name() == cmd.parameters[0])
         break;
-      } else {
-        Channel NewChannel(cmd.parameters[0]);
-        base._channel_list.push_back(NewChannel);
-        base._channel_list.back().new_member(cmd.client);
-        base._channel_list.back().new_operator(cmd.client);
-        base._channel_list.back().print_channel_info();
-        // return (0);
-      }
+    }
+    if (iter == base._channel_list.end()) {
+      Channel NewChannel(cmd.parameters[0]);
+      base._channel_list.push_back(NewChannel);
+      base._channel_list.back().new_member(cmd.client);
+      base._channel_list.back().new_operator(cmd.client);
+      base._channel_list.back().print_channel_info();
+    } else {
+      iter->new_member(cmd.client);
+      iter->print_channel_info();
     }
   }
-  std::cout << "Total Channels: " << base._channel_list.size() << std::endl;
-
-  // }
-  //   if (cmd.parameters.size() == 1) {  // check needed for if channel already exists
-
-  //   } else {
-  //     std::cout << "Channel already exists" << std::endl;
-  //     //send_message(base, ERR_PASSWDMISMATCH, true, NULL, *it);
-  //     return (464);
   return (0);
 }
