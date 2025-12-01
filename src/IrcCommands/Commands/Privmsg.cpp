@@ -36,7 +36,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
 /**
  * @brief function to send private messages between users, 
  * as well as to send messages to channels
- * IRC syyntax:
+ * IRC syntax:
  * Command: PRIVMSG
  * Parameters: <target>{,<target>} <text to be sent>
  *
