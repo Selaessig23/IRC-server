@@ -55,7 +55,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  *
  *
  * reply | error codes from IRC-protocol that are not considered in this implementation:
- *    ERR_NOSUCHSERVER (402) -> multy-server not implemented
+ *    ERR_NOSUCHSERVER (402) -> multi-server not implemented
  *    ERR_TOOMANYTARGETS (407) -> how to implement?
  *    ERR_NOTOPLEVEL (413) -> USE CASE?
  *    ERR_WILDTOPLEVEL (414) -> USE CASE?
