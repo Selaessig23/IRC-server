@@ -16,7 +16,7 @@
  * (according to IRC protocol (RFC 1459 / 2812))
  */
 int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
-                              std::string msg, std::string channel) {
+                              const std::string& msg, const std::string& channel) {
   std::string out;
   out += ":" + sender.get_nick();
   out += "!" + sender.get_user();
