@@ -40,12 +40,7 @@ class Channel {
   std::list<Client*> _members;
   std::list<Client*> _operators;
   std::list<Client*> _invited;
-
-  // booleans for Channel MODES:
-  bool _limit_mode;
-  bool _key_mode;
-  bool _invite_mode;
-  bool _topic_mode;
+  int _modes;
 
  public:
   Channel(std::string name);
@@ -62,10 +57,6 @@ class Channel {
   std::string get_name();
   std::string get_topic();
   std::string get_key();
-  // bool get_key_mode();
-  // bool get_invite_mode();
-  // bool get_topic_mode();
-  // bool get_limit_mode();
   int get_user_limit();
   size_t get_members_size();
   size_t get_operators_size();
