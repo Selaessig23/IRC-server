@@ -7,7 +7,10 @@
 #include <string>
 #include "../Client/Client.hpp"
 
-#define INVITE_ONLY
+#define MODE_INVITE (1 << 0)
+#define MODE_KEY (1 << 1)
+#define MODE_LIMIT (1 << 2)
+#define MODE_TOPIC (1 << 3)
 
 /**
  * @brief
@@ -37,10 +40,9 @@ class Channel {
   std::list<Client*> _members;
   std::list<Client*> _operators;
   std::list<Client*> _invited;
-  std
 
-      // booleans for Channel MODES:
-      bool _limit_mode;
+  // booleans for Channel MODES:
+  bool _limit_mode;
   bool _key_mode;
   bool _invite_mode;
   bool _topic_mode;
@@ -60,10 +62,10 @@ class Channel {
   std::string get_name();
   std::string get_topic();
   std::string get_key();
-  bool get_key_mode();
-  bool get_invite_mode();
-  bool get_topic_mode();
-  bool get_limit_mode();
+  // bool get_key_mode();
+  // bool get_invite_mode();
+  // bool get_topic_mode();
+  // bool get_limit_mode();
   int get_user_limit();
   size_t get_members_size();
   size_t get_operators_size();
@@ -72,10 +74,11 @@ class Channel {
   //   int get_invited_fds();
 
   // Setters
+  void set_modes(std::string flag);
   void set_topic(std::string topic);
   //   void set_limit_mode(size_t limit);
   void set_key(std::string key);
-  void set_invite_mode();
+  // void set_invite_mode();
   void set_user_limit(size_t limit);
 
   void print_channel_info();
