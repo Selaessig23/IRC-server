@@ -26,7 +26,7 @@
 int IrcCommands::user(Server& base, const struct cmd_obj& cmd,
                       int fd_curr_client) {
   (void)fd_curr_client;
-  if (!(cmd.client->get_register_status() & PASS)) {
+  if (cmd.client->get_register_status() & ~PASS) {
     send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
     return (ERR_NOTREGISTERED);
   }

@@ -125,10 +125,11 @@ void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
  * @return 1 in case of registered, 0 if not
  */
 bool IrcCommands::client_register_check(Server& base, Client& to_check) {
+  (void)base;
   unsigned char reg_status = to_check.get_register_status();
   unsigned char registered = PASS | NICK | USER;
   if (reg_status == registered)
     return (1);
-  send_message(base, ERR_NOTREGISTERED, true, NULL, to_check);
-  return (0);
+  else
+    return (0);
 }

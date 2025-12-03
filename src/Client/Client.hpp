@@ -45,6 +45,7 @@ class Client {
   std::string& get_user();
   std::string& get_host();
   unsigned char get_register_status();
+  void set_register_status(char to_add);
   void set_nick(std::string nick);
   void set_user(std::string user);
   void set_host(std::string host);

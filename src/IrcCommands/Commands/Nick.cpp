@@ -13,8 +13,10 @@
  * (1) think about client feedback in case of success
  * (2) think about if all other clients should get a feedback in case
  * of the client has changed his nick (maybe only as a channel notice)
+ * (3) maybe choose another errmsg for pw not set yet (or just do not return anything, simply ignore)
  *
  * @return 0, in case of an error it returns error codes:
+ * ERR_NOTREGISTERED (451) --> if pw was not set
  * ERR_NONICKNAMEGIVEN (431)
  * ERR_ERRONEUSNICKNAME (432)
  * ERR_NICKNAMEINUSE (433)
@@ -30,6 +32,11 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
   for (; it_client != base._client_list.end(); it_client++) {
     if (it_client->get_client_fd() == fd_curr_client)
       break;
+  }
+
+  if (!(cmd.client->get_register_status() & PASS)) {
+    send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
+    return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
@@ -54,11 +61,18 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd,
     }
   }
 
-  std::string nick_old = it_client->get_nick();
-  it_client->set_nick(*cmd.parameters.begin());
-  if (nick_old.empty())
+  std::string nick_old = cmd.client->get_nick();
+  cmd.client->set_nick(*cmd.parameters.begin());
+  cmd.client->set_register_status(NICK);
+  if (nick_old.empty()) {
     send_message(base, RPL_INTERN_SETNICK, false, NULL, *it_client);
-  else
+    if (client_register_check(base, *it_client)) {
+      send_message(base, RPL_WELCOME, false, NULL, *it_client);
+      send_message(base, RPL_YOURHOST, false, NULL, *it_client);
+      send_message(base, RPL_CREATED, false, NULL, *it_client);
+    }
+  } else
     send_message(base, RPL_INTERN_CHANGENICK, false, &nick_old, *it_client);
   return (0);
 }
+
