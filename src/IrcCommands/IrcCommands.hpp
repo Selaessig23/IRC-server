@@ -21,6 +21,7 @@ class IrcCommands {
   int pass(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int pong(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int nick(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
+  int cap(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int user(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int privmsg(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   // helper functions

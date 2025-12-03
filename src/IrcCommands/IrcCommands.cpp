@@ -8,6 +8,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("PASS", &IrcCommands::pass));
   _irc_commands.insert(std::make_pair("PING", &IrcCommands::pong));
   _irc_commands.insert(std::make_pair("NICK", &IrcCommands::nick));
+  _irc_commands.insert(std::make_pair("CAP", &IrcCommands::cap));
   _irc_commands.insert(std::make_pair("USER", &IrcCommands::user));
   _irc_commands.insert(std::make_pair("PRIVMSG", &IrcCommands::privmsg));
 }

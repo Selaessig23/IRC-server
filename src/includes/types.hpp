@@ -26,6 +26,7 @@ enum PARSE_ERR {
 };
 
 enum RPL_MSG {
+  RPL_NONE = 000,
   RPL_WELCOME = 001,
   RPL_YOURHOST = 002,
   RPL_CREATED = 003,

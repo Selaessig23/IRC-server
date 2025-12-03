@@ -37,7 +37,8 @@ class Server {
   int handle_new_client();
   int handle_pollin(struct pollfd& poll_fd);
   void handle_pollout(struct pollfd& poll_fd);
-  void set_server_poll(int fd);
+  void set_pollevent(int fd, int event);
+  void remove_pollevent(int fd, int event);
 
  public:
   // OCF
