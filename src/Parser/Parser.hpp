@@ -1,6 +1,7 @@
 #ifndef PARSING_HPP
 #define PARSING_HPP
 
+#include "../Server/Server.hpp"
 #include "../includes/types.hpp"
 
 /**
