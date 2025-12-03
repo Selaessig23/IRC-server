@@ -131,13 +131,13 @@ void Channel::print_channel_info() {
   std::cout << "Members[" << get_members_size() << "]: ";
   for (std::list<Client*>::iterator it = _members.begin();
        !_members.empty() && it != _members.end(); it++) {
-    std::cout << (*it)->get_nick() << " ";
+    std::cout << (*it)->get_nick() << ", ";
   };
   std::cout << std::endl;
   std::cout << "Operators[" << get_operators_size() << "]: ";
   for (std::list<Client*>::iterator it = _operators.begin();
        !_operators.empty() && it != _operators.end(); it++) {
-    std::cout << (*it)->get_nick() << " ";
+    std::cout << (*it)->get_nick() << ", ";
   };
   std::cout << std::endl;
 }
