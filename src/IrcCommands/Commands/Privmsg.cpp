@@ -30,7 +30,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
   out += " :" + msg;
   out += "\r\n";
   receiver.add_client_out(out);
-  base.set_server_poll(receiver.get_client_fd());
+  base.set_pollevent(receiver.get_client_fd(), POLLOUT);
   return (0);
 }
 
