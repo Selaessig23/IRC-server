@@ -16,18 +16,10 @@
  * (4) implement resprective RPL
  *  
  * @return 0, in case of an error it returns error codes:
- * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
- * ERR_TOOMANYCHANNELS (405)
- * ERR_BADCHANNELKEY (475)
- * ERR_BANNEDFROMCHAN (474)
- * ERR_CHANNELISFULL (471)
- * ERR_INVITEONLYCHAN (473)
- * ERR_BADCHANMASK (476)
- * RPL_TOPIC (332)
- * RPL_TOPICWHOTIME (333)
- * RPL_NAMREPLY (353)
- * RPL_ENDOFNAMES (366)
+ * RPL_CHANNELMODEIS (324)
+ * RPL_CREATIONTIME (329)
+ * ERR_CHANOPRIVSNEEDED (482)
  * 
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
@@ -48,7 +40,6 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
     base._channel_list.back().new_member(cmd.client);
     base._channel_list.back().new_operator(cmd.client);
     base._channel_list.back().print_channel_info();
-    // return (0);
   } else {
     std::list<Channel>::iterator iter = base._channel_list.begin();
     for (; iter != base._channel_list.end(); iter++) {

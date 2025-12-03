@@ -60,16 +60,11 @@ class Channel {
   int get_user_limit();
   size_t get_members_size();
   size_t get_operators_size();
-  //   void get_members_fds();
-  //   int get_operators_fds();
-  //   int get_invited_fds();
 
   // Setters
   void set_modes(std::string flag);
   void set_topic(std::string topic);
-  //   void set_limit_mode(size_t limit);
   void set_key(std::string key);
-  // void set_invite_mode();
   void set_user_limit(size_t limit);
 
   void print_channel_info();

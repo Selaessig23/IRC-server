@@ -41,14 +41,14 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
     return (ERR_NEEDMOREPARAMS);
-  }
+  } else if (cmd.parameters[0][0] != '#' || cmd.parameters[0][0] != '&')
+    return (0);
   if (base._channel_list.empty()) {
     Channel NewChannel(cmd.parameters[0]);
     base._channel_list.push_back(NewChannel);
     base._channel_list.back().new_member(cmd.client);
     base._channel_list.back().new_operator(cmd.client);
     base._channel_list.back().print_channel_info();
-    // return (0);
   } else {
     std::list<Channel>::iterator iter = base._channel_list.begin();
     for (; iter != base._channel_list.end(); iter++) {
