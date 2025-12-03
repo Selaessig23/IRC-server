@@ -6,6 +6,7 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../includes/types.hpp"
+#include "../debug.hpp"
 #include "Server.hpp"
 
 std::string get_current_date_time() {
@@ -43,6 +44,13 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
   }
 }
 
+/**
+ * @brief function to set the event of the pollfd struct of client
+ * with corresponding fd
+ * 
+ * TODO: 
+ * (1) set to defined value (it overwrites previous event assignments)
+ */
 void Server::set_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
@@ -62,10 +70,10 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
   if (recv_len <= 0) {
     close(pfd.fd);
-
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); ++it) {
       if (it->fd == pfd.fd) {
+            DEBUG_PRINT("Case delete client: " << pfd.fd);
         _poll_fds.erase(it);
         break;
       }
@@ -113,7 +121,6 @@ void Server::handle_pollout(struct pollfd& pfd) {
     new_out.erase(0, size_sent);
     it_client->set_client_out(new_out);
     if (it_client->get_client_out().empty())
-//       pfd.events = POLLIN;
     remove_pollevent(it_client->get_client_fd(), POLLOUT);
   }
 }

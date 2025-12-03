@@ -7,7 +7,7 @@
 #include "IrcCommands.hpp"
 
 /**
- * @brief function to create reply-messages from server to client
+ * @brief function to return the reply message of replymessagecode (rpl)
  *
  * TODO
  * (1) add all required rpl messags according to rpl_code
@@ -37,7 +37,7 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
 }
 
 /**
- * @brief function to return the error message of errorcode
+ * @brief function to return the error message of errorcode (err)
  *
  * TODO
  * (1) add all required error messages to corresponding error codes
@@ -48,6 +48,14 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
   switch (err) {
     case EMPTY_CMD:
       return (" Command empty");
+    case ERR_NOSUCHNICK:
+      return ("<client> <nickname> :No such nick/channel");
+    case ERR_CANNOTSENDTOCHAN:
+      return ("<client> <channel> :No such channel");
+    case ERR_NORECIPIENT:
+      return ("<client> :No recipient given (<command>)");
+    case ERR_NOTEXTTOSEND:
+      return ("<client> :No text to send");
     case ERR_INPUTTOOLONG:
       return (" :Input line was too long");
     case ERR_UNKNOWNCOMMAND:
@@ -74,10 +82,13 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
 }
 
 /**
- * @brief function to sent out messages from server to client
+ * @brief function to sent out direct messages as answer on COMMAND-requests from client
+ * direct communication from server to client, 
+ * whether error-msg or rpl-messages (success)
  *
  * TODO
  * (1) set tag (only if clients support them, to check with CAP LS negotiation)
+ * (2) think about changing the parameters
  */
 void IrcCommands::send_message(Server& base, int numeric_msg_code, bool error,
                                std::string* msg, Client& curr_client) {

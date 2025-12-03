@@ -90,7 +90,8 @@ int Server::add_new_client_to_poll(int client_fd) {
  * (1) it creates new client class
  * (2) client is add to client class
  * (3) welcome-message from server gets written to client buffer
- *     and poll event of client fd gets changed to POLLOUT
+ *     and poll event of client fd gets set to POLLIN AND 
+ *     POLLOUT (to write welcome message)
  */
 int Server::handle_new_client() {
   struct sockaddr_in client_addr;
@@ -105,7 +106,7 @@ int Server::handle_new_client() {
   // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
-    it->events = POLLOUT;
+    it->events = POLLOUT | POLLIN;
   Client NewClient((_client_list.size() + 1), client_fd, client_addr);
   _client_list.push_back(NewClient);
   return (0);
