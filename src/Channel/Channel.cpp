@@ -2,6 +2,7 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 #include "../Client/Client.hpp"
 #include "../debug.hpp"
 
@@ -115,6 +116,38 @@ size_t Channel::get_members_size() {
 size_t Channel::get_operators_size() {
   return (_operators.size());
 }
+
+/**
+ * @brief function to create a std::vector of all nicknames of the
+ * channel members
+ */
+std::vector<std::string> Channel::get_members_nicks(void) {
+  std::vector<std::string> ret;
+  ret.reserve(_members.size());
+  for (std::list<Client*>::const_iterator it = _members.begin();
+       it != _members.end(); it++) {
+    ret.push_back((*it)->get_nick());
+  }
+  return (ret);
+}
+
+std::list<Client*> Channel::get_members() {
+  return (this->_members);
+}
+
+/**
+ * @brief overload for find-functionality
+ * it checks for _name of channel
+ *
+ * @returns true if _name == other
+ */
+bool Channel::operator==(const std::string& other) const {
+  return this->_name == other;
+}
+
+/**
+ * @brief channel info to send each client after they join a channel 
+ */
 
 void Channel::print_channel_info() {
   std::cout << get_name() << " [+i]:" << get_invite_mode()

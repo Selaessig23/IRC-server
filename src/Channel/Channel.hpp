@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 #include "../Client/Client.hpp"
 
 /**
@@ -47,6 +48,9 @@ class Channel {
   Channel& operator=(const Channel& other);
   ~Channel();
 
+  //overload for find-functionality
+  bool operator==(const std::string& other) const;
+
   // Member management
   void new_member(Client* _new);
   void new_operator(Client* _new);
@@ -64,6 +68,8 @@ class Channel {
   size_t get_members_size();
   size_t get_operators_size();
   //   void get_members_fds();
+  std::vector<std::string> get_members_nicks();
+  std::list<Client*> get_members();
   //   int get_operators_fds();
   //   int get_invited_fds();
 
