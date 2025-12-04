@@ -66,7 +66,6 @@ class Channel {
   int get_user_limit();
   size_t get_members_size();
   size_t get_operators_size();
-  //   void get_members_fds();
   std::vector<std::string> get_members_nicks();
   std::list<Client*> get_members();
 
