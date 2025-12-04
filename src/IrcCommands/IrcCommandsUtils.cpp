@@ -31,6 +31,12 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
       return (
           " :No ident server\nUser gets registered with username\n~ _username "
           "and real name _realname");
+    case RPL_TOPIC:
+      return ("<client> <channel> :<topic>");
+    case RPL_NAMREPLY:
+      return ("<client> <symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");
+    case RPL_ENDOFNAMES:
+      return ("<client> <channel> :End of /NAMES list");
     default:
       return (" UNKNOWN REPLY");
   }
@@ -50,6 +56,8 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
       return (" Command empty");
     case ERR_NOSUCHNICK:
       return ("<client> <nickname> :No such nick/channel");
+    case ERR_NOSUCHCHANNEL:
+      return ("<client> <channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
       return ("<client> <channel> :No such channel");
     case ERR_NORECIPIENT:
@@ -76,6 +84,12 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
       return (" :You may not reregister");
     case ERR_PASSWDMISMATCH:
       return (" :Password incorrect");
+    case ERR_CHANNELISFULL:
+      return ("<client> <channel> :Cannot join channel (+l)");
+    case ERR_INVITEONLYCHAN:
+      return ("<client> <channel> :Cannot join channel (+i)");
+    case ERR_BADCHANNELKEY:
+      return ("<client> <channel> :Cannot join channel (+k)");
     default:
       return (out);
   }

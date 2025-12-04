@@ -14,7 +14,9 @@ Channel::Channel(std::string name)
       _invite_mode(false),
       _topic_mode(false) {
   DEBUG_PRINT("Channel is created");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 Channel::Channel(const Channel& other)
@@ -39,19 +41,25 @@ Channel::~Channel() {
 void Channel::new_member(Client* _new) {
   this->_members.push_back(_new);
   DEBUG_PRINT("New member is added to the channel");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 void Channel::new_operator(Client* _new) {
   _operators.push_back(_new);
   DEBUG_PRINT("New operator is assigned for the channel");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
   DEBUG_PRINT("The user is invited to the channel");
-  //   print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 // SETTERS
