@@ -24,8 +24,8 @@ class IrcCommands {
   int cap(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int user(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int join(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int mode(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int privmsg(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
+  int mode(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   // helper functions
   bool client_register_check(Server& base, Client& to_check);
   std::string get_error(Server& base, enum PARSE_ERR err);
