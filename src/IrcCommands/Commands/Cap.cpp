@@ -15,7 +15,7 @@ int IrcCommands::cap(Server& base, const struct cmd_obj& cmd,
   }
   std::string response;
   if (cmd.parameters[0] == "LS") {
-    response = "CAP " 
+    response = "CAP ";
     if (!cmd.client->get_nick().empty())
       response += client->get_nick() + " ";
     response += "LS";
