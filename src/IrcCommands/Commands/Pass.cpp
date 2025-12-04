@@ -32,7 +32,7 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
   }
   if (cmd.parameters.size() == 1 &&
       *cmd.parameters.begin() == base._pw) {
-	  it->set_register_status(PASS);
+    it->set_register_status(PASS);
     return (0);
   } else {
     send_message(base, ERR_PASSWDMISMATCH, true, NULL, *it);
