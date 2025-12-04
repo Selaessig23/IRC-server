@@ -91,6 +91,10 @@ std::string& Client::get_user() {
   return (this->_user);
 }
 
+std::string& Client::get_host() {
+  return (this->_host);
+}
+
 bool Client::get_register_status() {
   return (this->_registered);
 }
@@ -113,4 +117,14 @@ void Client::set_realname(std::string realname) {
 
 void Client::set_servername(std::string realname) {
   this->_realname = realname;
+}
+
+/**
+ * @brief overload for find-functionality
+ * it checks for _nick
+ *
+ * @return it returns true if nick == other
+ */
+bool Client::operator==(const std::string& other) const {
+  return this->_nick == other;
 }

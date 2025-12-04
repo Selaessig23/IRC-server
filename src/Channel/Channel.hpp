@@ -5,6 +5,7 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 #include "../Client/Client.hpp"
 
 #define MODE_INVITE (1 << 0)
@@ -14,7 +15,6 @@
 
 /**
  * @brief
- * Server will have a list of Channel objects
  ∗ KICK - Eject a client from the channel
  ∗ INVITE - Invite a client to a channel
  ∗ TOPIC - Change or view the channel topic
@@ -25,7 +25,7 @@
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  *
- * TODO 
+ * TODO:
  * (1) a bitmask to check the modes 
  * (2) if channel is mutable we'll need a setter function
  */
@@ -48,6 +48,9 @@ class Channel {
   Channel& operator=(const Channel& other);
   ~Channel();
 
+  //overload for find-functionality
+  bool operator==(const std::string& other) const;
+
   // Member management
   void new_member(Client* _new);
   void new_operator(Client* _new);
@@ -60,6 +63,8 @@ class Channel {
   int get_user_limit();
   size_t get_members_size();
   size_t get_operators_size();
+  std::vector<std::string> get_members_nicks();
+  std::list<Client*> get_members();
 
   // Setters
   void set_modes(std::string flag);

@@ -9,27 +9,32 @@
 #include "../IrcCommands.hpp"
 
 /**
+ * @brief JOIN command is used to create/join channels
+ * If the <channel> already exists and other modes requirements are met
+ * caller client can join the channel.
+ * If the <channel> isn't existed yet then it gets created.
+ * There are various modes for the channels 
+ * that works interconnectedly with JOIN command 
+ * e.g. +k +i +l: has_key, invite_only, has_limit respectively
+ * 
  * TODO:
- * (1) check if there is enough parameters
- * (2) check for parameter prefix
+ * (1) +k has_a_key check,
+ * (2) +i invite_only check is,
+ * (3) +l has_limit check is gonna be implemented
  * (3) implement respective ERR
  * (4) implement resprective RPL
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
- * ERR_TOOMANYCHANNELS (405)
  * ERR_BADCHANNELKEY (475)
- * ERR_BANNEDFROMCHAN (474)
  * ERR_CHANNELISFULL (471)
  * ERR_INVITEONLYCHAN (473)
- * ERR_BADCHANMASK (476)
  * RPL_TOPIC (332)
- * RPL_TOPICWHOTIME (333)
  * RPL_NAMREPLY (353)
  * RPL_ENDOFNAMES (366)
  * 
- * @return it returns 1 if command and password is correct, otherwise it returns 0
+ * @return it returns 1 if command is succesfully executed
  */
 int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
                       int fd_curr_client) {
@@ -41,7 +46,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
     return (ERR_NEEDMOREPARAMS);
-  } else if (cmd.parameters[0][0] != '#' || cmd.parameters[0][0] != '&')
+  } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);
   if (base._channel_list.empty()) {
     Channel NewChannel(cmd.parameters[0]);
@@ -66,5 +71,5 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
       iter->print_channel_info();
     }
   }
-  return (0);
+  return (1);
 }

@@ -28,24 +28,29 @@ class Client {
   Client operator=(const Client& other);
   ~Client();
 
-  //member functions
+  //overload for find-functionality
+  bool operator==(const std::string& other) const;
 
-  //getter and setter function
+  //member functions
+  void clip_current_command(size_t delimiter);
+
+  //getter and setter and adder functions
   std::string& get_client_out();
   void set_client_out(std::string new_output);
   void add_to_received_packs(std::string new_pack);
-  void clip_current_command(size_t delimiter);
   std::string get_received_packs();
   void add_client_out(std::string newOutput);
   int get_client_fd();
   std::string& get_nick();
   std::string& get_user();
+  std::string& get_host();
   bool get_register_status();
   void set_nick(std::string nick);
   void set_user(std::string user);
   void set_host(std::string host);
   void set_realname(std::string realname);
   void set_servername(std::string realname);
+
 };
 
 #endif  //CLIENT_HPP

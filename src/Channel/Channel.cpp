@@ -2,12 +2,15 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 #include "../Client/Client.hpp"
 #include "../debug.hpp"
 
 Channel::Channel(std::string name) : _name(name), _topic("Default"), _modes(0) {
   DEBUG_PRINT("Channel is created");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 Channel::Channel(const Channel& other)
@@ -27,19 +30,25 @@ Channel::~Channel() {
 void Channel::new_member(Client* _new) {
   this->_members.push_back(_new);
   DEBUG_PRINT("New member is added to the channel");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 void Channel::new_operator(Client* _new) {
   _operators.push_back(_new);
   DEBUG_PRINT("New operator is assigned for the channel");
-  // print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
   DEBUG_PRINT("The user is invited to the channel");
-  //   print_channel_info();
+#ifdef DEBUG
+  print_channel_info();
+#endif
 }
 
 // SETTERS
@@ -123,6 +132,38 @@ size_t Channel::get_members_size() {
 size_t Channel::get_operators_size() {
   return (_operators.size());
 }
+
+/**
+ * @brief function to create a std::vector of all nicknames of the
+ * channel members
+ */
+std::vector<std::string> Channel::get_members_nicks(void) {
+  std::vector<std::string> ret;
+  ret.reserve(_members.size());
+  for (std::list<Client*>::const_iterator it = _members.begin();
+       it != _members.end(); it++) {
+    ret.push_back((*it)->get_nick());
+  }
+  return (ret);
+}
+
+std::list<Client*> Channel::get_members() {
+  return (this->_members);
+}
+
+/**
+ * @brief overload for find-functionality
+ * it checks for _name of channel
+ *
+ * @returns true if _name == other
+ */
+bool Channel::operator==(const std::string& other) const {
+  return this->_name == other;
+}
+
+/**
+ * @brief channel info to send each client after they join a channel 
+ */
 
 void Channel::print_channel_info() {
   // std::cout << get_name() << " [+i]:" << get_invite_mode()
