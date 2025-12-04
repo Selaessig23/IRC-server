@@ -14,7 +14,9 @@ Channel::Channel(std::string name)
       _invite_mode(false),
       _topic_mode(false) {
   DEBUG_PRINT("Channel is created");
+#ifdef DEBUG
   print_channel_info();
+#endif
 }
 
 Channel::Channel(const Channel& other)
@@ -37,21 +39,27 @@ Channel::~Channel() {
 
 // Member management methods
 void Channel::new_member(Client* _new) {
-  _members.push_back(_new);
+  this->_members.push_back(_new);
   DEBUG_PRINT("New member is added to the channel");
+#ifdef DEBUG
   print_channel_info();
+#endif
 }
 
 void Channel::new_operator(Client* _new) {
   _operators.push_back(_new);
   DEBUG_PRINT("New operator is assigned for the channel");
+#ifdef DEBUG
   print_channel_info();
+#endif
 }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
   DEBUG_PRINT("The user is invited to the channel");
+#ifdef DEBUG
   print_channel_info();
+#endif
 }
 
 // SETTERS
@@ -113,6 +121,10 @@ size_t Channel::get_members_size() {
   return (_members.size());
 }
 
+size_t Channel::get_operators_size() {
+  return (_operators.size());
+}
+
 /**
  * @brief function to create a std::vector of all nicknames of the
  * channel members
@@ -141,8 +153,24 @@ bool Channel::operator==(const std::string& other) const {
   return this->_name == other;
 }
 
+/**
+ * @brief channel info to send each client after they join a channel 
+ */
+
 void Channel::print_channel_info() {
   std::cout << get_name() << " [+i]:" << get_invite_mode()
             << " [+t]:" << get_topic_mode() << " [+k]:" << get_key_mode()
             << " [+l]:" << get_limit_mode() << std::endl;
+  std::cout << "Members[" << get_members_size() << "]: ";
+  for (std::list<Client*>::iterator it = _members.begin();
+       !_members.empty() && it != _members.end(); it++) {
+    std::cout << (*it)->get_nick() << " ";
+  };
+  std::cout << std::endl;
+  std::cout << "Operators[" << get_operators_size() << "]: ";
+  for (std::list<Client*>::iterator it = _operators.begin();
+       !_operators.empty() && it != _operators.end(); it++) {
+    std::cout << (*it)->get_nick() << " ";
+  };
+  std::cout << std::endl;
 }

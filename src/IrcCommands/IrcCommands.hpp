@@ -23,13 +23,14 @@ class IrcCommands {
   int nick(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int cap(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int user(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
+  int join(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   int privmsg(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   // helper functions
   bool client_register_check(Server& base, Client& to_check);
   std::string get_error(Server& base, enum PARSE_ERR err);
   std::string get_rpl(Server& base, enum RPL_MSG rpl);
-  int send_privmsg(Server &base, Client& sender, Client& receiver, const std::string& msg,
-                        const std::string& channel);
+  int send_privmsg(Server& base, Client& sender, Client& receiver,
+                   const std::string& msg, const std::string& channel);
 
  public:
   IrcCommands();

@@ -28,6 +28,7 @@ SRCS += Server/Server.cpp
 SRCS += Client/Client.cpp
 SRCS += Channel/Channel.cpp
 SRCS += Parser/Parser.cpp
+SRCS += IrcCommands/Commands/Join.cpp
 SRCS += IrcCommands/Commands/Pass.cpp
 SRCS += IrcCommands/Commands/Pong.cpp
 SRCS += IrcCommands/Commands/Nick.cpp

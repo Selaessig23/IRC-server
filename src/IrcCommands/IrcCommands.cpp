@@ -10,6 +10,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("NICK", &IrcCommands::nick));
   _irc_commands.insert(std::make_pair("CAP", &IrcCommands::cap));
   _irc_commands.insert(std::make_pair("USER", &IrcCommands::user));
+  _irc_commands.insert(std::make_pair("JOIN", &IrcCommands::join));
   _irc_commands.insert(std::make_pair("PRIVMSG", &IrcCommands::privmsg));
 }
 
@@ -38,11 +39,10 @@ int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd,
   function to_execute;
   std::map<std::string, function>::iterator it =
       _irc_commands.find(cmd.command);
-  if (it == _irc_commands.end()){
+  if (it == _irc_commands.end()) {
     send_message(base, ERR_UNKNOWNCOMMAND, true, NULL, *cmd.client);
     return (ERR_UNKNOWNCOMMAND);
-  }
-  else
+  } else
     to_execute = _irc_commands.find(cmd.command)->second;
   (this->*to_execute)(base, cmd, fd_curr_client);
   return (0);

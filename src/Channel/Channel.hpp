@@ -9,7 +9,6 @@
 
 /**
  * @brief
- * Server will have a list of Channel objects
  ∗ KICK - Eject a client from the channel
  ∗ INVITE - Invite a client to a channel
  ∗ TOPIC - Change or view the channel topic
@@ -20,9 +19,9 @@
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  *
- * TODO 
+ * TODO:
  * (1) a bitmask to check the modes 
- * (2) if channel ıs mutable we'll need a setter function
+ * (2) if channel is mutable we'll need a setter function
  */
 
 class Channel {
@@ -66,15 +65,12 @@ class Channel {
   bool get_limit_mode();
   int get_user_limit();
   size_t get_members_size();
-  void get_members_fds();
+  size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
   std::list<Client*> get_members();
-  int get_operators_fds();
-  int get_invited_fds();
 
   // Setters
   void set_topic(std::string topic);
-  void set_limit_mode(size_t limit);
   void set_key(std::string key);
   void set_invite_mode();
   void set_user_limit(size_t limit);
