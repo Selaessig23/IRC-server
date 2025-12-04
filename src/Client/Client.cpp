@@ -95,8 +95,12 @@ std::string& Client::get_host() {
   return (this->_host);
 }
 
-bool Client::get_register_status() {
+unsigned char Client::get_register_status() {
   return (this->_registered);
+}
+
+void Client::set_register_status(unsigned char to_add) {
+  _registered |= to_add;
 }
 
 void Client::set_nick(std::string nick) {

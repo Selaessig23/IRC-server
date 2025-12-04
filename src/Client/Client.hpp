@@ -10,7 +10,7 @@ class Client {
  private:
   long _id;
   int _client_fd;
-  bool _registered;
+  unsigned char _registered;
   struct sockaddr_in _client_addr;
   std::string _received_packs;
   std::string _nick;
@@ -44,13 +44,13 @@ class Client {
   std::string& get_nick();
   std::string& get_user();
   std::string& get_host();
-  bool get_register_status();
+  unsigned char get_register_status();
+  void set_register_status(unsigned char to_add);
   void set_nick(std::string nick);
   void set_user(std::string user);
   void set_host(std::string host);
   void set_realname(std::string realname);
   void set_servername(std::string realname);
-
 };
 
 #endif  //CLIENT_HPP
