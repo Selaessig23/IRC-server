@@ -67,7 +67,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
 int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
                          int fd_curr_client) {
   (void)fd_curr_client;
-    if (!client_register_check(base, *cmd.client)) {
+  if (!client_register_check(base, *cmd.client)) {
     send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
     return (ERR_NOTREGISTERED);
   }

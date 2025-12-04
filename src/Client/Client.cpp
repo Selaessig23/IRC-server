@@ -99,7 +99,7 @@ unsigned char Client::get_register_status() {
   return (this->_registered);
 }
 
-void Client::set_register_status(char to_add) {
+void Client::set_register_status(unsigned char to_add) {
   _registered |= to_add;
 }
 
