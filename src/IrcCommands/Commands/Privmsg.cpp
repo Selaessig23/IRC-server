@@ -50,6 +50,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  * (5) what should happen if user sends more than 2 parameters? Recently it simply ignoes them
  *
  * @return 0, in case of an error it returns error codes:
+ *    ERR_NOTREGISTERED (451)
  *    ERR_NOSUCHNICK (401)
  *    ERR_CANNOTSENDTOCHAN (404)
  *    ERR_NORECIPIENT (411)
@@ -66,6 +67,11 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
 int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
                          int fd_curr_client) {
   (void)fd_curr_client;
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
+    return (ERR_NOTREGISTERED);
+  }
+
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NORECIPIENT, true, NULL, *cmd.client);
     return (ERR_NORECIPIENT);

@@ -22,7 +22,7 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
     if (it->get_client_fd() == fd_curr_client)
       break;
   }
-  if (it->get_register_status() == 1) {
+  if (cmd.client->get_register_status() & PASS) {
     send_message(base, ERR_ALREADYREGISTERED, true, NULL, *it);
     return (ERR_ALREADYREGISTERED);
   }
@@ -32,9 +32,7 @@ int IrcCommands::pass(Server& base, const struct cmd_obj& cmd,
   }
   if (cmd.parameters.size() == 1 &&
       *cmd.parameters.begin() == base._pw) {
-    send_message(base, RPL_WELCOME, false, NULL, *it);
-    send_message(base, RPL_YOURHOST, false, NULL, *it);
-    send_message(base, RPL_CREATED, false, NULL, *it);
+    it->set_register_status(PASS);
     return (0);
   } else {
     send_message(base, ERR_PASSWDMISMATCH, true, NULL, *it);

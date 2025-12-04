@@ -9,4 +9,12 @@
 #define MAX_CMD_BYTES 512
 #define MAX_TAG_BYTES 4096
 
+/**
+ * used for authentication process
+ * all need to be set to connect to server
+ */
+#define PASS 0x001 // password was set
+#define NICK 0x002 // nickname was set
+#define USER 0x004 // users data was set
+
 #endif  // CONSTANTS_HPP

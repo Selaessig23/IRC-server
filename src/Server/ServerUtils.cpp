@@ -96,11 +96,11 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
     PARSE_ERR err = Parsing::parse_command(cmd_body);
 
+#ifdef DEBUG
     if (err)
       std::cout << "\nERR: " << err << std::endl;
-
-#ifdef DEBUG
-    debug_parsed_cmds(cmd_body);
+    else
+      debug_parsed_cmds(cmd_body);
 #endif
 
     _irc_commands->exec_command(*this, cmd_body, pfd.fd);
