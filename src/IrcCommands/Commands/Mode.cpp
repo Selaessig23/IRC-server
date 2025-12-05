@@ -33,29 +33,36 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
   if (cmd.parameters.empty()) {
     send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
     return (ERR_NEEDMOREPARAMS);
+
+  } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&')) {
+    send_message(base, ERR_NOSUCHCHANNEL, true, NULL, *it);
+    return (ERR_NOSUCHCHANNEL);
   }
-  if (base._channel_list.empty()) {
-    Channel NewChannel(cmd.parameters[0]);
-    base._channel_list.push_back(NewChannel);
-    base._channel_list.back().new_member(cmd.client);
-    base._channel_list.back().new_operator(cmd.client);
-    base._channel_list.back().print_channel_info();
-  } else {
-    std::list<Channel>::iterator iter = base._channel_list.begin();
-    for (; iter != base._channel_list.end(); iter++) {
-      if (iter->get_name() == cmd.parameters[0])
-        break;
-    }
-    if (iter == base._channel_list.end()) {
-      Channel NewChannel(cmd.parameters[0]);
-      base._channel_list.push_back(NewChannel);
-      base._channel_list.back().new_member(cmd.client);
-      base._channel_list.back().new_operator(cmd.client);
-      base._channel_list.back().print_channel_info();
-    } else {
-      iter->new_member(cmd.client);
-      iter->print_channel_info();
-    }
+
+  std::list<Channel>::iterator iter = base._channel_list.begin();
+  for (; iter != base._channel_list.end(); iter++) {
+    if (iter->get_name() == cmd.parameters[0])
+      break;
   }
+  if (iter == base._channel_list.end())
+    return (ERR_NOSUCHCHANNEL);
+
+  if (cmd.parameters.size() == 1) {
+    std::cout << iter->get_name() << " Modes: " << iter->get_modes()
+              << std::endl;
+    send_message(base, 000, false, &(iter->get_name()), *it);
+  }
+  if (cmd.parameters.size() == 2 &&
+      (cmd.parameters[1][0] == '-' || cmd.parameters[1][0] == '+')) {
+    if (cmd.parameters[1] == "+i")
+      iter->set_mode(MODE_INVITE, true);
+    if (cmd.parameters[1] == "+k")
+      iter->set_mode(MODE_KEY, true);
+    if (cmd.parameters[1] == "+l")
+      iter->set_mode(MODE_LIMIT, true);
+    if (cmd.parameters[1] == "+t")
+      iter->set_mode(MODE_TOPIC, true);
+  }
+
   return (0);
 }

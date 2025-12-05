@@ -33,7 +33,6 @@ SRCS += IrcCommands/Commands/Nick.cpp
 SRCS += IrcCommands/Commands/Mode.cpp
 SRCS += IrcCommands/Commands/Pass.cpp
 SRCS += IrcCommands/Commands/Pong.cpp
-SRCS += IrcCommands/Commands/Nick.cpp
 SRCS += IrcCommands/Commands/Cap.cpp
 SRCS += IrcCommands/Commands/User.cpp
 SRCS += IrcCommands/Commands/Privmsg.cpp

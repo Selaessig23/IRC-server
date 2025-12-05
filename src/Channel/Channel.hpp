@@ -27,7 +27,7 @@
  *
  * TODO:
  * (1) a bitmask to check the modes 
- * (2) if channel is mutable we'll need a setter function
+ * (2) if channel name is mutable we'll need a setter function
  */
 
 class Channel {
@@ -57,17 +57,19 @@ class Channel {
   void new_invited(Client* _new);
 
   // Getters
-  std::string get_name();
+  std::string& get_name();
   std::string get_topic();
   std::string get_key();
   int get_user_limit();
+  int get_modes();
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
   std::list<Client*> get_members();
 
   // Setters
-  void set_modes(std::string flag);
+  void set_mode(std::string flag);
+  void set_mode(int mode, bool status);
   void set_topic(std::string topic);
   void set_key(std::string key);
   void set_user_limit(size_t limit);

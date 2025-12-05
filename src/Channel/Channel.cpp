@@ -73,27 +73,35 @@ void Channel::set_key(std::string key) {
   // _key_mode = true;
 }
 
-void Channel::set_modes(std::string flag) {
-  if (flag == "+i")
-    _modes |= MODE_INVITE;
-  else if (flag == "+k")
-    _modes |= MODE_KEY;
-  else if (flag == "+l")
-    _modes |= MODE_LIMIT;
-  else if (flag == "+t")
-    _modes |= MODE_TOPIC;
-  else if (flag == "-i")
-    _modes &= ~MODE_INVITE;
-  else if (flag == "-k")
-    _modes &= ~MODE_KEY;
-  else if (flag == "-l")
-    _modes &= ~MODE_LIMIT;
-  else if (flag == "-t")
-    _modes &= ~MODE_TOPIC;
+// void Channel::set_modes(std::string flag) {
+void Channel::set_mode(int mode, bool status) {
+  if (status)
+    _modes |= mode;
+  else
+    _modes &= ~mode;
+#ifdef DEBUG
+  std::cout << _modes << std::endl;
+#endif
+  // if (flag == "+i")
+  //   _modes |= MODE_INVITE;
+  // else if (flag == "+k")
+  //   _modes |= MODE_KEY;
+  // else if (flag == "+l")
+  //   _modes |= MODE_LIMIT;
+  // else if (flag == "+t")
+  //   _modes |= MODE_TOPIC;
+  // else if (flag == "-i")
+  //   _modes &= ~MODE_INVITE;
+  // else if (flag == "-k")
+  //   _modes &= ~MODE_KEY;
+  // else if (flag == "-l")
+  //   _modes &= ~MODE_LIMIT;
+  // else if (flag == "-t")
+  //   _modes &= ~MODE_TOPIC;
 }
 
 // GETTERS
-std::string Channel::get_name() {
+std::string& Channel::get_name() {
   return (_name);
 }
 
@@ -103,6 +111,10 @@ std::string Channel::get_topic() {
 
 std::string Channel::get_key() {
   return (_key);
+}
+
+int Channel::get_modes() {
+  return (_modes);
 }
 
 // bool Channel::get_key_mode() {
@@ -166,9 +178,7 @@ bool Channel::operator==(const std::string& other) const {
  */
 
 void Channel::print_channel_info() {
-  // std::cout << get_name() << " [+i]:" << get_invite_mode()
-  //           << " [+t]:" << get_topic_mode() << " [+k]:" << get_key_mode()
-  //           << " [+l]:" << get_limit_mode() << std::endl;
+  std::cout << get_name() << " " << get_modes() << std::endl;
   std::cout << "Members[" << get_members_size() << "]: ";
   for (std::list<Client*>::iterator it = _members.begin();
        !_members.empty() && it != _members.end(); it++) {
