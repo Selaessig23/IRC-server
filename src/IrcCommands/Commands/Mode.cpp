@@ -39,30 +39,38 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
     return (ERR_NOSUCHCHANNEL);
   }
 
-  std::list<Channel>::iterator iter = base._channel_list.begin();
-  for (; iter != base._channel_list.end(); iter++) {
-    if (iter->get_name() == cmd.parameters[0])
+  std::list<Channel>::iterator iter_chan = base._channel_list.begin();
+  for (; iter_chan != base._channel_list.end(); iter_chan++) {
+    if (iter_chan->get_name() == cmd.parameters[0])
       break;
   }
-  if (iter == base._channel_list.end())
+  if (iter_chan == base._channel_list.end())
     return (ERR_NOSUCHCHANNEL);
 
   if (cmd.parameters.size() == 1) {
-    std::cout << iter->get_name() << " Modes: " << iter->get_modes()
+    std::cout << iter_chan->get_name() << " Modes: " << iter_chan->get_modes()
               << std::endl;
-    send_message(base, 000, false, &(iter->get_name()), *it);
+    send_message(base, 000, false, &(iter_chan->get_name()), *it);
   }
   if (cmd.parameters.size() == 2 &&
       (cmd.parameters[1][0] == '-' || cmd.parameters[1][0] == '+')) {
-    if (cmd.parameters[1] == "+i")
-      iter->set_mode(MODE_INVITE, true);
-    if (cmd.parameters[1] == "+k")
-      iter->set_mode(MODE_KEY, true);
-    if (cmd.parameters[1] == "+l")
-      iter->set_mode(MODE_LIMIT, true);
-    if (cmd.parameters[1] == "+t")
-      iter->set_mode(MODE_TOPIC, true);
+    bool flag = (cmd.parameters[1][0] == '+');
+    std::string::const_iterator it = cmd.parameters[1].begin();
+    for (; it != cmd.parameters[1].end(); ++it)
+      switch (*it) {
+        case 'i':
+          iter_chan->set_mode(MODE_INVITE, flag);
+          break;
+        case 'k':
+          iter_chan->set_mode(MODE_KEY, flag);
+          break;
+        case 'l':
+          iter_chan->set_mode(MODE_LIMIT, flag);
+          break;
+        case 't':
+          iter_chan->set_mode(MODE_TOPIC, flag);
+          break;
+      }
   }
-
   return (0);
 }

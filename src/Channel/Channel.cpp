@@ -1,6 +1,7 @@
 #include "Channel.hpp"
 #include <iostream>
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
@@ -27,21 +28,21 @@ Channel::~Channel() {
 }
 
 // Member management methods
-void Channel::new_member(Client* _new) {
-  this->_members.push_back(_new);
+void Channel::new_member(Client* _new, bool oper) {
+  _members.insert(std::pair<Client*, bool>(_new, oper));
   DEBUG_PRINT("New member is added to the channel");
 #ifdef DEBUG
   print_channel_info();
 #endif
 }
 
-void Channel::new_operator(Client* _new) {
-  _operators.push_back(_new);
-  DEBUG_PRINT("New operator is assigned for the channel");
-#ifdef DEBUG
-  print_channel_info();
-#endif
-}
+// void Channel::new_operator(Client* _new) {
+//   _operators.push_back(_new);
+//   DEBUG_PRINT("New operator is assigned for the channel");
+// #ifdef DEBUG
+//   print_channel_info();
+// #endif
+// }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
@@ -61,19 +62,11 @@ void Channel::set_user_limit(size_t limit) {
   // _limit_mode = true;
 }
 
-// void Channel::set_invite_mode() {
-//   if (_invite_mode)
-//     _invite_mode = false;
-//   else
-//     _invite_mode = true;
-// }
-
 void Channel::set_key(std::string key) {
   _key = key;
   // _key_mode = true;
 }
 
-// void Channel::set_modes(std::string flag) {
 void Channel::set_mode(int mode, bool status) {
   if (status)
     _modes |= mode;
@@ -82,22 +75,6 @@ void Channel::set_mode(int mode, bool status) {
 #ifdef DEBUG
   std::cout << _modes << std::endl;
 #endif
-  // if (flag == "+i")
-  //   _modes |= MODE_INVITE;
-  // else if (flag == "+k")
-  //   _modes |= MODE_KEY;
-  // else if (flag == "+l")
-  //   _modes |= MODE_LIMIT;
-  // else if (flag == "+t")
-  //   _modes |= MODE_TOPIC;
-  // else if (flag == "-i")
-  //   _modes &= ~MODE_INVITE;
-  // else if (flag == "-k")
-  //   _modes &= ~MODE_KEY;
-  // else if (flag == "-l")
-  //   _modes &= ~MODE_LIMIT;
-  // else if (flag == "-t")
-  //   _modes &= ~MODE_TOPIC;
 }
 
 // GETTERS
@@ -114,24 +91,9 @@ std::string Channel::get_key() {
 }
 
 int Channel::get_modes() {
+
   return (_modes);
 }
-
-// bool Channel::get_key_mode() {
-//   return (_key_mode);
-// }
-
-// bool Channel::get_invite_mode() {
-//   return (_invite_mode);
-// }
-
-// bool Channel::get_topic_mode() {
-//   return (_topic_mode);
-// }
-
-// bool Channel::get_limit_mode() {
-//   return (_limit_mode);
-// }
 
 int Channel::get_user_limit() {
   return (_user_limit);
@@ -152,14 +114,14 @@ size_t Channel::get_operators_size() {
 std::vector<std::string> Channel::get_members_nicks(void) {
   std::vector<std::string> ret;
   ret.reserve(_members.size());
-  for (std::list<Client*>::const_iterator it = _members.begin();
+  for (std::map<Client*, bool>::const_iterator it = _members.begin();
        it != _members.end(); it++) {
-    ret.push_back((*it)->get_nick());
+    ret.push_back(it->first->get_nick());
   }
   return (ret);
 }
 
-std::list<Client*> Channel::get_members() {
+std::map<Client*, bool> Channel::get_members() {
   return (this->_members);
 }
 
@@ -180,15 +142,9 @@ bool Channel::operator==(const std::string& other) const {
 void Channel::print_channel_info() {
   std::cout << get_name() << " " << get_modes() << std::endl;
   std::cout << "Members[" << get_members_size() << "]: ";
-  for (std::list<Client*>::iterator it = _members.begin();
+  for (std::map<Client*, bool>::iterator it = _members.begin();
        !_members.empty() && it != _members.end(); it++) {
-    std::cout << (*it)->get_nick() << ", ";
-  };
-  std::cout << std::endl;
-  std::cout << "Operators[" << get_operators_size() << "]: ";
-  for (std::list<Client*>::iterator it = _operators.begin();
-       !_operators.empty() && it != _operators.end(); it++) {
-    std::cout << (*it)->get_nick() << ", ";
+    std::cout << it->first->get_nick() << ", ";
   };
   std::cout << std::endl;
 }

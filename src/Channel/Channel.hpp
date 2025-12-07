@@ -4,6 +4,7 @@
 #include <ctime>  // for time-related functions
 #include <iostream>
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
@@ -37,7 +38,8 @@ class Channel {
   std::string _topic;
   std::string _key;
   size_t _user_limit;
-  std::list<Client*> _members;
+  // std::list<Client*> _members;
+  std::map<Client*, bool> _members;
   std::list<Client*> _operators;
   std::list<Client*> _invited;
   int _modes;
@@ -52,8 +54,8 @@ class Channel {
   bool operator==(const std::string& other) const;
 
   // Member management
-  void new_member(Client* _new);
-  void new_operator(Client* _new);
+  void new_member(Client* _new, bool oper);
+  // void new_operator(Client* _new);
   void new_invited(Client* _new);
 
   // Getters
@@ -65,10 +67,9 @@ class Channel {
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
-  std::list<Client*> get_members();
+  std::map<Client*, bool> get_members();
 
   // Setters
-  void set_mode(std::string flag);
   void set_mode(int mode, bool status);
   void set_topic(std::string topic);
   void set_key(std::string key);
