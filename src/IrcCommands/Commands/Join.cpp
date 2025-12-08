@@ -36,15 +36,9 @@
  * 
  * @return it returns 1 if command is succesfully executed
  */
-int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
-                      int fd_curr_client) {
-  std::list<Client>::iterator it = base._client_list.begin();
-  for (; it != base._client_list.end(); it++) {
-    if (it->get_client_fd() == fd_curr_client)
-      break;
-  }
+int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
-    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);

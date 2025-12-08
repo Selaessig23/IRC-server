@@ -23,21 +23,14 @@
  *    ERR_NEEDMOREPARAMS
  *    ERR_ALREADYREGISTERED
  */
-int IrcCommands::user(Server& base, const struct cmd_obj& cmd,
-                      int fd_curr_client) {
-  (void)fd_curr_client;
-  if (!(cmd.client->get_register_status() & PASS)) {
-    send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
-    return (ERR_NOTREGISTERED);
-  }
-
+int IrcCommands::user(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty() || cmd.parameters.size() < 4) {
-    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
-  
+
   if (!cmd.client->get_user().empty()) {
-    send_message(base, ERR_ALREADYREGISTERED, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_ALREADYREGISTERED, true, NULL);
     return (ERR_ALREADYREGISTERED);
   }
 
@@ -51,12 +44,12 @@ int IrcCommands::user(Server& base, const struct cmd_obj& cmd,
   cmd.client->set_servername(*it);
   it++;
   cmd.client->set_realname(*it);
-  send_message(base, RPL_INTERN_SETUSER, false, NULL, *cmd.client);
-  
+  send_message(base, cmd, RPL_INTERN_SETUSER, false, NULL);
+
   if (client_register_check(base, *cmd.client)) {
-    send_message(base, RPL_WELCOME, false, NULL, *cmd.client);
-    send_message(base, RPL_YOURHOST, false, NULL, *cmd.client);
-    send_message(base, RPL_CREATED, false, NULL, *cmd.client);
+    send_message(base, cmd, RPL_WELCOME, false, NULL);
+    send_message(base, cmd, RPL_YOURHOST, false, NULL);
+    send_message(base, cmd, RPL_CREATED, false, NULL);
   }
   return (0);
 }
