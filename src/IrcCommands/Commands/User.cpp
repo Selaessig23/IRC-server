@@ -17,6 +17,7 @@
  * (2) think about if not only user should be checked for error
  * ERR_ALREADYREGISTERED but also host and realname as well
  * (3) maybe choose another errmsg for pw not set yet (or just do not return anything, simply ignore)
+ * (4) think about adding '~' as user was not conisdered my nameserver
  *
  * @return 0, in case of an error it returns error codes:
  *    ERR_NOTREGISTERED (451) --> if pw was not set
@@ -37,14 +38,14 @@ int IrcCommands::user(Server& base, const struct cmd_obj& cmd) {
   cmd.client->set_register_status(USER);
 
   std::vector<std::string>::const_iterator it = cmd.parameters.begin();
-  cmd.client->set_user("~" + *it);
+  cmd.client->set_user(*it);
   it++;
   cmd.client->set_host(*it);
   it++;
   cmd.client->set_servername(*it);
   it++;
   cmd.client->set_realname(*it);
-  send_message(base, cmd, RPL_INTERN_SETUSER, false, NULL);
+  //   send_message(base, cmd, RPL_INTERN_SETUSER, false, NULL);
 
   if (client_register_check(base, *cmd.client)) {
     send_message(base, cmd, RPL_WELCOME, false, NULL);

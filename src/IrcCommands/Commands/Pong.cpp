@@ -15,6 +15,8 @@
  */
 int IrcCommands::pong(Server& base, const struct cmd_obj& cmd) {
   std::string out;
+  out += ":";
+  out += base._server_name + " ";
   out += "PONG";
   out += " ";
   out += base._server_name;
@@ -22,6 +24,7 @@ int IrcCommands::pong(Server& base, const struct cmd_obj& cmd) {
     out += " ";
     out += cmd.parameters[0];
   }
-  send_message(base, cmd, RPL_CREATED, false, &out);
+  cmd.client->add_client_out(out);
+  base.set_pollevent(cmd.client->get_client_fd(), POLLOUT);
   return (0);
 }

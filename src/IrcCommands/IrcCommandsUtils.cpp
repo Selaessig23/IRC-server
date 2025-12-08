@@ -29,8 +29,7 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
     case RPL_INTERN_SETNICK:
       return (" :Nickname was set to " + cmd.client->get_nick());
     case RPL_INTERN_CHANGENICK:
-      return (" :Nickname was changed to " +
-              cmd.client->get_nick());  //to be added
+      return (" :Nickname was changed to " + cmd.client->get_nick());
     case RPL_INTERN_SETUSER:
       return (" :No ident server\nUser gets registered with username\n" +
               cmd.client->get_user() + " and real name " +
@@ -61,17 +60,17 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case EMPTY_CMD:
       return (" Command empty");
     case ERR_NOSUCHNICK:
-      return (
-          cmd.client->get_nick() +
-          " <nickname> :No such nick/channel");  // nickname means target here
+      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
+              " :No such nick/channel");
     case ERR_NOSUCHCHANNEL:
       return (cmd.client->get_nick() + " <channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
       return (cmd.client->get_nick() + " <channel> :No such channel");
     case ERR_INVALIDCAPCMD:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] + " :Cannot handle CAP command with this target");
+      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
+              " :Cannot handle CAP command with this target");
     case ERR_NORECIPIENT:
-      return (cmd.client->get_nick() + " :No recipient given (<command>)");
+      return (cmd.client->get_nick() + " :No recipient given " + cmd.command);
     case ERR_NOTEXTTOSEND:
       return (cmd.client->get_nick() + " :No text to send");
     case ERR_INPUTTOOLONG:
@@ -81,15 +80,15 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NONICKNAMEGIVEN:
       return (cmd.client->get_nick() + " :No nickname given");
     case ERR_ERRONEUSNICKNAME:
-      return (cmd.client->get_nick() +
-              " <nick> :Erroneous nickname");  // nick means target here
+      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
+              " :Erroneous nickname");
     case ERR_NICKNAMEINUSE:
-      return (cmd.client->get_nick() +
-              " <nick> :Nickname is already in use");  // nick means target here
+      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
+              " :Nickname is already in use");
     case ERR_NICKCOLLISION:
-      return (
-          cmd.client->get_nick() +
-          " <nick> :Nickname collision KILL from <user>@<host>");  // nick means target here
+      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
+              " :Nickname collision KILL from " + cmd.client->get_user() + "@" +
+              cmd.client->get_host());
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -123,16 +122,14 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
                                std::string* msg) {
   std::string out;
   std::stringstream ss;
-  ss << std::setfill('0') << std::setw(2) << numeric_msg_code;
+  ss << std::setfill('0') << std::setw(3) << numeric_msg_code;
 
   out += ":";
-  out += base._server_name;
+  out += base._server_name + " ";
   if (!msg)
-    out += " " + ss.str();
-  else
-    out += " ";
+    out += ss.str() + " ";
   if (!cmd.client->get_nick().empty())
-    out = " <" + cmd.client->get_nick() + ">";
+    out += cmd.client->get_nick() + " ";
   if (msg)
     out += *msg;
   else if (error == true)
