@@ -38,9 +38,7 @@ class Channel {
   std::string _topic;
   std::string _key;
   size_t _user_limit;
-  // std::list<Client*> _members;
   std::map<Client*, bool> _members;
-  std::list<Client*> _operators;
   std::list<Client*> _invited;
   int _modes;
 
@@ -55,7 +53,6 @@ class Channel {
 
   // Member management
   void new_member(Client* _new, bool oper);
-  // void new_operator(Client* _new);
   void new_invited(Client* _new);
 
   // Getters

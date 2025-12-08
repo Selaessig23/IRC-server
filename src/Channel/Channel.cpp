@@ -28,21 +28,13 @@ Channel::~Channel() {
 }
 
 // Member management methods
-void Channel::new_member(Client* _new, bool oper) {
-  _members.insert(std::pair<Client*, bool>(_new, oper));
+void Channel::new_member(Client* _new, bool is_oper) {
+  _members.insert(std::pair<Client*, bool>(_new, is_oper));
   DEBUG_PRINT("New member is added to the channel");
 #ifdef DEBUG
   print_channel_info();
 #endif
 }
-
-// void Channel::new_operator(Client* _new) {
-//   _operators.push_back(_new);
-//   DEBUG_PRINT("New operator is assigned for the channel");
-// #ifdef DEBUG
-//   print_channel_info();
-// #endif
-// }
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
@@ -59,12 +51,10 @@ void Channel::set_topic(std::string topic) {
 
 void Channel::set_user_limit(size_t limit) {
   _user_limit = limit;
-  // _limit_mode = true;
 }
 
 void Channel::set_key(std::string key) {
   _key = key;
-  // _key_mode = true;
 }
 
 void Channel::set_mode(int mode, bool status) {
@@ -101,10 +91,6 @@ int Channel::get_user_limit() {
 
 size_t Channel::get_members_size() {
   return (_members.size());
-}
-
-size_t Channel::get_operators_size() {
-  return (_operators.size());
 }
 
 /**

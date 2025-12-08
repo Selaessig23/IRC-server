@@ -9,11 +9,21 @@
 #include "../IrcCommands.hpp"
 
 /**
+ * @brief MODE command to set channel's following modes:
+ * i: Set/remove Invite-only channel
+ * t: Set/remove the restrictions of the TOPIC command to channel
+ * k: Set/remove the channel key (password)
+ * o: Give/take channel operator privilege
+ * l: Set/remove the user limit to channel
+ * Usage: MODE <#channel> <mode>
+ * e.g. MODE #chan42 +ikl
+ * 
  * TODO:
- * (1) check if there is enough parameters
- * (2) check for parameter prefix
- * (3) implement respective ERR
- * (4) implement resprective RPL
+ * (1) Improve get_modes method in channel and call it here
+ * (2) set_key and set_limit methods are needed to called here
+ * (3) send_channel_message is going to be implemented
+ * (4) implement respective ERR
+ * (5) implement resprective RPL
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NOSUCHCHANNEL (403)
@@ -50,7 +60,6 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
   if (cmd.parameters.size() == 1) {
     std::cout << iter_chan->get_name() << " Modes: " << iter_chan->get_modes()
               << std::endl;
-    send_message(base, 000, false, &(iter_chan->get_name()), *it);
   }
   if (cmd.parameters.size() == 2 &&
       (cmd.parameters[1][0] == '-' || cmd.parameters[1][0] == '+')) {

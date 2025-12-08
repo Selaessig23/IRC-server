@@ -52,7 +52,6 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
     Channel NewChannel(cmd.parameters[0]);
     base._channel_list.push_back(NewChannel);
     base._channel_list.back().new_member(cmd.client, true);
-    // base._channel_list.back().new_operator(cmd.client);
     base._channel_list.back().print_channel_info();
   } else {
     std::list<Channel>::iterator iter = base._channel_list.begin();
@@ -64,7 +63,6 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
       Channel NewChannel(cmd.parameters[0]);
       base._channel_list.push_back(NewChannel);
       base._channel_list.back().new_member(cmd.client, true);
-      // base._channel_list.back().new_operator(cmd.client);
       base._channel_list.back().print_channel_info();
     } else {
       iter->new_member(cmd.client, false);
