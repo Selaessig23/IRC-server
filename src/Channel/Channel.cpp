@@ -2,6 +2,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
@@ -80,13 +81,35 @@ std::string Channel::get_key() {
   return (_key);
 }
 
-int Channel::get_modes() {
+size_t Channel::get_user_limit() {
+  return (_user_limit);
+}
 
+int Channel::get_modes() {
   return (_modes);
 }
 
-int Channel::get_user_limit() {
-  return (_user_limit);
+std::string Channel::get_modes_string() {
+  std::string str;
+  if (_modes & MODE_INVITE)
+    str += 'i';
+  if (_modes & MODE_KEY)
+    str += 'k';
+  if (_modes & MODE_LIMIT)
+    str += 'l';
+  if (_modes & MODE_TOPIC)
+    str += 't';
+  if (_modes & MODE_KEY) {
+    str += " ";
+    str += get_key();
+  }
+  if (_modes & MODE_LIMIT) {
+    str += " ";
+    std::ostringstream oss;
+    oss << get_user_limit();
+    str += oss.str();
+  }
+  return (str);
 }
 
 size_t Channel::get_members_size() {

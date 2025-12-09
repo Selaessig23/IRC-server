@@ -52,15 +52,16 @@ class Channel {
   bool operator==(const std::string& other) const;
 
   // Member management
-  void new_member(Client* _new, bool oper);
+  void new_member(Client* _new, bool is_oper);
   void new_invited(Client* _new);
 
   // Getters
   std::string& get_name();
   std::string get_topic();
   std::string get_key();
-  int get_user_limit();
+  size_t get_user_limit();
   int get_modes();
+  std::string get_modes_string();
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();

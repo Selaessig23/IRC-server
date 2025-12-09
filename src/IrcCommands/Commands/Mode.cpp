@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <iostream>
 #include <list>
 #include "../../Channel/Channel.hpp"
@@ -57,29 +58,54 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
   if (iter_chan == base._channel_list.end())
     return (ERR_NOSUCHCHANNEL);
 
+  /**
+     * @brief sends current modes of to the client
+     */
   if (cmd.parameters.size() == 1) {
-    std::cout << iter_chan->get_name() << " Modes: " << iter_chan->get_modes()
-              << std::endl;
+    std::cout << iter_chan->get_name() << " Modes: ["
+              << iter_chan->get_modes_string() << "]" << std::endl;
+    return (0);
   }
-  if (cmd.parameters.size() == 2 &&
-      (cmd.parameters[1][0] == '-' || cmd.parameters[1][0] == '+')) {
-    bool flag = (cmd.parameters[1][0] == '+');
-    std::string::const_iterator it = cmd.parameters[1].begin();
-    for (; it != cmd.parameters[1].end(); ++it)
+  /**
+   * @brief function for parsing modes and parameters 
+   * that passed right after call of MODE command.
+   * it parses multiple signs and also parameters 
+   * for key and limit values
+   * e.g. MODE #<channel> +ikl <key_value> <limit_value>
+   */
+  const std::string modes = cmd.parameters[1];
+  int param_ind = 2;
+  if (modes[0] == '-' || modes[0] == '+') {
+    bool sign = (modes[0] == '+');
+    std::string::const_iterator it = modes.begin();
+    for (; it != modes.end(); ++it) {
+      if (*it == '+')
+        sign = true;
+      else if (*it == '-')
+        sign = false;
       switch (*it) {
         case 'i':
-          iter_chan->set_mode(MODE_INVITE, flag);
+          iter_chan->set_mode(MODE_INVITE, sign);
           break;
         case 'k':
-          iter_chan->set_mode(MODE_KEY, flag);
+          if (cmd.parameters.size() >= 3) {
+            iter_chan->set_key(cmd.parameters[param_ind]);
+            iter_chan->set_mode(MODE_KEY, sign);
+            param_ind++;
+          }
           break;
         case 'l':
-          iter_chan->set_mode(MODE_LIMIT, flag);
+          if (cmd.parameters.size() >= 3) {
+            iter_chan->set_user_limit(atoi(cmd.parameters[param_ind].c_str()));
+            iter_chan->set_mode(MODE_LIMIT, sign);
+            param_ind++;
+          }
           break;
         case 't':
-          iter_chan->set_mode(MODE_TOPIC, flag);
+          iter_chan->set_mode(MODE_TOPIC, sign);
           break;
       }
+    }
   }
   return (0);
 }
