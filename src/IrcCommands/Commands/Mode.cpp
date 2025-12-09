@@ -17,14 +17,12 @@
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  * Usage: MODE <#channel> <mode>
- * e.g. MODE #chan42 +ikl
+ * e.g. MODE #chan42 +ikl <key> <limit>
  * 
  * TODO:
- * (1) Improve get_modes method in channel and call it here
- * (2) set_key and set_limit methods are needed to called here
- * (3) send_channel_message is going to be implemented
- * (4) implement respective ERR
- * (5) implement resprective RPL
+ * (1) send_channel_message is going to be implemented
+ * (2) implement respective ERR
+ * (3) implement resprective RPL
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NOSUCHCHANNEL (403)
