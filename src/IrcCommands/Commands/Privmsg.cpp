@@ -1,6 +1,7 @@
 #include <algorithm>  //std::find
 #include <iostream>
 #include <list>
+#include <map>
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
 #include "../../includes/CONSTANTS.hpp"
@@ -106,10 +107,11 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
                     it_chan->get_members_nicks().end(),
                     cmd.client->get_nick()) !=
               it_chan->get_members_nicks().end()) {
-        std::list<Client*> chan_members = it_chan->get_members();
-        for (std::list<Client*>::iterator it_chan_member = chan_members.begin();
+        std::map<Client*, bool> chan_members = it_chan->get_members();
+        for (std::map<Client*, bool>::iterator it_chan_member =
+                 chan_members.begin();
              it_chan_member != chan_members.end(); it_chan_member++) {
-          send_privmsg(base, *cmd.client, *(*it_chan_member), msg,
+          send_privmsg(base, *cmd.client, *it_chan_member->first, msg,
                        it_chan->get_name());
         }
       } else {
