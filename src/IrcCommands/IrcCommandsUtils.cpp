@@ -11,7 +11,7 @@
  * @brief function to return the reply message of replymessagecode (rpl)
  *
  * TODO
- * (1) add all required rpl messags according to rpl_code
+ * (1) add all required rpl messages according to rpl_code
  */
 std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
                                  enum RPL_MSG rpl) {
@@ -35,12 +35,12 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
     case RPL_TOPIC:
-      return ("<client> <channel> :<topic>");  //to be added
+      return ("<channel> :<topic>");  //to be added
     case RPL_NAMREPLY:
       return (
-          "<client> <symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
+          "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
     case RPL_ENDOFNAMES:
-      return ("<client> <channel> :End of /NAMES list");  //to be added
+      return ("<channel> :End of /NAMES list");  //to be added
     default:
       return (" UNKNOWN REPLY");
   }
@@ -51,58 +51,59 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
  *
  * TODO
  * (1) add all required error messages to corresponding error codes
+ * (2) maybe remove paramter base if not required
  */
 std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
                                    enum PARSE_ERR err) {
   (void)base;
   std::string out;
+  std::string source;
+  if (cmd.parameters.empty())
+    source = "* ";
+  else
+    source = cmd.parameters[0];
   switch (err) {
     case EMPTY_CMD:
       return (" Command empty");
     case ERR_NOSUCHNICK:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
-              " :No such nick/channel");
+      return (source + " :No such nick/channel");
     case ERR_NOSUCHCHANNEL:
-      return (cmd.client->get_nick() + " <channel> :No such channel");
+      return (" <channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
-      return (cmd.client->get_nick() + " <channel> :No such channel");
+      return (" <channel> :No such channel");
     case ERR_INVALIDCAPCMD:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
-              " :Cannot handle CAP command with this target");
+      return (source + " :Cannot handle CAP command with this target");
     case ERR_NORECIPIENT:
-      return (cmd.client->get_nick() + " :No recipient given " + cmd.command);
+      return (" :No recipient given (" + cmd.command + ")");
     case ERR_NOTEXTTOSEND:
-      return (cmd.client->get_nick() + " :No text to send");
+      return (" :No text to send");
     case ERR_INPUTTOOLONG:
       return (" :Input line was too long");
     case ERR_UNKNOWNCOMMAND:
-      return (" :" + cmd.command + " :Unknown command");
+      return (cmd.command + " :Unknown command");
     case ERR_NONICKNAMEGIVEN:
-      return (cmd.client->get_nick() + " :No nickname given");
+      return (" :No nickname given");
     case ERR_ERRONEUSNICKNAME:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
-              " :Erroneous nickname");
+      return (source + " :Erroneous nickname");
     case ERR_NICKNAMEINUSE:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
-              " :Nickname is already in use");
+      return (source + " :Nickname is already in use");
     case ERR_NICKCOLLISION:
-      return (cmd.client->get_nick() + " " + cmd.parameters[0] +
-              " :Nickname collision KILL from " + cmd.client->get_user() + "@" +
-              cmd.client->get_host());
+      return (source + " :Nickname collision KILL from " +
+              cmd.client->get_user() + "@" + cmd.client->get_host());
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
-      return (" :" + cmd.command + " :Not enough parameters");
+      return (cmd.command + " :Not enough parameters");
     case ERR_ALREADYREGISTERED:
       return (" :You may not reregister");
     case ERR_PASSWDMISMATCH:
       return (" :Password incorrect");
     case ERR_CHANNELISFULL:
-      return (cmd.client->get_nick() + " <channel> :Cannot join channel (+l)");
+      return (" <channel> :Cannot join channel (+l)");
     case ERR_INVITEONLYCHAN:
-      return (cmd.client->get_nick() + " <channel> :Cannot join channel (+i)");
+      return (" <channel> :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
-      return (cmd.client->get_nick() + " <channel> :Cannot join channel (+k)");
+      return (" <channel> :Cannot join channel (+k)");
     default:
       return (out);
   }
@@ -130,6 +131,8 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
     out += ss.str() + " ";
   if (!cmd.client->get_nick().empty())
     out += cmd.client->get_nick() + " ";
+  else
+    out += "* ";
   if (msg)
     out += *msg;
   else if (error == true)

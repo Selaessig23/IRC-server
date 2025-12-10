@@ -53,7 +53,8 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
 void Server::set_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
-  it->events |= event;
+  if (it != _poll_fds.end())
+    it->events |= event;
 }
 
 /**
@@ -63,13 +64,14 @@ void Server::set_pollevent(int fd, int event) {
 void Server::remove_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
-  it->events &= ~event;
+  if (it != _poll_fds.end())
+    it->events &= ~event;
 }
 
 /**
  * @brief function to handle a pollin event from one of the clients fds
  * in case there is no input to read, it is interpreted as client was lost
- * therefor client gets deleted on server
+ * therefore client gets deleted on server
  */
 int Server::handle_pollin(struct pollfd& pfd) {
 
