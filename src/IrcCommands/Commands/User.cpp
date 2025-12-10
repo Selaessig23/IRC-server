@@ -20,7 +20,6 @@
  * (4) think about adding '~' as user was not conisdered my nameserver
  *
  * @return 0, in case of an error it returns error codes:
- *    ERR_NOTREGISTERED (451) --> if pw was not set
  *    ERR_NEEDMOREPARAMS
  *    ERR_ALREADYREGISTERED
  */
