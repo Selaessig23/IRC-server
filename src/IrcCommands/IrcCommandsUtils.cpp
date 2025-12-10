@@ -22,7 +22,7 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
               cmd.client->get_nick() + "!" + cmd.client->get_user() + "@" +
               cmd.client->get_host());
     case RPL_YOURHOST:
-      return (" :Your host is " + base._server_name + " , running version " +
+      return (" :Your host is " + base._server_name + ", running version " +
               base._version);
     case RPL_CREATED:
       return (" :This server was created " + base._created_at);
