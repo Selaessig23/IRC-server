@@ -64,16 +64,14 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  *    ERR_WILDTOPLEVEL (414) -> USE CASE?
  *    RPL_AWAY (301) -> AWAY-functionality not implemented
  */
-int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
-                         int fd_curr_client) {
-  (void)fd_curr_client;
+int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, ERR_NOTREGISTERED, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
-    send_message(base, ERR_NORECIPIENT, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NORECIPIENT, true, NULL);
     return (ERR_NORECIPIENT);
   }
 
@@ -90,7 +88,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
   it_para++;
 
   if (it_para == cmd.parameters.end() || it_para->empty()) {
-    send_message(base, ERR_NOTEXTTOSEND, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NOTEXTTOSEND, true, NULL);
     return (ERR_NOTEXTTOSEND);
   }
 
@@ -113,7 +111,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
                        it_chan->get_name());
         }
       } else {
-        send_message(base, ERR_CANNOTSENDTOCHAN, true, NULL, *cmd.client);
+        send_message(base, cmd, ERR_CANNOTSENDTOCHAN, true, NULL);
         return (ERR_CANNOTSENDTOCHAN);
       }
     } else {
@@ -123,7 +121,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd,
           it_nick != base._client_list.end()) {
         send_privmsg(base, *cmd.client, *it_nick, msg, "");
       } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()) {
-        send_message(base, ERR_NOSUCHNICK, true, NULL, *cmd.client);
+        send_message(base, cmd, ERR_NOSUCHNICK, true, NULL);
         return (ERR_NOSUCHNICK);
       }
     }

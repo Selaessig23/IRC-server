@@ -95,6 +95,10 @@ std::string& Client::get_host() {
   return (this->_host);
 }
 
+std::string& Client::get_realname() {
+  return (this->_realname);
+}
+
 unsigned char Client::get_register_status() {
   return (this->_registered);
 }
