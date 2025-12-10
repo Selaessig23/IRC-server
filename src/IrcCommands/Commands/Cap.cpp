@@ -19,6 +19,10 @@
  * (1) Think about which version to use
  */
 int IrcCommands::cap(Server& base, const struct cmd_obj& cmd) {
+  if (cmd.parameters.empty()) {
+    send_message(base, cmd, ERR_INVALIDCAPCMD, true, NULL);
+    return (ERR_INVALIDCAPCMD);
+  }
   if (cmd.parameters[0] != "END") {
     send_message(base, cmd, ERR_INVALIDCAPCMD, true, NULL);
     return (ERR_INVALIDCAPCMD);
