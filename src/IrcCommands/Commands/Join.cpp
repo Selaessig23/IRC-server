@@ -38,36 +38,62 @@
  */
 int IrcCommands::join(Server& base, const struct cmd_obj& cmd,
                       int fd_curr_client) {
-  std::list<Client>::iterator it = base._client_list.begin();
-  for (; it != base._client_list.end(); it++) {
-    if (it->get_client_fd() == fd_curr_client)
+  std::list<Client>::iterator it_cli = base._client_list.begin();
+  for (; it_cli != base._client_list.end(); it_cli++) {
+    if (it_cli->get_client_fd() == fd_curr_client)
       break;
   }
   if (cmd.parameters.empty()) {
-    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it);
+    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *it_cli);
     return (ERR_NEEDMOREPARAMS);
   } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);
+  std::list<Channel>::iterator it_chan = base._channel_list.begin();
   if (base._channel_list.empty()) {
     Channel NewChannel(cmd.parameters[0]);
     base._channel_list.push_back(NewChannel);
     base._channel_list.back().new_member(cmd.client, true);
     base._channel_list.back().print_channel_info();
+    return (1);
   } else {
-    std::list<Channel>::iterator iter = base._channel_list.begin();
-    for (; iter != base._channel_list.end(); iter++) {
-      if (iter->get_name() == cmd.parameters[0])
+    // std::list<Channel>::iterator it_chan = base._channel_list.begin();
+    for (; it_chan != base._channel_list.end(); it_chan++) {
+      if (it_chan->get_name() == cmd.parameters[0])
         break;
     }
-    if (iter == base._channel_list.end()) {
+    if (it_chan == base._channel_list.end()) {
       Channel NewChannel(cmd.parameters[0]);
       base._channel_list.push_back(NewChannel);
       base._channel_list.back().new_member(cmd.client, true);
       base._channel_list.back().print_channel_info();
-    } else {
-      iter->new_member(cmd.client, false);
-      iter->print_channel_info();
+      return (1);
     }
+  }
+  if ((it_chan->get_modes() & MODE_KEY) && cmd.parameters[1].size() &&
+      cmd.parameters[1] == it_chan->get_key()) {
+    if (it_chan->get_modes() & MODE_INVITE) {
+      std::list<Client*>::iterator it_inv = it_chan->get_invited().begin();
+      for (; it_inv != it_chan->get_invited().end(); it_inv++) {
+        if ((*it_inv)->get_nick() == cmd.client->get_nick()) {
+          it_chan->new_member(cmd.client, false);
+          it_chan->print_channel_info();
+        } else {
+          send_message(base, ERR_INVITEONLYCHAN, true, NULL, *it_cli);
+          return (ERR_INVITEONLYCHAN);
+        }
+      }
+    } else if ((it_chan->get_modes() & MODE_LIMIT) &&
+               it_chan->get_members_size() >= it_chan->get_user_limit()) {
+      send_message(base, ERR_CHANNELISFULL, true, NULL, *it_cli);
+      return (ERR_CHANNELISFULL);
+    } else {
+      it_chan->new_member(cmd.client, false);
+      it_chan->print_channel_info();
+    }
+
+  } else {
+    send_message(base, ERR_BADCHANNELKEY, true, NULL, *it_cli);
+    return (ERR_BADCHANNELKEY);
   }
   return (1);
 }

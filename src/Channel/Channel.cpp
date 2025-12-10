@@ -89,29 +89,6 @@ int Channel::get_modes() {
   return (_modes);
 }
 
-std::string Channel::get_modes_string() {
-  std::string str;
-  if (_modes & MODE_INVITE)
-    str += 'i';
-  if (_modes & MODE_KEY)
-    str += 'k';
-  if (_modes & MODE_LIMIT)
-    str += 'l';
-  if (_modes & MODE_TOPIC)
-    str += 't';
-  if (_modes & MODE_KEY) {
-    str += " ";
-    str += get_key();
-  }
-  if (_modes & MODE_LIMIT) {
-    str += " ";
-    std::ostringstream oss;
-    oss << get_user_limit();
-    str += oss.str();
-  }
-  return (str);
-}
-
 size_t Channel::get_members_size() {
   return (_members.size());
 }
@@ -134,6 +111,10 @@ std::map<Client*, bool> Channel::get_members() {
   return (this->_members);
 }
 
+std::list<Client*>& Channel::get_invited() {
+  return (this->_invited);
+}
+
 /**
  * @brief overload for find-functionality
  * it checks for _name of channel
@@ -144,8 +125,35 @@ bool Channel::operator==(const std::string& other) const {
   return this->_name == other;
 }
 
+// HELPER FUNCTIONS
+
+std::string Channel::get_modes_string() {
+  std::string str;
+  str += '+';
+  if (_modes & MODE_INVITE)
+    str += 'i';
+  if (_modes & MODE_KEY)
+    str += 'k';
+  if (_modes & MODE_LIMIT)
+    str += 'l';
+  if (_modes & MODE_TOPIC)
+    str += 't';
+  if (_modes & MODE_KEY) {
+    str += " ";
+    str += get_key();
+  }
+  if (_modes & MODE_LIMIT) {
+    str += " ";
+    std::ostringstream oss;
+    oss << get_user_limit();
+    str += oss.str();
+  }
+  return (str);
+}
+
 /**
- * @brief channel info to send each client after they join a channel 
+ * @brief channel info to send each
+ * client after they join a channel 
  */
 
 void Channel::print_channel_info() {

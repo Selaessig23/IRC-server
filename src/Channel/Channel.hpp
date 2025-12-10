@@ -66,6 +66,7 @@ class Channel {
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
   std::map<Client*, bool> get_members();
+  std::list<Client*>& get_invited();
 
   // Setters
   void set_mode(int mode, bool status);
