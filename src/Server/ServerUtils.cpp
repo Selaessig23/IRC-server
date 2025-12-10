@@ -78,18 +78,18 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
   if (recv_len <= 0) {
     close(pfd.fd);
+    for (std::list<Client>::iterator it_client = _client_list.begin();
+         it_client != _client_list.end(); it_client++) {
+      if (it_client->get_client_fd() == pfd.fd) {
+        _client_list.erase(it_client);
+        break;
+      }
+    }
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); ++it) {
       if (it->fd == pfd.fd) {
         DEBUG_PRINT("Case delete client: " << pfd.fd);
         _poll_fds.erase(it);
-        break;
-      }
-    }
-    for (std::list<Client>::iterator it_client = _client_list.begin();
-         it_client != _client_list.end(); it_client++) {
-      if (it_client->get_client_fd() == pfd.fd) {
-        _client_list.erase(it_client);
         break;
       }
     }
