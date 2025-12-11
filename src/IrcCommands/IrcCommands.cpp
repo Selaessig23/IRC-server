@@ -12,6 +12,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("USER", &IrcCommands::user));
   _irc_commands.insert(std::make_pair("JOIN", &IrcCommands::join));
   _irc_commands.insert(std::make_pair("PRIVMSG", &IrcCommands::privmsg));
+  _irc_commands.insert(std::make_pair("KILL", &IrcCommands::privmsg));
 }
 
 IrcCommands::IrcCommands(const IrcCommands& other)

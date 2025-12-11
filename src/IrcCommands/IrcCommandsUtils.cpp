@@ -104,6 +104,8 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
       return (" <channel> :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
       return (" <channel> :Cannot join channel (+k)");
+    case ERR_NOPRIVILEGES:
+      return (" :Permission Denied- You're not an IRC operator");
     default:
       return (out);
   }

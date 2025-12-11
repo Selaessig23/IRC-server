@@ -46,6 +46,30 @@ void Channel::new_member(Client* _new) {
 #endif
 }
 
+/**
+ * @brief function to remove members from 
+ * channels and invited_list
+ *
+ * @param fd the file descriptor of the client that 
+ * should be removed from the channel
+ */
+void Channel::remove_member(int fd) {
+  for (std::list<Client*>::iterator it_mem = _members.begin();
+       it_mem != _members.end(); it_mem++) {
+    if ((*it_mem)->get_client_fd() == fd) {
+      _members.erase(it_mem);
+      break;
+    }
+  }
+  for (std::list<Client*>::iterator it_mem = _invited.begin();
+       it_mem != _invited.end(); it_mem++) {
+    if ((*it_mem)->get_client_fd() == fd) {
+      _invited.erase(it_mem);
+      break;
+    }
+  }
+}
+
 void Channel::new_operator(Client* _new) {
   _operators.push_back(_new);
   DEBUG_PRINT("New operator is assigned for the channel");
@@ -139,7 +163,7 @@ std::vector<std::string> Channel::get_members_nicks(void) {
   return (ret);
 }
 
-std::list<Client*> Channel::get_members() {
+std::list<Client*>& Channel::get_members() {
   return (this->_members);
 }
 
