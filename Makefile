@@ -13,7 +13,8 @@ DEPFLAGS =	-MMD -MP
 # CXXFLAGS += -g3 -O0
 
 #Arguments to test:
-ARGS = "8080" "1234abc?"
+ARGS_IRS = "8080" "1234abc?"
+ARGS_BOT = "localhost" "8080" "1234abc?" "swear_words.csv"
 
 #styling
 RESET =			\033[0m
