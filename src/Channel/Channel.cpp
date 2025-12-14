@@ -29,6 +29,7 @@ Channel::~Channel() {
 }
 
 // Member management methods
+
 void Channel::new_member(Client* _new, bool is_oper) {
   _members.insert(std::pair<Client*, bool>(_new, is_oper));
   DEBUG_PRINT("New member is added to the channel");
@@ -43,6 +44,16 @@ void Channel::new_invited(Client* _new) {
 #ifdef DEBUG
   print_channel_info();
 #endif
+}
+
+void Channel::remove_from_invited(Client* removal) {
+  std::list<Client*>::iterator it = _invited.begin();
+  for (; it != _invited.end(); it++) {
+    if (*it == removal) {
+      _invited.erase(it);
+      break;
+    }
+  }
 }
 
 // SETTERS
@@ -107,7 +118,7 @@ std::vector<std::string> Channel::get_members_nicks(void) {
   return (ret);
 }
 
-std::map<Client*, bool> Channel::get_members() {
+std::map<Client*, bool>& Channel::get_members() {
   return (this->_members);
 }
 
@@ -158,10 +169,18 @@ std::string Channel::get_modes_string() {
 
 void Channel::print_channel_info() {
   std::cout << get_name() << " " << get_modes() << std::endl;
-  std::cout << "Members[" << get_members_size() << "]: ";
+  std::cout << "Members[" << _members.size() << "]: ";
   for (std::map<Client*, bool>::iterator it = _members.begin();
        !_members.empty() && it != _members.end(); it++) {
+    if (it->second)
+      std::cout << "@";
     std::cout << it->first->get_nick() << ", ";
+  };
+  std::cout << std::endl;
+  std::cout << "Invited[" << _invited.size() << "]: ";
+  for (std::list<Client*>::iterator it = _invited.begin();
+       !_invited.empty() && it != _invited.end(); it++) {
+    std::cout << (*it)->get_nick() << ", ";
   };
   std::cout << std::endl;
 }

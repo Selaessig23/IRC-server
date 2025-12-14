@@ -86,14 +86,20 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd,
           iter_chan->set_mode(MODE_INVITE, sign);
           break;
         case 'k':
-          if (cmd.parameters.size() >= 3) {
+          if (!sign) {
+            iter_chan->set_key("");
+            iter_chan->set_mode(MODE_KEY, sign);
+          } else if (sign && cmd.parameters.size() >= 3) {
             iter_chan->set_key(cmd.parameters[param_ind]);
             iter_chan->set_mode(MODE_KEY, sign);
             param_ind++;
           }
           break;
         case 'l':
-          if (cmd.parameters.size() >= 3) {
+          if (!sign) {
+            iter_chan->set_user_limit(0);
+            iter_chan->set_mode(MODE_KEY, sign);
+          } else if (sign && cmd.parameters.size() >= 3) {
             iter_chan->set_user_limit(atoi(cmd.parameters[param_ind].c_str()));
             iter_chan->set_mode(MODE_LIMIT, sign);
             param_ind++;

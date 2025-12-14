@@ -34,6 +34,8 @@ std::string IrcCommands::get_rpl(Server& base, enum RPL_MSG rpl) {
           "and real name _realname");
     case RPL_TOPIC:
       return ("<client> <channel> :<topic>");
+    case RPL_INVITING:
+      return ("<client> <nick> <channel> :INVITES YOU");
     case RPL_NAMREPLY:
       return ("<client> <symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");
     case RPL_ENDOFNAMES:
@@ -77,6 +79,10 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
       return (" <client> <nick> :Nickname is already in use");
     case ERR_NICKCOLLISION:
       return (" <client> <nick> :Nickname collision KILL from <user>@<host>");
+    case ERR_NOTONCHANNEL:
+      return ("<client> <channel> :You're not on that channel");
+    case ERR_USERONCHANNEL:
+      return ("<client> <nick> <channel> :is already on channel");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -91,6 +97,8 @@ std::string IrcCommands::get_error(Server& base, enum PARSE_ERR err) {
       return ("<client> <channel> :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
       return ("<client> <channel> :Cannot join channel (+k)");
+    case ERR_CHANOPRIVSNEEDED:
+      return ("<client> <channel> :You're not channel operator");
     default:
       return (out);
   }

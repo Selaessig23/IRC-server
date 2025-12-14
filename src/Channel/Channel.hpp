@@ -54,6 +54,7 @@ class Channel {
   // Member management
   void new_member(Client* _new, bool is_oper);
   void new_invited(Client* _new);
+  void remove_from_invited(Client* removal);
 
   // Getters
   std::string& get_name();
@@ -65,7 +66,7 @@ class Channel {
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
-  std::map<Client*, bool> get_members();
+  std::map<Client*, bool>& get_members();
   std::list<Client*>& get_invited();
 
   // Setters
