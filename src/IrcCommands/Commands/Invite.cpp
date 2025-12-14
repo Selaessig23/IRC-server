@@ -31,16 +31,9 @@
  * 
  * @return it returns 1 if command is succesfully executed
  */
-int IrcCommands::invite(Server& base, const struct cmd_obj& cmd,
-                        int fd_curr_client) {
-  std::list<Client>::iterator it_cli = base._client_list.begin();
-  for (; it_cli != base._client_list.end(); it_cli++) {
-    if (it_cli->get_client_fd() == fd_curr_client)
-      break;
-  }
-
+int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
-    send_message(base, ERR_NEEDMOREPARAMS, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
@@ -51,7 +44,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd,
     }
   }
   if (base._channel_list.empty() || it_chan == base._channel_list.end()) {
-    send_message(base, ERR_NOSUCHCHANNEL, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -68,7 +61,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd,
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, ERR_NOTONCHANNEL, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
     return (ERR_NOTONCHANNEL);
   }
   /**ERR_CHANOPRIVSNEEDED (482) 
@@ -78,7 +71,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd,
    * The text used in the last param of this message may vary.
    */
   if (!it_chan_mem->second) {
-    send_message(base, ERR_CHANOPRIVSNEEDED, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -103,12 +96,12 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd,
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, ERR_USERONCHANNEL, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_USERONCHANNEL, true, NULL);
     return (ERR_USERONCHANNEL);
   }
 
   it_chan->new_invited(&(*it_inv));
-  send_message(base, RPL_INVITING, false, NULL, *it_inv);
+  send_message(base, cmd, RPL_INVITING, false, NULL);
 
   return (1);
 }

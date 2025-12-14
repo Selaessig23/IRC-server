@@ -17,15 +17,15 @@ class IrcCommands {
   std::map<std::string, function> _irc_commands;
 
   // Commands
-  int pass(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int pong(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int nick(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int cap(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int user(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int join(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int privmsg(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int mode(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
-  int invite(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
+  int pass(Server& base, const struct cmd_obj& cmd);
+  int pong(Server& base, const struct cmd_obj& cmd);
+  int nick(Server& base, const struct cmd_obj& cmd);
+  int cap(Server& base, const struct cmd_obj& cmd);
+  int user(Server& base, const struct cmd_obj& cmd);
+  int join(Server& base, const struct cmd_obj& cmd);
+  int privmsg(Server& base, const struct cmd_obj& cmd);
+  int mode(Server& base, const struct cmd_obj& cmd);
+  int invite(Server& base, const struct cmd_obj& cmd);
   // helper functions
   bool client_register_check(Server& base, Client& to_check);
   std::string get_error(Server& base, const cmd_obj& cmd, enum PARSE_ERR err);

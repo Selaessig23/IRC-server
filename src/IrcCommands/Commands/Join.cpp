@@ -61,13 +61,13 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   if ((it_chan->get_modes() & MODE_KEY) &&
       (!cmd.parameters[0].size() ||
        (cmd.parameters[1].size() && cmd.parameters[1] != it_chan->get_key()))) {
-    send_message(base, ERR_BADCHANNELKEY, true, NULL, *it_cli);
+    send_message(base, cmd, ERR_BADCHANNELKEY, true, NULL);
     return (ERR_BADCHANNELKEY);
   }
 
   if ((it_chan->get_modes() & MODE_LIMIT) &&
       (it_chan->get_members_size() >= it_chan->get_user_limit())) {
-    send_message(base, ERR_CHANNELISFULL, true, NULL, *it_cli);
+    send_message(base, cmd, ERR_CHANNELISFULL, true, NULL);
     return (ERR_CHANNELISFULL);
   }
 
@@ -80,7 +80,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
       }
     }
     if (it_inv == it_chan->get_invited().end()) {
-      send_message(base, ERR_INVITEONLYCHAN, true, NULL, *it_cli);
+      send_message(base, cmd, ERR_INVITEONLYCHAN, true, NULL);
       return (ERR_INVITEONLYCHAN);
     }
   }
