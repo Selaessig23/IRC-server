@@ -36,16 +36,15 @@ IrcCommands::~IrcCommands() {}
  *
  * @return it returns 1 if command was not found
  */
-int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd,
-                              int fd_curr_client) {
+int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd) {
   function to_execute;
   std::map<std::string, function>::iterator it =
       _irc_commands.find(cmd.command);
   if (it == _irc_commands.end()) {
-    send_message(base, ERR_UNKNOWNCOMMAND, true, NULL, *cmd.client);
+    send_message(base, cmd, ERR_UNKNOWNCOMMAND, true, NULL);
     return (ERR_UNKNOWNCOMMAND);
   } else
     to_execute = _irc_commands.find(cmd.command)->second;
-  (this->*to_execute)(base, cmd, fd_curr_client);
+  (this->*to_execute)(base, cmd);
   return (0);
 }

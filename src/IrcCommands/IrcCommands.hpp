@@ -12,8 +12,7 @@ class Server;  //forward declaration
 
 class IrcCommands {
  private:
-  typedef int (IrcCommands::*function)(Server& base, const struct cmd_obj& cmd,
-                                       int fd_curr_client);
+  typedef int (IrcCommands::*function)(Server& base, const struct cmd_obj& cmd);
 
   std::map<std::string, function> _irc_commands;
 
@@ -29,8 +28,8 @@ class IrcCommands {
   int invite(Server& base, const struct cmd_obj& cmd, int fd_curr_client);
   // helper functions
   bool client_register_check(Server& base, Client& to_check);
-  std::string get_error(Server& base, enum PARSE_ERR err);
-  std::string get_rpl(Server& base, enum RPL_MSG rpl);
+  std::string get_error(Server& base, const cmd_obj& cmd, enum PARSE_ERR err);
+  std::string get_rpl(Server& base, const cmd_obj& cmd, enum RPL_MSG rpl);
   int send_privmsg(Server& base, Client& sender, Client& receiver,
                    const std::string& msg, const std::string& channel);
 
@@ -39,9 +38,9 @@ class IrcCommands {
   IrcCommands(const IrcCommands& other);
   IrcCommands operator=(const IrcCommands& other);
   ~IrcCommands();
-  int exec_command(Server& base, struct cmd_obj& cmd, int fd_curr_client);
-  void send_message(Server& base, int numeric_msg_code, bool error,
-                    std::string* msg, Client& curr_client);
+  int exec_command(Server& base, struct cmd_obj& cmd);
+  void send_message(Server& base, const cmd_obj& cmd, int numeric_msg_code,
+                    bool error, std::string* msg);
 };
 
 #endif  //IRCCOMMANDS_HPP

@@ -9,6 +9,9 @@
 #include "../includes/types.hpp"
 #include "Server.hpp"
 
+/**
+ * @brief function to get the current time and return it as a std::string
+ */
 std::string get_current_date_time() {
   std::time_t now = std::time(NULL);
   struct tm* local_time = std::localtime(&now);
@@ -20,7 +23,6 @@ std::string get_current_date_time() {
       << std::setw(2) << local_time->tm_hour << ":" << std::setfill('0')
       << std::setw(2) << local_time->tm_min << ":" << std::setfill('0')
       << std::setw(2) << local_time->tm_sec;
-
   return oss.str();
 }
 
@@ -47,22 +49,32 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
 /**
  * @brief function to set the event of the pollfd struct of client
  * with corresponding fd
- * 
- * TODO: 
- * (1) set to defined value (it overwrites previous event assignments)
  */
 void Server::set_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
   it->events |= event;
+  if (it != _poll_fds.end())
+    it->events |= event;
 }
 
+/**
+ * @brief function to remove the event sent as parameter from
+ * the corresponding fd in the array (vector) of pollfd structs
+ */
 void Server::remove_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
   it->events &= ~event;
+  if (it != _poll_fds.end())
+    it->events &= ~event;
 }
 
+/**
+ * @brief function to handle a pollin event from one of the clients fds
+ * in case there is no input to read, it is interpreted as client was lost
+ * therefore client gets deleted on server
+ */
 int Server::handle_pollin(struct pollfd& pfd) {
 
   char buf[8750];
@@ -70,6 +82,13 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
   if (recv_len <= 0) {
     close(pfd.fd);
+    for (std::list<Client>::iterator it_client = _client_list.begin();
+         it_client != _client_list.end(); it_client++) {
+      if (it_client->get_client_fd() == pfd.fd) {
+        _client_list.erase(it_client);
+        break;
+      }
+    }
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); ++it) {
       if (it->fd == pfd.fd) {
@@ -103,11 +122,17 @@ int Server::handle_pollin(struct pollfd& pfd) {
       debug_parsed_cmds(cmd_body);
 #endif
 
-    _irc_commands->exec_command(*this, cmd_body, pfd.fd);
+    _irc_commands->exec_command(*this, cmd_body);
   }
   return (0);
 }
 
+/**
+ * @brief function to handle a pollout event of a clients id
+ * to send from clients buffer to client until it buffer is empty
+ * if buffer is empty, poll-event POLLOUT of clients fd gets removed
+ * everything that has been sent to client becomes removed from clients out-buffer
+ */
 void Server::handle_pollout(struct pollfd& pfd) {
 
   std::list<Client>::iterator it_client = _client_list.begin();
