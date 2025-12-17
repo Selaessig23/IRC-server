@@ -1,7 +1,7 @@
 NAME_IRC = ircserv
-NAME_BONUS = bot
+NAME_BOT = bot
 CXX = c++
-CXXFLAGS =  -Wall -Werror -Wextra -std=c++98 -Isrc -Isrc_bonus -Iinclude
+CXXFLAGS =  -Wall -Werror -Wextra -std=c++98 -Isrc_irc -Isrc_bot -Iinclude
 # -MMD: Generate a .d file listing only your project headers (the ones you #include with quotes or via your -I paths), excluding system headers.
 # -MP: Appends dummy rules for every dependency in the .d file. Prevents “No rule to make target …” errors if a header (or .tpp) gets deleted. (maybe not necessary)
 DEPFLAGS =	-MMD -MP
@@ -13,7 +13,7 @@ DEPFLAGS =	-MMD -MP
 # CXXFLAGS += -g3 -O0
 
 #Arguments to test:
-ARGS_IRS = "8080" "1234abc?"
+ARGS_IRC = "8080" "1234abc?"
 ARGS_BOT = "localhost" "8080" "1234abc?" "swear_words.csv"
 
 #styling
@@ -42,48 +42,49 @@ SRCS_IRC += src_irc/IrcCommands/IrcCommands.cpp
 
 #sources bot
 SRCS_BOT = src_bot/main.cpp
+SRCS_BOT += src_bot/Client/Client.cpp
 
-OBJS_IRC = $(SRCS_IRC:%.cpp=obj_irc/%.o)
+OBJS_IRC = $(SRCS_IRC:src_irc/%.cpp=obj_irc/%.o)
 
-OBJS_BOT= $(SRCS_BOT:%.cpp=obj_bot/%.o)
+OBJS_BOT = $(SRCS_BOT:src_bot/%.cpp=obj_bot/%.o)
 
-DEPS :=	$(OBJS:.o=.d)
+DEPS_IRC := $(OBJS_IRC:.o=.d)
 
-DEPS_BONUS := $(OBJS_BONUS:.o=.d)
+DEPS_BOT := $(OBJS_BOT:.o=.d)
 
 LiBS =
-LIBS += src/includes/types.hpp
-LIBS += src/includes/CONSTANTS.hpp
+LIBS += src_irc/includes/types.hpp
+LIBS += src_irc/includes/CONSTANTS.hpp
 
 LiBS_BOT =
-LIBS_BOT += src/includes/types.hpp
-LIBS_BOT += src/includes/CONSTANTS.hpp
+LIBS_BOT += src_bot/includes/types.hpp
+LIBS_BOT += src_bot/includes/CONSTANTS.hpp
 
-all:$(NAME_IRC)
+all: $(NAME_IRC)
 
 $(NAME_IRC): $(OBJS_IRC) $(LIBS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS_IRC)
-		@echo "-- irc prog created, try it by using ./ircserv <portno> <password>"
+	@echo "-- irc prog created, try it by using ./ircserv <portno> <password>"
 
 obj_irc/%.o: src_irc/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 
-bot: $(NAME_BOT)
+bot_target: $(NAME_BOT)
 
 $(NAME_BOT): $(OBJS_BOT) $(LIBS_BOT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS_BOT)
-		@echo "-- bot prog created, try it by using ./bot>"
+	@echo "-- bot prog created, try it by using ./bot>"
 
 obj_bot/%.o: src_bot/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 
 # Include generated dependency files
--include $(DEPS)
+-include $(DEPS_IRC)
 
 # Include generated dependency files
--include $(DEPS_BONUS)
+-include $(DEPS_BOT)
 
 clean:
 	@rm -rf obj_irc
@@ -97,7 +98,7 @@ fclean: clean
 
 re: fclean all
 
-bonus: all bot
+bonus: all bot_target
 
 run: all
 	@echo
@@ -107,8 +108,8 @@ run: all
 runbonus: bonus
 	@echo
 	@echo "Running irc-server and bot"
-	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_IRC) $(ARGS) & \
-	PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) & \
+	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_IRC) $(ARGS_IRC) & \
+	PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) $(ARGS_BOT) & \
 	wait
 
 valrun: all
