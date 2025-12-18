@@ -9,11 +9,6 @@
 #include <vector>
 #include "../Client/Client.hpp"
 
-#define MODE_INVITE (1 << 0)
-#define MODE_KEY (1 << 1)
-#define MODE_LIMIT (1 << 2)
-#define MODE_TOPIC (1 << 3)
-
 /**
  * @brief
  ∗ KICK - Eject a client from the channel
@@ -72,7 +67,7 @@ class Channel {
   std::list<Client*>& get_invited();
 
   // Setters
-  void set_mode(int mode, bool status);
+  void adjust_modes(int mode, bool status);
   void set_topic(std::string topic);
   void set_key(std::string key);
   void set_user_limit(size_t limit);

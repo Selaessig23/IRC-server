@@ -7,6 +7,7 @@
 #include <vector>
 #include "../Client/Client.hpp"
 #include "../debug.hpp"
+#include "../includes/CONSTANTS.hpp"
 
 Channel::Channel(std::string name) : _name(name), _topic("Default"), _modes(0) {
   DEBUG_PRINT("Channel is created");
@@ -84,7 +85,7 @@ void Channel::set_key(std::string key) {
   _key = key;
 }
 
-void Channel::set_mode(int mode, bool status) {
+void Channel::adjust_modes(int mode, bool status) {
   if (status)
     _modes |= mode;
   else
@@ -178,8 +179,9 @@ std::string Channel::get_modes_string() {
 }
 
 /**
- * @brief channel info to send each
- * client after they join a channel 
+ * @brief channel info to show each in the events of succesful 
+ * JOIN or MODE calls
+ * TODO: it will be adjusted to the new structure of message sending
  */
 
 void Channel::print_channel_info() {
