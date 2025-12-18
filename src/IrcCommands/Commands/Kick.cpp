@@ -25,7 +25,7 @@
  * ERR_USERNOTINCHANNEL (441)
  * ERR_NOTONCHANNEL (442)
  * 
- * @return it returns 1 if command is succesfully executed
+ * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
