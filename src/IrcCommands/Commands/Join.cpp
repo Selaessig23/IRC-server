@@ -20,7 +20,7 @@
  * TODO:
  * (1) implement a succesful joining message
  * (2) implement resprective RPL messages
- * (3) multi-channel entry at signel command call
+ * (3) multi-channel entry at single command call
  * Parameters: <channel>{,<channel>} [<key>{,<key>}]
  * e.g. JOIN #chan,#42,#horizon 
  * (4) JOIN "0" to all channels at once
