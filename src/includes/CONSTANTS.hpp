@@ -19,7 +19,7 @@
 
 /**
  * @brief following bit_shifting macros
- * ares used for adjusting channel _modes
+ * are used for adjusting channel _modes
  */
 
 #define MODE_INVITE (1 << 0)
