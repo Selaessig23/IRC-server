@@ -179,7 +179,7 @@ std::string Channel::get_modes_string() {
 }
 
 /**
- * @brief channel info to show each in the events of succesful 
+ * @brief channel info to show each in the events of successful 
  * JOIN or MODE calls
  * TODO: it will be adjusted to the new structure of message sending
  */
