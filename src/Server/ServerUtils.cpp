@@ -55,7 +55,6 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
 void Server::set_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
-  it->events |= event;
   if (it != _poll_fds.end())
     it->events |= event;
 }
@@ -67,7 +66,6 @@ void Server::set_pollevent(int fd, int event) {
 void Server::remove_pollevent(int fd, int event) {
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   for (; it != _poll_fds.end() && it->fd != fd; it++) {}
-  it->events &= ~event;
   if (it != _poll_fds.end())
     it->events &= ~event;
 }

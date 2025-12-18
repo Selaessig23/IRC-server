@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <list>
 #include "../../Channel/Channel.hpp"
@@ -99,7 +99,8 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
             it_chan->set_user_limit(0);
             it_chan->adjust_modes(MODE_LIMIT, sign);
           } else if (sign && cmd.parameters.size() >= 3) {
-            it_chan->set_user_limit(atoi(cmd.parameters[param_ind].c_str()));
+            it_chan->set_user_limit(
+                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
             it_chan->adjust_modes(MODE_LIMIT, sign);
             param_ind++;
           }

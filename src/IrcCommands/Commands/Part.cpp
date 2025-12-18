@@ -31,10 +31,7 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
     return (ERR_NEEDMOREPARAMS);
   } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);
-  if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
-    return (ERR_NEEDMOREPARAMS);
-  }
+
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
   if (!base._channel_list.empty()) {
     for (; it_chan != base._channel_list.end(); it_chan++) {
@@ -64,9 +61,6 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
 #endif
   if (it_chan->get_members_size() == 0)
     base._channel_list.erase(it_chan);
-#ifdef DEBUG
-  it_chan->print_channel_info();
-#endif
 
   return (1);
 }

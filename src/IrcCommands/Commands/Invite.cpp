@@ -12,14 +12,14 @@
  * @brief INVITE command is used to invite clients to channels
  * Only members of that channel can invite non-members
  * If invite_only (+i) mode is enabled fot the channel, only chanops
- * can succesfully call the command.
+ * can successfully call the command.
  * After a suceesful call invited client is getting added to _invited list
  * of the channel. Caller client receives RPL_INVITING and invited client
  * receives an custom INVITE message from the server.
  * e.g INVITE <nickname> <channel>
  * 
  * TODO:
- * (1) implement and send RPL_341 to caller after a succesful call 
+ * (1) implement and send RPL_341 to caller after a successful call 
  * (2) implement and send an INVITE message to the invited client
  *  
  * @return 0, in case of an error it returns error codes:
@@ -30,7 +30,7 @@
  * ERR_USERNOTINCHANNEL (441)
  * ERR_NOTONCHANNEL (442)
  * 
- * @return it returns 1 if command is succesfully executed
+ * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
