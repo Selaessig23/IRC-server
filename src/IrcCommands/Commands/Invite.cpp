@@ -13,7 +13,7 @@
  * Only members of that channel can invite non-members
  * If invite_only (+i) mode is enabled fot the channel, only chanops
  * can successfully call the command.
- * After a suceesful call invited client is getting added to _invited list
+ * After a successful call invited client is getting added to _invited list
  * of the channel. Caller client receives RPL_INVITING and invited client
  * receives an custom INVITE message from the server.
  * e.g INVITE <nickname> <channel>
