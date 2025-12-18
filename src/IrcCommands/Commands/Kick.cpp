@@ -28,7 +28,7 @@
  * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
-  if (cmd.parameters.empty()) {
+  if (cmd.parameters.size() < 2) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
