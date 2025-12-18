@@ -54,7 +54,9 @@ class Channel {
   // Member management
   void new_member(Client* _new, bool is_oper);
   void new_invited(Client* _new);
+  void remove_from_members(Client* removal);
   void remove_from_invited(Client* removal);
+  bool update_chanops_stat(std::string nick, bool status);
 
   // Getters
   std::string& get_name();

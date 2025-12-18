@@ -70,7 +70,7 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NOSUCHNICK:
       return (source + " :No such nick/channel");
     case ERR_NOSUCHCHANNEL:
-      return (" <channel> :No such channel");
+      return ("<channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
       return (" <channel> :No such channel");
     case ERR_INVALIDCAPCMD:
@@ -92,6 +92,8 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NICKCOLLISION:
       return (source + " :Nickname collision KILL from " +
               cmd.client->get_user() + "@" + cmd.client->get_host());
+    case ERR_USERNOTINCHANNEL:
+      return ("<client> <nick> <channel> :They aren't on that channel");
     case ERR_NOTONCHANNEL:
       return ("<client> <channel> :You're not on that channel");
     case ERR_USERONCHANNEL:

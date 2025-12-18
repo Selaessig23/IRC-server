@@ -46,6 +46,10 @@ void Channel::new_invited(Client* _new) {
 #endif
 }
 
+void Channel::remove_from_members(Client* removal) {
+  _members.erase(removal);
+}
+
 void Channel::remove_from_invited(Client* removal) {
   std::list<Client*>::iterator it = _invited.begin();
   for (; it != _invited.end(); it++) {
@@ -54,6 +58,17 @@ void Channel::remove_from_invited(Client* removal) {
       break;
     }
   }
+}
+
+bool Channel::update_chanops_stat(std::string nick, bool status) {
+  std::map<Client*, bool>::iterator it = _members.begin();
+  for (; it != _members.end(); it++) {
+    if (it->first->get_nick() == nick) {
+      it->second = status;
+      return (1);
+    }
+  }
+  return (0);
 }
 
 // SETTERS
@@ -168,7 +183,7 @@ std::string Channel::get_modes_string() {
  */
 
 void Channel::print_channel_info() {
-  std::cout << get_name() << " " << get_modes() << std::endl;
+  std::cout << get_modes_string() << std::endl;
   std::cout << "Members[" << _members.size() << "]: ";
   for (std::map<Client*, bool>::iterator it = _members.begin();
        !_members.empty() && it != _members.end(); it++) {

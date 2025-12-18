@@ -18,11 +18,12 @@
  * e.g. +k +i +l: has_key, invite_only, has_limit respectively
  * 
  * TODO:
- * (1) +k has_a_key check,
- * (2) +i invite_only check is,
- * (3) +l has_limit check is gonna be implemented
- * (3) implement respective ERR
- * (4) implement resprective RPL
+ * (1) implement a succesful joining message
+ * (2) implement resprective RPL messages
+ * (3) multi-channel entry at signel command call
+ * Parameters: <channel>{,<channel>} [<key>{,<key>}]
+ * e.g. JOIN #chan,#42,#horizon 
+ * (4) JOIN "0" to all channels at once
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -30,6 +31,7 @@
  * ERR_BADCHANNELKEY (475)
  * ERR_CHANNELISFULL (471)
  * ERR_INVITEONLYCHAN (473)
+ * 
  * RPL_TOPIC (332)
  * RPL_NAMREPLY (353)
  * RPL_ENDOFNAMES (366)
@@ -58,6 +60,12 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
     return (1);
   }
 
+  std::map<Client*, bool>::iterator it_mem = it_chan->get_members().begin();
+  for (; it_mem != it_chan->get_members().end(); it_mem++) {
+    if (cmd.client == it_mem->first)
+      return (0);
+  }
+
   if ((it_chan->get_modes() & MODE_KEY) &&
       (!cmd.parameters[0].size() ||
        (cmd.parameters[1].size() && cmd.parameters[1] != it_chan->get_key()))) {
@@ -71,19 +79,21 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
     return (ERR_CHANNELISFULL);
   }
 
-  if (it_chan->get_modes() & MODE_INVITE) {
-    std::list<Client*>::iterator it_inv = it_chan->get_invited().begin();
-    for (; it_inv != it_chan->get_invited().end(); it_inv++) {
-      if ((*it_inv) == cmd.client) {
-        it_chan->remove_from_invited(*it_inv);
-        break;
-      }
-    }
-    if (it_inv == it_chan->get_invited().end()) {
-      send_message(base, cmd, ERR_INVITEONLYCHAN, true, NULL);
-      return (ERR_INVITEONLYCHAN);
+  std::list<Client*>::iterator it_inv_list = it_chan->get_invited().begin();
+  for (; it_inv_list != it_chan->get_invited().end(); it_inv_list++) {
+    DEBUG_PRINT(cmd.client << " cmd.client");
+    DEBUG_PRINT(*it_inv_list << " it_inv_list");
+    if (*it_inv_list == cmd.client) {
+      it_chan->remove_from_invited(*it_inv_list);
+      break;
     }
   }
+  if (it_chan->get_modes() & MODE_LIMIT &&
+      it_inv_list == it_chan->get_invited().end()) {
+    send_message(base, cmd, ERR_INVITEONLYCHAN, true, NULL);
+    return (ERR_INVITEONLYCHAN);
+  }
+
   it_chan->new_member(cmd.client, false);
   it_chan->print_channel_info();
 

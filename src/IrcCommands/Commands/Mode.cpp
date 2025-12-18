@@ -17,7 +17,7 @@
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  * Usage: MODE <#channel> <mode>
- * e.g. MODE #chan42 +ikl <key> <limit>
+ * e.g. MODE #chan42 +ikl <key> <limit>   
  * 
  * TODO:
  * (1) send_channel_message is going to be implemented
@@ -26,9 +26,10 @@
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NOSUCHCHANNEL (403)
+ * ERR_USERNOTINCHANNEL (441)
+ * ERR_CHANOPRIVSNEEDED (482)
  * RPL_CHANNELMODEIS (324)
  * RPL_CREATIONTIME (329)
- * ERR_CHANOPRIVSNEEDED (482)
  * 
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
@@ -43,68 +44,81 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
     return (ERR_NOSUCHCHANNEL);
   }
 
-  std::list<Channel>::iterator iter_chan = base._channel_list.begin();
-  for (; iter_chan != base._channel_list.end(); iter_chan++) {
-    if (iter_chan->get_name() == cmd.parameters[0])
+  std::list<Channel>::iterator it_chan = base._channel_list.begin();
+  for (; it_chan != base._channel_list.end(); it_chan++) {
+    if (it_chan->get_name() == cmd.parameters[0])
       break;
   }
-  if (iter_chan == base._channel_list.end())
+  if (it_chan == base._channel_list.end())
     return (ERR_NOSUCHCHANNEL);
 
-  /**
-     * @brief sends current modes of to the client
-     */
   if (cmd.parameters.size() == 1) {
-    std::cout << iter_chan->get_name() << " Modes: ["
-              << iter_chan->get_modes_string() << "]" << std::endl;
+    std::cout << it_chan->get_name() << " Modes: ["
+              << it_chan->get_modes_string() << "]" << std::endl;
+    it_chan->print_channel_info();
     return (0);
   }
-  /**
-   * @brief function for parsing modes and parameters 
-   * that passed right after call of MODE command.
-   * it parses multiple signs and also parameters 
-   * for key and limit values
-   * e.g. MODE #<channel> +ikl <key_value> <limit_value>
-   */
+
+  std::map<Client*, bool>::iterator it_chan_mem =
+      it_chan->get_members().begin();
+  for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
+    if (it_chan_mem->first == cmd.client)
+      break;
+  }
+  if (it_chan_mem == it_chan->get_members().end()) {
+    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    return (ERR_NOTONCHANNEL);
+  }
+  if (!it_chan_mem->second) {
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    return (ERR_CHANOPRIVSNEEDED);
+  }
+
   const std::string modes = cmd.parameters[1];
   int param_ind = 2;
   if (modes[0] == '-' || modes[0] == '+') {
     bool sign = (modes[0] == '+');
-    std::string::const_iterator it = modes.begin();
-    for (; it != modes.end(); ++it) {
-      if (*it == '+')
-        sign = true;
-      else if (*it == '-')
-        sign = false;
+    std::string::const_iterator it = modes.begin() + 1;
+    for (; it != modes.end(); it++) {
       switch (*it) {
         case 'i':
-          iter_chan->set_mode(MODE_INVITE, sign);
+          it_chan->set_mode(MODE_INVITE, sign);
           break;
         case 'k':
           if (!sign) {
-            iter_chan->set_key("");
-            iter_chan->set_mode(MODE_KEY, sign);
+            it_chan->set_key("");
+            it_chan->set_mode(MODE_KEY, sign);
           } else if (sign && cmd.parameters.size() >= 3) {
-            iter_chan->set_key(cmd.parameters[param_ind]);
-            iter_chan->set_mode(MODE_KEY, sign);
+            it_chan->set_key(cmd.parameters[param_ind]);
+            it_chan->set_mode(MODE_KEY, sign);
             param_ind++;
           }
           break;
         case 'l':
           if (!sign) {
-            iter_chan->set_user_limit(0);
-            iter_chan->set_mode(MODE_KEY, sign);
+            it_chan->set_user_limit(0);
+            it_chan->set_mode(MODE_LIMIT, sign);
           } else if (sign && cmd.parameters.size() >= 3) {
-            iter_chan->set_user_limit(atoi(cmd.parameters[param_ind].c_str()));
-            iter_chan->set_mode(MODE_LIMIT, sign);
+            it_chan->set_user_limit(atoi(cmd.parameters[param_ind].c_str()));
+            it_chan->set_mode(MODE_LIMIT, sign);
             param_ind++;
           }
           break;
         case 't':
-          iter_chan->set_mode(MODE_TOPIC, sign);
+          it_chan->set_mode(MODE_TOPIC, sign);
+          break;
+        case 'o':
+          if (cmd.parameters.size() >= 3) {
+            if (it_chan->update_chanops_stat(cmd.parameters[param_ind], sign))
+              send_message(base, cmd, NO_ERR, false, NULL);
+            else
+              send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+          }
           break;
       }
     }
   }
+  std::cout << it_chan->get_name() << " Modes: [" << it_chan->get_modes_string()
+            << "]" << std::endl;
   return (0);
 }

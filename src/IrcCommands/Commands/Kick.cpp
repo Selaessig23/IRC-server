@@ -9,21 +9,16 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief INVITE command is used to invite clients to channels
- * Only members of that channel can invite non-members
- * If invite_only (+i) mode is enabled fot the channel, only chanops
- * can succesfully call the command.
- * After a suceesful call invited client is getting added to _invited list
- * of the channel. Caller client receives RPL_INVITING and invited client
- * receives an custom INVITE message from the server.
- * e.g INVITE <nickname> <channel>
+ * @brief KICK command is used to remove members from channels
+ * Only operaators of the channel can remove other members
+ * KICK <channel> <user> *( "," <user> ) [<comment>]
  * 
  * TODO:
- * (1) implement and send RPL_341 to caller after a succesful call 
- * (2) implement and send an INVITE message to the invited client
+ * (1) implement message sending with [<comment>]
+ *      if [<comment>] isn't passed then a default message
+ * (2) implement multi-kick at a single call
  *  
  * @return 0, in case of an error it returns error codes:
- * RPL_INVITING (341)
  * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_CHANOPRIVSNEEDED (482)
@@ -32,7 +27,7 @@
  * 
  * @return it returns 1 if command is succesfully executed
  */
-int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
+int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
@@ -40,7 +35,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
   if (!base._channel_list.empty()) {
     for (; it_chan != base._channel_list.end(); it_chan++) {
-      if (it_chan->get_name() == cmd.parameters[1])
+      if (it_chan->get_name() == cmd.parameters[0])
         break;
     }
   }
@@ -65,32 +60,28 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
     return (ERR_CHANOPRIVSNEEDED);
   }
 
-  std::list<Client>::iterator it_inv_cli = base._client_list.begin();
+  std::list<Client>::iterator it_kick_nick = base._client_list.begin();
   if (!base._client_list.empty()) {
-    for (; it_inv_cli != base._client_list.end(); it_inv_cli++) {
-      if (it_inv_cli->get_nick() == cmd.parameters[0])
+    for (; it_kick_nick != base._client_list.end(); it_kick_nick++) {
+      if (it_kick_nick->get_nick() == cmd.parameters[1])
         break;
     }
   }
-  if (it_inv_cli == base._client_list.end())
+  if (it_kick_nick == base._client_list.end())
     return (0);
 
-  std::list<Client*>::iterator it_inv_list = it_chan->get_invited().begin();
-  for (; it_inv_list != it_chan->get_invited().end(); it_inv_list++) {
-    if (*it_inv_list == &(*it_inv_cli)) {
-      return (0);
-    }
+  std::map<Client*, bool>::iterator it_kick_mem =
+      it_chan->get_members().begin();
+  for (; it_kick_mem != it_chan->get_members().end(); it_kick_mem++) {
+    if (it_kick_mem->first == &(*it_kick_nick))
+      break;
+  }
+  if (it_kick_mem == it_chan->get_members().end()) {
+    send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+    return (ERR_USERNOTINCHANNEL);
   }
 
-  it_chan_mem = it_chan->get_members().begin();
-  for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
-    if (it_chan_mem->first == &(*it_inv_cli)) {
-      send_message(base, cmd, ERR_USERONCHANNEL, true, NULL);
-      return (ERR_USERONCHANNEL);
-    }
-  }
-
-  it_chan->new_invited(&(*it_inv_cli));
+  it_chan->remove_from_members(&(*it_kick_nick));
   send_message(base, cmd, RPL_INVITING, false, NULL);
 
   return (1);
