@@ -11,7 +11,7 @@
 /**
  * @brief INVITE command is used to invite clients to channels
  * Only members of that channel can invite non-members
- * If invite_only (+i) mode is enabled fot the channel, only chanops
+ * If invite_only (+i) mode is enabled for the channel, only chanops
  * can succesfully call the command.
  * After a suceesful call invited client is getting added to _invited list
  * of the channel. Caller client receives RPL_INVITING and invited client
