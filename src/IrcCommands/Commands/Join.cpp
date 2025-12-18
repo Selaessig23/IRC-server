@@ -88,7 +88,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
       break;
     }
   }
-  if (it_chan->get_modes() & MODE_LIMIT &&
+  if (it_chan->get_modes() & MODE_INVITE &&
       it_inv_list == it_chan->get_invited().end()) {
     send_message(base, cmd, ERR_INVITEONLYCHAN, true, NULL);
     return (ERR_INVITEONLYCHAN);
