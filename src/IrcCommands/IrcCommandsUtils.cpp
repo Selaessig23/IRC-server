@@ -72,7 +72,7 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NOSUCHCHANNEL:
       return ("<channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
-      return (" <channel> :No such channel");
+      return ("<channel> :No such channel");
     case ERR_INVALIDCAPCMD:
       return (source + " :Cannot handle CAP command with this target");
     case ERR_NORECIPIENT:
