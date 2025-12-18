@@ -114,6 +114,7 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
               send_message(base, cmd, NO_ERR, false, NULL);
             else
               send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+            param_ind++;
           }
           break;
       }
