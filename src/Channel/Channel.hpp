@@ -33,6 +33,14 @@ class Channel {
   std::string _topic;
   std::string _key;
   size_t _user_limit;
+  /**
+   * @brief Map of channel members to their operator status.
+   *
+   * The key is a pointer to a Client participating in the channel.
+   * The bool value indicates whether the client is a channel operator:
+   * - true  => client has channel operator privileges
+   * - false => regular channel member (non-operator)
+   */
   std::map<Client*, bool> _members;
   std::list<Client*> _invited;
   int _modes;
