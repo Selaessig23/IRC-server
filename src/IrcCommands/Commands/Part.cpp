@@ -60,9 +60,6 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
 #endif
   if (it_chan->get_members_size() == 0)
     base._channel_list.erase(it_chan);
-#ifdef DEBUG
-  it_chan->print_channel_info();
-#endif
 
   return (1);
 }
