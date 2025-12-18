@@ -10,7 +10,7 @@
 
 /**
  * @brief KICK command is used to remove members from channels
- * Only operators of the channel can remove other members
+ * Only operaators of the channel can remove other members
  * KICK <channel> <user> *( "," <user> ) [<comment>]
  * 
  * TODO:

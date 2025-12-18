@@ -18,7 +18,7 @@
  * e.g. +k +i +l: has_key, invite_only, has_limit respectively
  * 
  * TODO:
- * (1) implement a succesful joining message
+ * (1) implement a successful joining message
  * (2) implement resprective RPL messages
  * (3) multi-channel entry at single command call
  * Parameters: <channel>{,<channel>} [<key>{,<key>}]
@@ -67,8 +67,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   }
 
   if ((it_chan->get_modes() & MODE_KEY) &&
-      (cmd.parameters.size() < 2 ||
-       cmd.parameters[1] != it_chan->get_key())) {
+      (cmd.parameters.size() < 2 || cmd.parameters[1] != it_chan->get_key())) {
     send_message(base, cmd, ERR_BADCHANNELKEY, true, NULL);
     return (ERR_BADCHANNELKEY);
   }
