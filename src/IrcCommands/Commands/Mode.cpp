@@ -16,8 +16,8 @@
  * k: Set/remove the channel key (password)
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
- * Usage: MODE <#channel> <mode>
- * e.g. MODE #chan42 +ikl <key> <limit>   
+ * Usage: MODE <channel> [<modestring> [<mode arguments>...]]
+ * e.g. MODE #chan42 +iklo <key> <limit> <nickname>
  * 
  * TODO:
  * (1) send_channel_message is going to be implemented
