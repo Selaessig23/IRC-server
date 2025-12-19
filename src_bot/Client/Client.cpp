@@ -16,8 +16,12 @@
  * _fd_server = socket(AF_INET, SOCK_STREAM, 0);
  * setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
  * if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr),
+ * instead of bind on the client side connect is used
  *
  * if there is an error, an exception is thrown
+ *
+ * TODO:
+ * (1) close socket in case of an error
  */
 
 Client::Client(std::string irc_address, int port, std::string pw,
