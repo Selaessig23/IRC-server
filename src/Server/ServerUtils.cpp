@@ -1,4 +1,5 @@
 
+#include <cstring>  // for strlen
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
@@ -77,7 +78,7 @@ void Server::remove_client(int fd) {
     }
   }
   close(fd);
-  DEBUG_PRINT("Case delete client: " << pfd.fd);
+  DEBUG_PRINT("Case delete client: " << fd);
 }
 
 /**
@@ -137,6 +138,8 @@ int Server::handle_pollin(struct pollfd& pfd) {
       std::cout << "\nERR: " << err << std::endl;
     else
       debug_parsed_cmds(cmd_body);
+#else
+    (void)err;
 #endif
 
     _irc_commands->exec_command(*this, cmd_body);

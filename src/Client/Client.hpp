@@ -3,8 +3,8 @@
 
 #include <netinet/in.h>  // for sockaddr_in
 #include <poll.h>
-#include <iostream>
 #include <map>
+#include <string>
 
 class Client {
  private:

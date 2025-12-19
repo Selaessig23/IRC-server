@@ -2,7 +2,7 @@
 #include <netinet/in.h>  // for sockaddr_in
 #include <poll.h>
 #include <algorithm>  // for std::swap
-#include <iostream>
+#include <string>
 #include "../debug.hpp"
 
 /** TODO:
@@ -12,7 +12,7 @@
  */
 
 Client::Client(long id, int fd, struct sockaddr_in addr)
-    : _id(id), _client_fd(fd), _registered(0), _opertr(0), _client_addr(addr) {}
+    : _id(id), _client_fd(fd), _registered(0), _client_addr(addr), _opertr(0) {}
 
 Client::Client(const Client& other)
     : _id(other._id),
