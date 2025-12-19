@@ -23,7 +23,7 @@
  * (3) multi-channel entry at single command call
  * Parameters: <channel>{,<channel>} [<key>{,<key>}]
  * e.g. JOIN #chan,#42,#horizon 
- * (4) JOIN "0" to all channels at once
+ * (4) JOIN "0" to remove client from all channels at once
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
