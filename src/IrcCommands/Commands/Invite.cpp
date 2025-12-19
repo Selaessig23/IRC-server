@@ -44,7 +44,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
         break;
     }
   }
-  if (it_chan == base._channel_list.end() || base._channel_list.empty()) {
+  if (base._channel_list.empty() || it_chan == base._channel_list.end()) {
     send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
