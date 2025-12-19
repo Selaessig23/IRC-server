@@ -21,9 +21,9 @@
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  *
- * TODO:
- * (1) a bitmask to check the modes 
- * (2) if channel name is mutable we'll need a setter function
+ * TODO: 
+ * (1) explanation for bitmask implementation
+ * (2) a string return function for channel_info
  */
 
 class Channel {
@@ -46,6 +46,7 @@ class Channel {
   int _modes;
 
  public:
+  Channel();
   Channel(std::string name);
   Channel(const Channel& other);
   Channel& operator=(const Channel& other);

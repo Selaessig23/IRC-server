@@ -18,9 +18,14 @@
  * receives an custom INVITE message from the server.
  * e.g INVITE <nickname> <channel>
  * 
+ * To comply with IRC protocol:
+ * If <nickname> is not existed ERR_NOSUCHNICK can be returned. It returns 0 now.
+ * If client is already invited before, a custom message can be returned. It returns 0 now.
+ * 
  * TODO:
  * (1) implement and send RPL_341 to caller after a successful call 
  * (2) implement and send an INVITE message to the invited client
+ * (3) all the message sending function are needed to be checked
  *  
  * @return 0, in case of an error it returns error codes:
  * RPL_INVITING (341)

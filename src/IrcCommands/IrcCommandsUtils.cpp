@@ -37,7 +37,7 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
     case RPL_TOPIC:
       return ("<channel> :<topic>");  //to be added
     case RPL_INVITING:
-      return ("<client> <nick> <channel> :INVITES YOU");
+      return ("<client> <nick> <channel> :INVITES YOU");  // to be adjusted
     case RPL_NAMREPLY:
       return (
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
