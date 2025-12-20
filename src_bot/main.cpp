@@ -60,13 +60,15 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGQUIT, signal_handler);
-    g_client = new Client(irc_address, port, pw, data_input);
+    g_client = new Client(port, pw, data_input);
     if (g_client->init(1)) {
       delete g_client;
       return 1;
     }
   } catch (const std::runtime_error& e) {
     std::cout << "Caught a runtime_error: " << e.what() << '\n';
+  } catch (const std::invalid_argument& e) {
+    std::cout << "Caught an error caused by an invalid argument: " << e.what() << '\n';
   }
   return (0);
 }

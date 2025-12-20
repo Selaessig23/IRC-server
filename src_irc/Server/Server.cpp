@@ -15,7 +15,6 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
-#include "../includes/types.hpp"
 
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
@@ -131,7 +130,7 @@ int Server::initiate_poll() {
       }
       if (it->revents & POLLIN) {
         if (handle_pollin(*it))
-         break;
+          break;
       }
       if (it->revents & POLLOUT) {
         handle_pollout(*it);

@@ -14,7 +14,7 @@ DEPFLAGS =	-MMD -MP
 
 #Arguments to test:
 ARGS_IRC = "8080" "1234abc?"
-ARGS_BOT = "localhost" "8080" "1234abc?" "swear_words.csv"
+ARGS_BOT = "1234abc?" "swear_words.csv"
 
 #styling
 RESET =			\033[0m

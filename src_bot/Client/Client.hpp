@@ -4,8 +4,9 @@
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <sys/socket.h>  //sockaddr_in
 #include <poll.h>
-#include <iostream>
+#include <string>
 #include <map>
+#include <vector>
 
 class Client {
  private:
@@ -20,12 +21,13 @@ class Client {
   std::string _realname;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
+  std::vector<std::string> _swear_words;
  
   //member function (helper)
   int poll_loop();
 
  public:
-  Client(std::string irc_address, int port, std::string pw, std::string data_input);
+  Client(int port, std::string pw, std::string data_input);
   Client(const Client& other);
   Client operator=(const Client& other);
   ~Client();
