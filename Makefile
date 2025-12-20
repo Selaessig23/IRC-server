@@ -42,7 +42,7 @@ SRCS_IRC += src_irc/IrcCommands/IrcCommands.cpp
 
 #sources bot
 SRCS_BOT = src_bot/main.cpp
-SRCS_BOT += src_bot/Client/Client.cpp
+SRCS_BOT += src_bot/Bot/Bot.cpp
 
 OBJS_IRC = $(SRCS_IRC:src_irc/%.cpp=obj_irc/%.o)
 

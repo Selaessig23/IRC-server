@@ -1,16 +1,17 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef BOT_HPP
+#define BOT_HPP
 
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <sys/socket.h>  //sockaddr_in
 #include <poll.h>
 #include <string>
 #include <map>
-#include <vector>
+#include <set>
 
-class Client {
+class Bot{
  private:
   int _client_fd;
+  std::string _pw;
   struct sockaddr_in _client_addr;
   unsigned char _registered;
   std::string _received_packs;
@@ -21,16 +22,16 @@ class Client {
   std::string _realname;
   std::string _output_buffer;
   std::map<std::string, bool> channel_inscriptions;
-  std::vector<std::string> _swear_words;
+  std::set<std::string> _swear_words;
  
   //member function (helper)
   int poll_loop();
 
  public:
-  Client(int port, std::string pw, std::string data_input);
-  Client(const Client& other);
-  Client operator=(const Client& other);
-  ~Client();
+  Bot(int port, std::string pw, std::string data_input);
+  Bot(const Bot& other);
+  Bot operator=(const Bot& other);
+  ~Bot();
 
   int init(int attempts);
 };
