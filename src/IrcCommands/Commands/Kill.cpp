@@ -6,7 +6,7 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief function to kill a user (client) form server,
+ * @brief function to kill a user (client) from server,
  * privilege of an operator
  * 
  * the operator cannot KILL itself
