@@ -13,7 +13,7 @@ class Bot{
   int _client_fd;
   std::string _pw;
   struct sockaddr_in _client_addr;
-  unsigned char _registered;
+  bool _operator;
   std::string _received_packs;
   std::string _nick;
   std::string _user;
@@ -25,7 +25,10 @@ class Bot{
   std::set<std::string> _swear_words;
  
   //member function (helper)
-  int poll_loop();
+  int register_at_irc();
+  int handle_invitation();
+  int check_for_swears();
+  int kill_clients();
 
  public:
   Bot(int port, std::string pw, std::string data_input);
@@ -33,7 +36,7 @@ class Bot{
   Bot operator=(const Bot& other);
   ~Bot();
 
-  int init(int attempts);
+  int init_poll();
 };
 
 #endif // CLIENT_HPP

@@ -10,6 +10,7 @@
 #include <map>
 #include <sstream>  // std::stringstream, std::stringbuf
 #include <stdexcept>
+#include "../debug.hpp"
 
 /**
  * @brief function to open an inputfile, check for access 
@@ -40,15 +41,13 @@ bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
  * (1) the data_input gets checked
  * (2) if the connection can be established
  * if there is an error, an exception gets thrown
- * setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
  *
- * if there is an error, an exception is thrown
+ * TODO
+ * WHY? DO I NEED IT?
+ * setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
  *
  * Restriction: program only works if it runs on the same host like server
  * (localhost)
- *
- * TODO:
- * (1) close socket in case of an error
  */
 
 Bot::Bot(int port, std::string pw, std::string data_input) : _pw(pw) {
@@ -77,22 +76,33 @@ Bot::Bot(int port, std::string pw, std::string data_input) : _pw(pw) {
     // params: int sockfd, const struct sockaddr *addr, socklen_t addrlen
     throw std::runtime_error("Connection creation error.");
   }
+  DEBUG_PRINT("Successfully connected to IRC server (not registered yet)");
 }
 
-Bot::~Bot() {}
+Bot::~Bot() {
+  close(_client_fd);
+  DEBUG_PRINT("Destructor was called succesfully");
+}
 
 /**
- * @brief this function tries to connect to the server
- * if there is an error while trying to connect to the server,
- * it will be tried 3 times otherwise an exception is thrown
- * it uses the password of the server, 
+ * @brief this function tries to register to the server by
+ * using a server password (if there is one) PASS
+ * NICK
+ * USER
+ * (it throws an exception if registration process fails)
+ * and tries to become operator
+ */
+
+/**
+ * @brief this functions sets up the poll-loop
+ * to enable the bot to communicate with the irc-server
+ *
  * sets the nick to SWEARBOT, and
  * sets user to [...]
  *
  */
-int Bot::init(int attempts) {
+int Bot::init_poll() {
   // [...']
-  (void)attempts;
   return (0);
 }
 
