@@ -6,14 +6,14 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/12/17 18:20:20 by mstracke         ###   ########.fr       */
+/*   Updated: 2025/12/22 16:02:43 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <csignal>  //signal
 #include <cstdlib>  //atoi
 #include <iostream>
-#include "Client/Client.hpp"
+#include "Bot/Bot.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
 
@@ -21,12 +21,12 @@
 // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
 // protocl number (if several)
 
-Client* g_client;
+Bot* g_bot;
 
 void signal_handler(int signal) {
   (void)signal;
   DEBUG_PRINT("Exit of client caused by signal: " << signal);
-  delete g_client;
+  delete g_bot;
   exit(0);
 }
 
@@ -60,9 +60,9 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGQUIT, signal_handler);
-    g_client = new Client(port, pw, data_input);
-    if (g_client->init(1)) {
-      delete g_client;
+    g_bot= new Bot(port, pw, data_input);
+    if (g_bot->init(1)) {
+      delete g_bot;
       return 1;
     }
   } catch (const std::runtime_error& e) {
