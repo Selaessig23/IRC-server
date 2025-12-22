@@ -28,12 +28,13 @@ int IrcCommands::oper(Server& base, const struct cmd_obj& cmd) {
     return (ERR_NOTREGISTERED);
   }
 
-  if (cmd.parameters.size() < 1) {
+  if (cmd.parameters.size() < 2) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
-  if (cmd.parameters.size() >= 1 &&
-      *cmd.parameters.begin() == (base._pw + "BOT")) {
+  if (cmd.parameters.size() >= 2 &&
+      *cmd.parameters.begin() == ("SWEARBOT") &&
+      *(cmd.parameters.begin() + 1) == (base._pw + "42BOT")) {
     cmd.client->set_opertr(true);
     send_message(base, cmd, RPL_YOUREOPER, false, NULL);
     return (0);
