@@ -13,6 +13,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("JOIN", &IrcCommands::join));
   _irc_commands.insert(std::make_pair("PART", &IrcCommands::part));
   _irc_commands.insert(std::make_pair("PRIVMSG", &IrcCommands::privmsg));
+  _irc_commands.insert(std::make_pair("KILL", &IrcCommands::kill));
   _irc_commands.insert(std::make_pair("MODE", &IrcCommands::mode));
   _irc_commands.insert(std::make_pair("INVITE", &IrcCommands::invite));
   _irc_commands.insert(std::make_pair("KICK", &IrcCommands::kick));

@@ -25,6 +25,7 @@ class IrcCommands {
   int join(Server& base, const struct cmd_obj& cmd);
   int part(Server& base, const struct cmd_obj& cmd);
   int privmsg(Server& base, const struct cmd_obj& cmd);
+  int kill(Server& base, const struct cmd_obj& cmd);
   int mode(Server& base, const struct cmd_obj& cmd);
   int invite(Server& base, const struct cmd_obj& cmd);
   int kick(Server& base, const struct cmd_obj& cmd);

@@ -83,4 +83,5 @@ class Channel {
 
   void print_channel_info();
 };
+
 #endif
