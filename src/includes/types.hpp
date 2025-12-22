@@ -47,6 +47,7 @@ enum RPL_MSG {
   RPL_INVITING = 341,
   RPL_NAMREPLY = 353,
   RPL_ENDOFNAMES = 366,
+  RPL_YOUREOPER = 381,
 };
 
 struct cmd_obj {
