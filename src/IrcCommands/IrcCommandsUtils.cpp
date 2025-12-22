@@ -43,6 +43,8 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
     case RPL_ENDOFNAMES:
       return ("<channel> :End of /NAMES list");  //to be added
+    case RPL_YOUREOPER:
+      return (":You are now an IRC operator");
     default:
       return (" UNKNOWN REPLY");
   }
