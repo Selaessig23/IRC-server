@@ -13,6 +13,11 @@
 #include "../debug.hpp"
 
 /**
+ * TODO
+ * (1) add all parameters to copy constructor
+ */
+
+/**
  * @brief function to open an inputfile, check for access 
  * and sent it to a std::stringstream buffer 
  * 
@@ -50,7 +55,12 @@ bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
  * (localhost)
  */
 
-Bot::Bot(int port, std::string pw, std::string data_input) : _pw(pw) {
+Bot::Bot(int port, std::string pw, std::string data_input)
+    : _pw(pw),
+      _nick("42BOT"),
+      _user("Max"),
+      _host("42host"),
+      _realname("Max Bot") {
   // check if input file is valid
   std::stringstream buf;
   if (!ft_open_inputfile(data_input.c_str(), buf))
@@ -79,6 +89,15 @@ Bot::Bot(int port, std::string pw, std::string data_input) : _pw(pw) {
   DEBUG_PRINT("Successfully connected to IRC server (not registered yet)");
 }
 
+// all member variables to be added
+Bot::Bot(const Bot& other) {}
+
+Bot Bot::operator=(const Bot& other) {
+  Bot temp(other);
+  std::swap(*this, temp);
+  return (*this);
+}
+
 Bot::~Bot() {
   close(_client_fd);
   DEBUG_PRINT("Destructor was called succesfully");
@@ -89,9 +108,76 @@ Bot::~Bot() {
  * using a server password (if there is one) PASS
  * NICK
  * USER
+ *
+ * TODO
  * (it throws an exception if registration process fails)
  * and tries to become operator
  */
+int Bot::register_at_irc(struct pollfd& pfd) {
+  std::string out;
+  out += "PASS " + _pw + "\r\n";
+  out += "NICK " + _nick + "\r\n";
+  out += "USER " + _user + " " + _host + " * " + _realname + "\r\n";
+  _output_buffer += out;
+  pfd.events |= POLLOUT;
+}
+
+/**
+ * @brief function to handle a pollout event of the bot
+ * to send from bots buffer to sever until buffer is empty
+ * if buffer is empty, poll-event POLLOUT of the bot gets removed
+ * everything that has been sent to server becomes removed from bots out-buffer
+ */
+void Bot::handle_pollout(struct pollfd& pfd) {
+
+  int size_sent =
+      send(pfd.fd, _output_buffer.c_str(), strlen(_output_buffer.c_str()), 0);
+  std::string new_out = _output_buffer;
+  new_out.erase(0, size_sent);
+  _output_buffer = new_out;
+  if (_output_buffer.empty())
+    pfd.events &= ~POLLOUT;
+}
+
+/**
+ * @brief function to handle a pollin event from one of the clients fds
+ * in case there is no input to read, it is interpreted as client was lost
+ * therefore client gets deleted on server
+ */
+int Bot::handle_pollin(struct pollfd& pfd) {
+
+  char buf[8750];
+  int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
+
+  if (recv_len <= 0) {
+    close(pfd.fd);  //add handling if server-connection ends
+    return (1);
+  }
+
+  buf[recv_len] = '\0';
+
+  _received_packs += buf;
+
+  while (_received_packs.find("\r\n") != std::string::npos) {
+
+    cmd_obj cmd_body;
+    PARSE_ERR err = Parsing::parse_command(cmd_body);
+    cmd_body.client = NULL;
+  }
+
+#ifdef DEBUG
+    if (err)
+      std::cout << "\nERR: " << err << std::endl;
+    else
+      debug_parsed_cmds(cmd_body);
+#else
+    (void)err;
+#endif
+    if (check_for_swears(cmd_body))
+      sanctioning(pfd);
+  }
+  return (0);
+}
 
 /**
  * @brief this functions sets up the poll-loop
@@ -102,6 +188,21 @@ Bot::~Bot() {
  *
  */
 int Bot::init_poll() {
+  struct pollfd client_poll;
+  client_poll.fd = _client_fd;
+  client_poll.events = POLLIN;
+  client_poll.revents = 0;
+  while (1) {
+    poll(&client_poll, sizeof(client_poll), 0);
+    if (client_poll.revents & POLLIN) {
+      if (handle_pollin())
+        break;
+    }
+    if (client_poll.revents & POLLOUT) {
+      handle_pollout(client_poll);
+    }
+  }
+
   // [...']
   return (0);
 }

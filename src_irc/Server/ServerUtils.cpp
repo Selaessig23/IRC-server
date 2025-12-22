@@ -149,6 +149,7 @@ void Server::handle_pollout(struct pollfd& pfd) {
       remove_pollevent(it_client->get_client_fd(), POLLOUT);
   }
 }
+
 Client* Server::find_client_by_fd(int fd) {
   std::list<Client>::iterator it = _client_list.begin();
   for (; it != _client_list.end(); ++it) {
