@@ -23,7 +23,7 @@
  * After a successful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
- * (1) all the message sending function are needed to be checked
+ * (1) all message sending functions need to be checked
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
