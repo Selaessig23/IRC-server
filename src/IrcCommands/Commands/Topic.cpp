@@ -20,7 +20,7 @@
  * TOPIC <channel> <topic> : sets the topic to <topic>
  * 
  * If <topic> is an empty string, the topic is cleared.
- * After a succesful topic change all the members are informed with RPL_TOPIC.
+ * After a successful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
  * (1) all the message sending function are needed to be checked
