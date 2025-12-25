@@ -22,8 +22,7 @@
  * If <topic> is an empty string, the topic is cleared.
  * 
  * TODO:
- * (1) implement and send RPL_TOPIC, RPL_NOTOPIC and RPL_TOPICWHOTIME 
- * (2) all the message sending function are needed to be checked
+ * (1) all the message sending function are needed to be checked
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)

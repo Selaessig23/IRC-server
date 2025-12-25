@@ -151,12 +151,10 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
     out += "* ";
   if (msg)
     out += *msg;
-  if (error == true)
+  else if (error == true)
     out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code));
   else
     out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code));
-  // if (msg)
-  //   out += *msg;
   out += "\r\n";
   cmd.client->add_client_out(out);
   base.set_pollevent(cmd.client->get_client_fd(), POLLOUT);
