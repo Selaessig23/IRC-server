@@ -22,8 +22,7 @@
  * l: Set/remove the user limit to channel
  *
  * TODO: 
- * (1) explanation for bitmask implementation
- * (2) a string return function for channel_info
+ * (1) a function that returns channel_info
  */
 
 class Channel {
@@ -31,15 +30,14 @@ class Channel {
  private:
   std::string _name;
   std::string _topic;
+  std::string _topic_time;
+  std::string _topic_who;
   std::string _key;
   size_t _user_limit;
   /**
    * @brief Map of channel members to their operator status.
-   *
    * The key is a pointer to a Client participating in the channel.
    * The bool value indicates whether the client is a channel operator:
-   * - true  => client has channel operator privileges
-   * - false => regular channel member (non-operator)
    */
   std::map<Client*, bool> _members;
   std::list<Client*> _invited;
@@ -65,6 +63,8 @@ class Channel {
   // Getters
   std::string& get_name();
   std::string get_topic();
+  std::string get_topic_time();
+  std::string get_topic_who();
   std::string get_key();
   size_t get_user_limit();
   int get_modes();
@@ -77,10 +77,11 @@ class Channel {
 
   // Setters
   void adjust_modes(int mode, bool status);
-  void set_topic(std::string topic);
+  void set_topic(std::string topic, std::string nick);
   void set_key(std::string key);
   void set_user_limit(size_t limit);
 
+  // Helpers
   void print_channel_info();
 };
 

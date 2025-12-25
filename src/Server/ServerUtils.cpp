@@ -29,8 +29,6 @@ std::string get_current_date_time() {
 
 void debug_parsed_cmds(cmd_obj& cmd_body) {
 
-  DEBUG_PRINT("Client &:" << cmd_body.client);
-
   std::cout << "\nCMD_BDY: " << std::endl;
   if (cmd_body.error)
     std::cout << "ERR: " << cmd_body.error << std::endl;

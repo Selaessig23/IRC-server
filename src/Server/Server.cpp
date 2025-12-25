@@ -108,9 +108,7 @@ int Server::handle_new_client() {
   if (it != _poll_fds.end())
     it->events = POLLOUT | POLLIN;
   Client NewClient((_client_list.size() + 1), client_fd, client_addr);
-  DEBUG_PRINT("Client &:" << &NewClient);
   _client_list.push_back(NewClient);
-  DEBUG_PRINT("Client &:" << &_client_list.back());
   return (0);
 }
 
