@@ -10,7 +10,7 @@
 
 /**
  * @brief TOPIC command is used to change or view the topic of channels.
- * Only members of respective channel have the privilige.
+ * Only members of respective channel have the privilege.
  * If topic-restricted (+t) mode is enabled for the channel, only chanops
  * can change the topic.
  * 
