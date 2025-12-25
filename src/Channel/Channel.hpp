@@ -22,8 +22,7 @@
  * l: Set/remove the user limit to channel
  *
  * TODO: 
- * (1) explanation for bitmask implementation
- * (2) a string return function for channel_info
+ * (1) a function that returns channel_info
  */
 
 class Channel {

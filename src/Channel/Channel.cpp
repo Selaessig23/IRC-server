@@ -10,7 +10,14 @@
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Channel::Channel(std::string name) : _name(name), _topic(), _modes(MODE_TOPIC) {
+Channel::Channel(std::string name)
+    : _name(name),
+      _topic(),
+      _topic_time(),
+      _topic_who(NULL),
+      _key(),
+      _user_limit(),
+      _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
   print_channel_info();
@@ -18,7 +25,13 @@ Channel::Channel(std::string name) : _name(name), _topic(), _modes(MODE_TOPIC) {
 }
 
 Channel::Channel(const Channel& other)
-    : _name(other._name), _topic(other._topic), _modes(other._modes) {}
+    : _name(other._name),
+      _topic(other._topic),
+      _topic_time(other._topic_time),
+      _topic_who(other._topic_who),
+      _key(other._key),
+      _user_limit(other._user_limit),
+      _modes(other._modes) {}
 
 Channel& Channel::operator=(const Channel& other) {
   Channel temp(other);
