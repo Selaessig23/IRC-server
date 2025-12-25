@@ -31,7 +31,7 @@ class Channel {
   std::string _name;
   std::string _topic;
   std::string _topic_time;
-  Client* _topic_who;
+  std::string _topic_who;
   std::string _key;
   size_t _user_limit;
   /**
@@ -64,7 +64,7 @@ class Channel {
   std::string& get_name();
   std::string get_topic();
   std::string get_topic_time();
-  Client* get_topic_who();
+  std::string get_topic_who();
   std::string get_key();
   size_t get_user_limit();
   int get_modes();
@@ -77,7 +77,7 @@ class Channel {
 
   // Setters
   void adjust_modes(int mode, bool status);
-  void set_topic(std::string topic, Client* client);
+  void set_topic(std::string topic, std::string client);
   void set_key(std::string key);
   void set_user_limit(size_t limit);
 

@@ -58,7 +58,7 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     if (it_chan->get_topic().size()) {
       std::string msg = it_chan->get_topic();
       send_message(base, cmd, RPL_TOPIC, false, &msg);
-      msg = it_chan->get_topic_who()->get_nick() + " changed the topic on " +
+      msg = it_chan->get_topic_who() + " set the topic on " +
             it_chan->get_topic_time();
       send_message(base, cmd, RPL_TOPICWHOTIME, false, &msg);
     } else
@@ -81,7 +81,7 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     return (ERR_CHANOPRIVSNEEDED);
   }
 
-  it_chan->set_topic(cmd.parameters[1], cmd.client);
+  it_chan->set_topic(cmd.parameters[1], cmd.client->get_nick());
   std::string msg = it_chan->get_topic();
   it_chan_mem = it_chan->get_members().begin();
   for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++)

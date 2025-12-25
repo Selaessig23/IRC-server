@@ -14,12 +14,9 @@ Channel::Channel(std::string name)
     : _name(name),
       _topic(),
       _topic_time(),
-      _topic_who(NULL),
+      _topic_who(),
       _key(),
       _user_limit(),
-      // NOTE: We intentionally enable MODE_TOPIC by default so that only
-      // channel operators can change the topic, even though some IRC
-      // implementations allow all members to set topics unless restricted.
       _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
@@ -89,10 +86,10 @@ bool Channel::update_chanops_stat(std::string nick, bool status) {
 }
 
 // SETTERS
-void Channel::set_topic(std::string topic, Client* client) {
+void Channel::set_topic(std::string topic, std::string nick) {
   _topic = topic;
   _topic_time = get_current_date_time();
-  _topic_who = client;
+  _topic_who = nick;
 }
 
 void Channel::set_user_limit(size_t limit) {
@@ -126,7 +123,7 @@ std::string Channel::get_topic_time() {
   return (_topic_time);
 }
 
-Client* Channel::get_topic_who() {
+std::string Channel::get_topic_who() {
   return (_topic_who);
 }
 
