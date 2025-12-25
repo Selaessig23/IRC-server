@@ -17,6 +17,9 @@ Channel::Channel(std::string name)
       _topic_who(NULL),
       _key(),
       _user_limit(),
+      // NOTE: We intentionally enable MODE_TOPIC by default so that only
+      // channel operators can change the topic, even though some IRC
+      // implementations allow all members to set topics unless restricted.
       _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
