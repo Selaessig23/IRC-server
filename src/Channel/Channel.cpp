@@ -10,7 +10,7 @@
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Channel::Channel(std::string name) : _name(name), _topic(), _modes(8) {
+Channel::Channel(std::string name) : _name(name), _topic(), _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
   print_channel_info();
