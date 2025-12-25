@@ -77,7 +77,7 @@ class Channel {
 
   // Setters
   void adjust_modes(int mode, bool status);
-  void set_topic(std::string topic, std::string client);
+  void set_topic(std::string topic, std::string nick);
   void set_key(std::string key);
   void set_user_limit(size_t limit);
 

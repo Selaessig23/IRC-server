@@ -25,7 +25,7 @@
  * TODO:
  * (1) all the message sending function are needed to be checked
  *  
- * @return 0, in case of an error it returns error codes:
+ * @return ERR in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_NOTONCHANNEL (442)
