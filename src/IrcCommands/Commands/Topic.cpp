@@ -20,6 +20,7 @@
  * TOPIC <channel> <topic> : sets the topic to <topic>
  * 
  * If <topic> is an empty string, the topic is cleared.
+ * After a succesful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
  * (1) all the message sending function are needed to be checked
@@ -40,6 +41,7 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
+
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
   if (!base._channel_list.empty()) {
     for (; it_chan != base._channel_list.end(); it_chan++) {
@@ -51,7 +53,7 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
-  //////////
+
   if (cmd.parameters.size() == 1) {
     if (it_chan->get_topic().size()) {
       std::string msg = it_chan->get_topic();
