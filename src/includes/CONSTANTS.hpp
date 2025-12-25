@@ -21,7 +21,6 @@
  * @brief following bit_shifting macros
  * are used for adjusting channel _modes
  */
-
 #define MODE_INVITE (1 << 0)
 #define MODE_KEY (1 << 1)
 #define MODE_LIMIT (1 << 2)

@@ -6,10 +6,11 @@
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Server/Server.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Channel::Channel(std::string name) : _name(name), _topic("Default"), _modes(0) {
+Channel::Channel(std::string name) : _name(name), _topic(), _modes(8) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
   print_channel_info();
@@ -29,8 +30,7 @@ Channel::~Channel() {
   DEBUG_PRINT("Channel is destructed");
 }
 
-// Member management methods
-
+// MEMBER MANAGEMENT METHODS
 void Channel::new_member(Client* _new, bool is_oper) {
   _members.insert(std::pair<Client*, bool>(_new, is_oper));
   DEBUG_PRINT("New member is added to the channel");
@@ -73,8 +73,10 @@ bool Channel::update_chanops_stat(std::string nick, bool status) {
 }
 
 // SETTERS
-void Channel::set_topic(std::string topic) {
+void Channel::set_topic(std::string topic, Client* client) {
   _topic = topic;
+  _topic_time = get_current_date_time();
+  _topic_who = client;
 }
 
 void Channel::set_user_limit(size_t limit) {
@@ -102,6 +104,14 @@ std::string& Channel::get_name() {
 
 std::string Channel::get_topic() {
   return (_topic);
+}
+
+std::string Channel::get_topic_time() {
+  return (_topic_time);
+}
+
+Client* Channel::get_topic_who() {
+  return (_topic_who);
 }
 
 std::string Channel::get_key() {
@@ -152,8 +162,7 @@ bool Channel::operator==(const std::string& other) const {
   return this->_name == other;
 }
 
-// HELPER FUNCTIONS
-
+// Helpers
 std::string Channel::get_modes_string() {
   std::string str;
   str += '+';

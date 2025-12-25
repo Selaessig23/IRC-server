@@ -34,8 +34,12 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       return (" :No ident server\nUser gets registered with username\n" +
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
+    case RPL_NOTOPIC:
+      return (cmd.parameters[0] + " :No topic is set");
     case RPL_TOPIC:
-      return ("<channel> :<topic>");  //to be added
+      return (cmd.parameters[0] + " topic: ");
+    case RPL_TOPICWHOTIME:
+      return (cmd.parameters[0] + " topic is set by ");
     case RPL_INVITING:
       return ("<client> <nick> <channel> :INVITES YOU");  // to be adjusted
     case RPL_NAMREPLY:
@@ -147,10 +151,12 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
     out += "* ";
   if (msg)
     out += *msg;
-  else if (error == true)
+  if (error == true)
     out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code));
   else
     out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code));
+  // if (msg)
+  //   out += *msg;
   out += "\r\n";
   cmd.client->add_client_out(out);
   base.set_pollevent(cmd.client->get_client_fd(), POLLOUT);
