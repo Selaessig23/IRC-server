@@ -23,7 +23,9 @@
  * After a successful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
- * (1) all message sending functions need to be checked
+ * (1) RPL_TOPIC, RPL_TOPICWHOTIME and RPL_NOTOPIC is being sent to all members
+ * in the channel but they are going to be adapted to new send_message() structure.
+ * These messages are unorded in themselves now.
  *  
  * @return ERR in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -81,12 +83,14 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     return (ERR_CHANOPRIVSNEEDED);
   }
 
+  cmd_obj tmp_cmd = cmd;
   it_chan->set_topic(cmd.parameters[1], cmd.client->get_nick());
   std::string msg = it_chan->get_topic();
   it_chan_mem = it_chan->get_members().begin();
-  for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++)
-    send_message(base, cmd, RPL_TOPIC, false, &msg);
-  // receiver is needed to be changed to every member on each iteration
+  for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
+    tmp_cmd.client = it_chan_mem->first;
+    send_message(base, tmp_cmd, RPL_TOPIC, false, &msg);
+  }
 
   return (1);
 }
