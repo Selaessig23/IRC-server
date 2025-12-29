@@ -19,25 +19,28 @@
  * e.g INVITE <nickname> <channel>
  * 
  * To comply with IRC protocol:
- * If <nickname> is not existed ERR_NOSUCHNICK can be returned. It returns 0 now.
- * If client is already invited before, a custom message can be returned. It returns 0 now.
+ * (1) If <nickname> is not existed, 0 is returned but
+ * ERR_NOSUCHNICK can be returned instead.
+ * (2) If client is already invited before, 0 is returned but
+ * a custom message can be returned instead.
  * 
- * TODO:
- * (1) implement and send RPL_341 to caller after a successful call 
- * (2) implement and send an INVITE message to the invited client
- * (3) all the message sending function are needed to be checked
- *  
- * @return 0, in case of an error it returns error codes:
- * RPL_INVITING (341)
+ * @returns 0 or ERR_ in case of an error:
  * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_CHANOPRIVSNEEDED (482)
  * ERR_USERNOTINCHANNEL (441)
  * ERR_NOTONCHANNEL (442)
  * 
- * @return it returns 1 if command is successfully executed
+ * @returns 1 in case of successful execution after
+ * sending RPL_INVITING (341) to command issuer,
+ * sending an INVITE message from issuer to invited client.
  */
+
 int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
   if (cmd.parameters.size() < 2) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
@@ -97,6 +100,16 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
 
   it_chan->new_invited(&(*it_inv_cli));
   send_message(base, cmd, RPL_INVITING, false, NULL);
+
+  std::string out;
+  out += ":" + cmd.client->get_nick();
+  out += "!" + cmd.client->get_user();
+  out += "@" + cmd.client->get_host();
+  out += " invites " + it_inv_cli->get_nick();
+  out += " to the channel " + it_chan->get_name();
+  out += "\r\n";
+  it_inv_cli->add_client_out(out);
+  base.set_pollevent(it_inv_cli->get_client_fd(), POLLOUT);
 
   return (1);
 }

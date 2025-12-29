@@ -34,6 +34,10 @@
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
 int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
 
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);

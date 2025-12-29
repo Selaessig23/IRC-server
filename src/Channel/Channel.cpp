@@ -41,10 +41,6 @@ void Channel::new_member(Client* _new, bool is_oper) {
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
-  DEBUG_PRINT("The user is invited to the channel");
-#ifdef DEBUG
-  print_channel_info();
-#endif
 }
 
 void Channel::remove_from_members(Client* removal) {

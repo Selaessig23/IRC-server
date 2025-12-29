@@ -46,7 +46,6 @@ class Channel {
   int _modes;
 
  public:
-  Channel();
   Channel(std::string name);
   Channel(const Channel& other);
   Channel& operator=(const Channel& other);

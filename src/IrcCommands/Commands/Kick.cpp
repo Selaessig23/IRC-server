@@ -17,6 +17,7 @@
  * (1) implement message sending with [<comment>]
  *      if [<comment>] isn't passed then a default message
  * (2) implement multi-kick at a single call
+ * (5) Registration check!
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -28,6 +29,11 @@
  * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
+
   if (cmd.parameters.size() < 2) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
