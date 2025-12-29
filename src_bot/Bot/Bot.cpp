@@ -10,7 +10,9 @@
 #include <map>
 #include <sstream>  // std::stringstream, std::stringbuf
 #include <stdexcept>
+#include "../Parser/Parser.hpp"
 #include "../debug.hpp"
+#include "../includes/types.hpp"
 
 /**
  * TODO
@@ -162,8 +164,6 @@ int Bot::handle_pollin(struct pollfd& pfd) {
 
     cmd_obj cmd_body;
     PARSE_ERR err = Parsing::parse_command(cmd_body);
-    cmd_body.client = NULL;
-  }
 
 #ifdef DEBUG
     if (err)
@@ -173,7 +173,13 @@ int Bot::handle_pollin(struct pollfd& pfd) {
 #else
     (void)err;
 #endif
-    if (check_for_swears(cmd_body))
+    //use a switch statement
+   if (check_registration(cmd_body){ // to check if already registered, otherwise re-register
+      //case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
+      return (1);
+	} else if (check_invitation(cmd_bdy)){
+	// case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
+	} else if (check_for_swears(cmd_body))
       sanctioning(pfd);
   }
   return (0);
@@ -192,6 +198,7 @@ int Bot::init_poll() {
   client_poll.fd = _client_fd;
   client_poll.events = POLLIN;
   client_poll.revents = 0;
+  register_at_irc(client_poll);
   while (1) {
     poll(&client_poll, sizeof(client_poll), 0);
     if (client_poll.revents & POLLIN) {
