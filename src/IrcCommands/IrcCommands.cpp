@@ -17,6 +17,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("MODE", &IrcCommands::mode));
   _irc_commands.insert(std::make_pair("INVITE", &IrcCommands::invite));
   _irc_commands.insert(std::make_pair("KICK", &IrcCommands::kick));
+  _irc_commands.insert(std::make_pair("OPER", &IrcCommands::oper));
   _irc_commands.insert(std::make_pair("TOPIC", &IrcCommands::topic));
 }
 
@@ -48,7 +49,7 @@ int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_UNKNOWNCOMMAND, true, NULL);
     return (ERR_UNKNOWNCOMMAND);
   } else
-    to_execute = _irc_commands.find(cmd.command)->second;
+    to_execute = it->second;
   (this->*to_execute)(base, cmd);
   return (0);
 }
