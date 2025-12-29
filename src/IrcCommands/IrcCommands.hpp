@@ -30,6 +30,7 @@ class IrcCommands {
   int invite(Server& base, const struct cmd_obj& cmd);
   int kick(Server& base, const struct cmd_obj& cmd);
   int oper(Server& base, const struct cmd_obj& cmd);
+  int topic(Server& base, const struct cmd_obj& cmd);
 
   // helper functions
   bool client_register_check(Server& base, Client& to_check);

@@ -18,6 +18,7 @@ IrcCommands::IrcCommands() {
   _irc_commands.insert(std::make_pair("INVITE", &IrcCommands::invite));
   _irc_commands.insert(std::make_pair("KICK", &IrcCommands::kick));
   _irc_commands.insert(std::make_pair("OPER", &IrcCommands::oper));
+  _irc_commands.insert(std::make_pair("TOPIC", &IrcCommands::topic));
 }
 
 IrcCommands::IrcCommands(const IrcCommands& other)

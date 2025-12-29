@@ -41,6 +41,7 @@ SRCS += IrcCommands/Commands/Cap.cpp
 SRCS += IrcCommands/Commands/User.cpp
 SRCS += IrcCommands/Commands/Privmsg.cpp
 SRCS += IrcCommands/Commands/Oper.cpp
+SRCS += IrcCommands/Commands/Topic.cpp
 SRCS += IrcCommands/IrcCommandsUtils.cpp
 SRCS += IrcCommands/IrcCommands.cpp
 
