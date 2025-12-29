@@ -88,7 +88,9 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   }
 
   it_chan->remove_from_members(&(*it_kick_nick));
-  send_message(base, cmd, RPL_INVITING, false, NULL);
+
+  // custom getting kicked message gonna be added HERE:
+  // send_message(base, cmd, RPL_INVITING, false, NULL);
 
   return (1);
 }

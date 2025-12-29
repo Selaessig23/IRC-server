@@ -109,8 +109,6 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
 
   std::list<Client*>::iterator it_inv_list = it_chan->get_invited().begin();
   for (; it_inv_list != it_chan->get_invited().end(); it_inv_list++) {
-    DEBUG_PRINT(cmd.client << " cmd.client");
-    DEBUG_PRINT(*it_inv_list << " it_inv_list");
     if (*it_inv_list == cmd.client) {
       it_chan->remove_from_invited(*it_inv_list);
       break;

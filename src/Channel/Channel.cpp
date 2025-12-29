@@ -6,10 +6,18 @@
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../Server/Server.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Channel::Channel(std::string name) : _name(name), _topic("Default"), _modes(0) {
+Channel::Channel(std::string name)
+    : _name(name),
+      _topic(),
+      _topic_time(),
+      _topic_who(),
+      _key(),
+      _user_limit(),
+      _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
 #ifdef DEBUG
   print_channel_info();
@@ -17,7 +25,13 @@ Channel::Channel(std::string name) : _name(name), _topic("Default"), _modes(0) {
 }
 
 Channel::Channel(const Channel& other)
-    : _name(other._name), _topic(other._topic), _modes(other._modes) {}
+    : _name(other._name),
+      _topic(other._topic),
+      _topic_time(other._topic_time),
+      _topic_who(other._topic_who),
+      _key(other._key),
+      _user_limit(other._user_limit),
+      _modes(other._modes) {}
 
 Channel& Channel::operator=(const Channel& other) {
   Channel temp(other);
@@ -29,8 +43,7 @@ Channel::~Channel() {
   DEBUG_PRINT("Channel is destructed");
 }
 
-// Member management methods
-
+// MEMBER MANAGEMENT METHODS
 void Channel::new_member(Client* _new, bool is_oper) {
   _members.insert(std::pair<Client*, bool>(_new, is_oper));
   DEBUG_PRINT("New member is added to the channel");
@@ -69,8 +82,10 @@ bool Channel::update_chanops_stat(std::string nick, bool status) {
 }
 
 // SETTERS
-void Channel::set_topic(std::string topic) {
+void Channel::set_topic(std::string topic, std::string nick) {
   _topic = topic;
+  _topic_time = get_current_date_time();
+  _topic_who = nick;
 }
 
 void Channel::set_user_limit(size_t limit) {
@@ -98,6 +113,14 @@ std::string& Channel::get_name() {
 
 std::string Channel::get_topic() {
   return (_topic);
+}
+
+std::string Channel::get_topic_time() {
+  return (_topic_time);
+}
+
+std::string Channel::get_topic_who() {
+  return (_topic_who);
 }
 
 std::string Channel::get_key() {
@@ -148,8 +171,7 @@ bool Channel::operator==(const std::string& other) const {
   return this->_name == other;
 }
 
-// HELPER FUNCTIONS
-
+// Helpers
 std::string Channel::get_modes_string() {
   std::string str;
   str += '+';

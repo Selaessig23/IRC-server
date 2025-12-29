@@ -6,8 +6,10 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief function to kill a user (client) form server,
+ * @brief function to kill a user (client) from server,
  * privilege of an operator
+ * 
+ * the operator cannot KILL itself
  *
  * @return 0, in case of an error it returns error codes:
  * ERR_NOPRIVILEGES
@@ -32,6 +34,9 @@ int IrcCommands::kill(Server& base, const struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_NOSUCHNICK, true, NULL);
     return (ERR_NOSUCHNICK);
   }
+
+  if (it_client->get_nick() == cmd.client->get_nick())
+    return (0);
 
   base.remove_client(it_client->get_client_fd());
   return (0);

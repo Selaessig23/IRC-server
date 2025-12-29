@@ -34,8 +34,12 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       return (" :No ident server\nUser gets registered with username\n" +
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
+    case RPL_NOTOPIC:
+      return (cmd.parameters[0] + " :No topic is set");
     case RPL_TOPIC:
-      return ("<channel> :<topic>");  //to be added
+      return (cmd.parameters[0] + " topic: ");
+    case RPL_TOPICWHOTIME:
+      return (cmd.parameters[0] + " topic is set by ");
     case RPL_INVITING:
       return (" invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
@@ -43,6 +47,8 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
     case RPL_ENDOFNAMES:
       return ("<channel> :End of /NAMES list");  //to be added
+    case RPL_YOUREOPER:
+      return (":You are now an IRC operator");
     default:
       return (" UNKNOWN REPLY");
   }
