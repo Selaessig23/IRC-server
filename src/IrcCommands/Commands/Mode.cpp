@@ -50,8 +50,10 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
 
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
   for (; it_chan != base._channel_list.end(); it_chan++) {
-    if (it_chan->get_name() == cmd.parameters[0])
+    if (it_chan->get_name() == cmd.parameters[0]) {
+      send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
       break;
+    }
   }
   if (it_chan == base._channel_list.end())
     return (ERR_NOSUCHCHANNEL);

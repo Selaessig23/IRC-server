@@ -8,23 +8,29 @@
 #include "../../includes/types.hpp"
 #include "../IrcCommands.hpp"
 
-int join_0(Server& base, const struct cmd_obj& cmd) {
+/**
+ * @brief join_o is a helper function of JOIN command that executes
+ * the special argument of ("0", 0x30). 
+ * It makes the issuer client to leave all channels it's a member of 
+ * as if it issued PART command for each of them.
+ */
+
+int join_0(Server& base, const struct cmd_obj& cmd, IrcCommands& self) {
   std::list<Channel>& chan_list = base.get_channel_list();
   if (!chan_list.empty()) {
-    std::list<Channel>::iterator it_chan = chan_list.begin();
-    for (; it_chan != chan_list.end(); it_chan++) {
-      std::map<Client*, bool>::iterator it_mem = it_chan->get_members().begin();
-      for (; it_mem != it_chan->get_members().end(); it_mem++) {
-        if (cmd.client == it_mem->first) {
-          cmd_obj tmp_cmd;
-          tmp_cmd.command = "PART";
-          tmp_cmd.parameters[0] = it_chan->get_name();
-          tmp_cmd.client = cmd.client;
-          exec_command(base, tmp_cmd);
-          // broadcast
-          break;
-        }
+    for (std::list<Channel>::iterator it_chan = chan_list.begin();
+         it_chan != chan_list.end();) {
+      if (it_chan->get_members().find(cmd.client) !=
+          it_chan->get_members().end()) {
+        cmd_obj tmp_cmd;
+        tmp_cmd.command = "PART";
+        tmp_cmd.parameters.push_back(it_chan->get_name());
+        tmp_cmd.client = cmd.client;
+        it_chan++;
+        self.exec_command(base, tmp_cmd);
+        continue;
       }
+      it_chan++;
     }
   }
   return (1);
@@ -70,7 +76,7 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
   } else if (cmd.parameters[0] == "0")
-    return (join_0(base, cmd));
+    return (join_0(base, cmd, *this));
   else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);
 

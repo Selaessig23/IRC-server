@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../IrcCommands/IrcCommands.hpp"
 #include "../Server/Server.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -203,6 +204,7 @@ std::string Channel::get_modes_string() {
  */
 
 void Channel::print_channel_info() {
+  std::cout << get_name() << std::endl;
   std::cout << get_modes_string() << std::endl;
   std::cout << "Members[" << _members.size() << "]: ";
   for (std::map<Client*, bool>::iterator it = _members.begin();

@@ -17,13 +17,14 @@
  * (1) Handling multiple channel entry at single command call
  * e.g. PART #chan,#42
  *  
- * @return 0, in case of an error it returns error codes:
+ * @return 0 or in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_NOTONCHANNEL (442)
  * 
  * @return it returns 1 if command is succesfully executed
  */
+
 int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
     send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
@@ -60,9 +61,24 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
   }
 
   it_chan->remove_from_members(cmd.client);
-#ifdef DEBUG
-  it_chan->print_channel_info();
-#endif
+
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " has left the channel " + it_chan->get_name();
+  if (cmd.parameters[1].size())
+    msg += " :" + cmd.parameters[1];
+  msg += "\r\n";
+  cmd.client->add_client_out(msg);
+  base.set_pollevent(cmd.client->get_client_fd(), POLLOUT);
+
+  it_chan_mem = it_chan->get_members().begin();
+  for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
+    it_chan_mem->first->add_client_out(msg);
+    base.set_pollevent(it_chan_mem->first->get_client_fd(), POLLOUT);
+  }
+
   if (it_chan->get_members_size() == 0)
     base._channel_list.erase(it_chan);
 

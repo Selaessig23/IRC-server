@@ -82,6 +82,7 @@ class Channel {
 
   // Helpers
   void print_channel_info();
+  void broadcast_message();
 };
 
 #endif

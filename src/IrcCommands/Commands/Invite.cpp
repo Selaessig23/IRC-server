@@ -101,14 +101,14 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   it_chan->new_invited(&(*it_inv_cli));
   send_message(base, cmd, RPL_INVITING, false, NULL);
 
-  std::string out;
-  out += ":" + cmd.client->get_nick();
-  out += "!" + cmd.client->get_user();
-  out += "@" + cmd.client->get_host();
-  out += " invites " + it_inv_cli->get_nick();
-  out += " to the channel " + it_chan->get_name();
-  out += "\r\n";
-  it_inv_cli->add_client_out(out);
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " invites " + it_inv_cli->get_nick();
+  msg += " to the channel " + it_chan->get_name();
+  msg += "\r\n";
+  it_inv_cli->add_client_out(msg);
   base.set_pollevent(it_inv_cli->get_client_fd(), POLLOUT);
 
   return (1);
