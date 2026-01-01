@@ -7,7 +7,6 @@
 #include <cstring>       // memset
 #include <fstream>       // std::ifstream,
 #include <iostream>
-#include <map>
 #include <sstream>  // std::stringstream, std::stringbuf
 #include <stdexcept>
 #include "../Parser/Parser.hpp"
@@ -59,6 +58,7 @@ bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
 
 Bot::Bot(int port, std::string pw, std::string data_input)
     : _pw(pw),
+      _registered(false),
       _nick("42BOT"),
       _user("Max"),
       _host("42host"),
@@ -143,8 +143,14 @@ void Bot::handle_pollout(struct pollfd& pfd) {
 
 /**
  * @brief function to handle a pollin event from one of the clients fds
- * in case there is no input to read, it is interpreted as client was lost
- * therefore client gets deleted on server
+ * in case there is no input to read, it is interpreted as server was lost
+ *
+ * the bot is able to handle the following RPL_MSGs from an irc-server
+ * RPL_WELCOME = 001,
+ * CONFIRMATION of operator-status
+ * RPL_INVITING = 341,
+ * PRIVMSG of channels the bot is member of
+ * 
  */
 int Bot::handle_pollin(struct pollfd& pfd) {
 
@@ -173,14 +179,17 @@ int Bot::handle_pollin(struct pollfd& pfd) {
 #else
     (void)err;
 #endif
-    //use a switch statement
-   if (check_registration(cmd_body){ // to check if already registered, otherwise re-register
-      //case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
-      return (1);
-	} else if (check_invitation(cmd_bdy)){
-	// case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
-	} else if (check_for_swears(cmd_body))
-      sanctioning(pfd);
+    if (cmd_body.command ==
+        "001")  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
+      _registered = true;
+    else if (_registered == false) // mabe remove it, too complex
+      register_at_irc(
+          pfd);  //check if I need a static variable here to not run into an endless loop
+    else if (cmd_body.command == "341")
+	    handle_invitation(cmd_body);
+      // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
+    else if (cmd_body.command == "PRIVMSG")
+	    check_for_swears(cmd_body); // sanctioning(pfd);
   }
   return (0);
 }

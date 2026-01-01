@@ -47,7 +47,7 @@ struct cmd_obj {
   std::vector<std::string> tags;
   std::string prefix;
   std::string command;
-  std::string recipient
+  std::string recipient;
   std::vector<std::string> parameters;
 };
 

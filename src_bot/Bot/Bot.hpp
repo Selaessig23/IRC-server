@@ -16,6 +16,7 @@ class Bot {
   int _client_fd;
   std::string _pw;
   struct sockaddr_in _client_addr;  //necessary?
+  bool _registered;
   bool _operator;
   std::string _received_packs;
   std::string _nick;
@@ -30,11 +31,11 @@ class Bot {
   void handle_pollout(struct pollfd& pfd);
   int handle_pollin(struct pollfd& pfd);
   int register_at_irc(struct pollfd& pfd);
-  int handle_invitation();
-  int check_for_registration(cmd_obj &cmd_body);
-  int check_for_invitation(cmd_obj &cmd_body);
-  int check_for_swears(cmd_obj &cmd_body);
-  void sanctioning(struct pollfd &pfd);
+  int handle_invitation(cmd_obj& cmd_body);
+  int check_for_registration(cmd_obj& cmd_body);
+  int check_for_invitation(cmd_obj& cmd_body);
+  int check_for_swears(cmd_obj& cmd_body);
+  void sanctioning(struct pollfd& pfd);
   int kill_clients();
 
  public:
