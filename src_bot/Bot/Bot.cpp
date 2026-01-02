@@ -175,7 +175,7 @@ int Bot::handle_pollin(struct pollfd& pfd) {
             "341")  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
       handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
-      check_for_swears(cmd_body);  // sanctioning(pfd);
+      check_for_swears(cmd_body, pfd);  // sanctioning(pfd);
   }
   return (0);
 }

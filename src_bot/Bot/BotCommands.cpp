@@ -96,12 +96,31 @@ int Bot::handle_join(cmd_obj& cmd_body, struct pollfd& pfd) {
 }
 
 /**
+ * @brief function to KILL a client
+ * if client reached 3 strikes
+ *
+ * Command: KILL
+ * Parameters: <nickname> <comment>
+ */
+void Bot::kill_client(const std::string& nick, struct pollfd& pfd) {
+  std::string out;
+  out += "KILL ";
+  out += nick;
+  out +=
+      " :We cannout accept creatures like " + nick + " in our lovely network.";
+  _output_buffer += out;
+  pfd.events |= POLLOUT;
+}
+
+/**
  * @brief function that organises the sanctioning of a channel member when using
  * a swear word. He gets a warning each time he uses a swear word.
  * If bot is registered as an operator, the client gets killed for his 3rd strike
  */
 void Bot::sanctioning(const std::string& nick, std::string& channel,
-                      std::string& out) {
+                      std::string& out, struct pollfd& pfd) {
+  if (nick == _nick)
+    return;
   std::list<Channel>::iterator it_chan =
       std::find(_channel_list.begin(), _channel_list.end(), channel);
   if (it_chan == _channel_list.end()) {
@@ -122,15 +141,16 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
           "about "
           "42.";
     } else if (_registered == true) {
-      kill_clients(nick);
+      kill_client(nick, pfd);
       out += nick;
       out += "Dear members of channel " + channel;
-      out += " our not-valued member " + nick + " has passed away. May he rest not rest in peace.";
+      out += " our not-valued member " + nick +
+             " has passed away. May he rest not rest in peace.";
     }
   }
 }
 
-  /**
+/**
  * @brief function to check for swear words in PRIVMSGs of channels
  * the bot is member of
  *
@@ -142,29 +162,30 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
  * otherwise only a general warning gets spread
  *
  */
-  int Bot::check_for_swears(cmd_obj & cmd_body, struct pollfd & pfd) {
-    if (cmd_body.parameters.size() >= 2) {
-      std::string to_check = cmd_body.parameters[1];
-      if (to_check.find("42")) {
-        for (std::set<std::string>::iterator it_swear = _swear_words.begin();
-             it_swear != _swear_words.end(); it_swear++) {
-          if (to_check.find(*it_swear)) {
-            std::string out;
-            out += ":" + _nick;
-            out += " PRIVMSG ";
-            if (cmd_body.prefix.empty() && !cmd_body.parameters.empty()) {
-              out += cmd_body.parameters[0];
-              out +=
-                  " :The wise 42 network is going to control everything. "
-                  "Communicate wisely.";
-            } else {
-              sanctioning(cmd_body.prefix, cmd_body.parameters[0], out);
-            }
-            _output_buffer += out;
-            pfd.events |= POLLOUT;
+int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
+  if (cmd_body.parameters.size() >= 2) {
+    std::string to_check = cmd_body.parameters[1];
+    if (to_check.find("42")) {
+      for (std::set<std::string>::iterator it_swear = _swear_words.begin();
+           it_swear != _swear_words.end(); it_swear++) {
+        if (to_check.find(*it_swear)) {
+          std::string out;
+          out += ":" + _nick;
+          out += " PRIVMSG ";
+          if (cmd_body.prefix.empty() && !cmd_body.parameters.empty()) {
+            out += cmd_body.parameters[0];
+            out +=
+                " :The wise 42 network is going to control everything. "
+                "Communicate wisely.";
+          } else {
+            sanctioning(cmd_body.prefix, cmd_body.parameters[0], out, pfd);
           }
+          out += "\r\n";
+          _output_buffer += out;
+          pfd.events |= POLLOUT;
         }
       }
     }
-    return (0);
   }
+  return (0);
+}

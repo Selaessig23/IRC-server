@@ -34,8 +34,8 @@ class Bot {
   int handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd);
   int handle_join(cmd_obj& cmd_body, struct pollfd& pfd);
   int check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd);
-  void sanctioning(const std::string &nick, std::string &channel, std::string& out);
-  int kill_clients(const std::string &nick);
+  void sanctioning(const std::string &nick, std::string &channel, std::string& out, struct pollfd &pfd);
+  void kill_client(const std::string &nick, struct pollfd &pfd);
 
  public:
   Bot(int port, std::string pw, std::string data_input);
