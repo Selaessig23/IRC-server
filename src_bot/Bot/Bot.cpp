@@ -166,11 +166,14 @@ int Bot::handle_pollin(struct pollfd& pfd) {
     else if (_registered == true && cmd_body.command == "381")
       // case RPL_YOUREOPER: ":You are now an IRC operator"
       _operator = true;
+    else if (_registered == true && (cmd_body.command == "JOIN" || cmd_body.command == "353"))
+	    // handle join
+	    handle_join(cmd_body, pfd);
     else if (
         _registered == true &&
         cmd_body.command ==
             "341")  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
-      handle_invitation(cmd_body);
+      handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
       check_for_swears(cmd_body);  // sanctioning(pfd);
   }

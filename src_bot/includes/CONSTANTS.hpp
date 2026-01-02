@@ -17,4 +17,11 @@
 #define NICK 0x002 // nickname was set
 #define USER 0x004 // users data was set
 
+/**
+ * used for channel subscription process
+ */
+#define INVITED 0x001
+#define APPLIED 0x002
+#define ACCEPTED 0x004
+
 #endif  // CONSTANTS_HPP

@@ -31,9 +31,8 @@ class Bot {
   int handle_pollin(struct pollfd& pfd);
   void register_at_irc(struct pollfd& pfd);
   void become_operator(struct pollfd& pfd);
-  int handle_invitation(cmd_obj& cmd_body);
-  int check_for_registration(cmd_obj& cmd_body);
-  int check_for_invitation(cmd_obj& cmd_body);
+  int handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd);
+  int handle_join(cmd_obj& cmd_body, struct pollfd& pfd);
   int check_for_swears(cmd_obj& cmd_body);
   void sanctioning(struct pollfd& pfd);
   int kill_clients();
