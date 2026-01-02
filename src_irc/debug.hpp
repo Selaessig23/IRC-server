@@ -6,7 +6,7 @@
 #ifdef DEBUG
 #define DEBUG_PRINT(x)                         \
   do {                                         \
-    std::cerr << "[DEBUG] " << x << std::endl; \
+    std::cerr << "[DEBUG IRC] " << x << std::endl; \
   } while (0)
 #else
 #define DEBUG_PRINT(x) \

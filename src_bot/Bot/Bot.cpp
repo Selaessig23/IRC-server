@@ -203,7 +203,7 @@ int Bot::handle_pollin(struct pollfd& pfd) {
   while (_received_packs.find("\r\n") != std::string::npos) {
 
     cmd_obj cmd_body;
-    cmd_body.bot_obj= this;
+    cmd_body.bot_obj = this;
     PARSE_ERR err = Parsing::parse_command(cmd_body);
 
 #ifdef DEBUG
@@ -262,11 +262,12 @@ int Bot::init_poll() {
     } else if (_registered == false) {
       count_register += 1;
       register_at_irc(client_poll);
-    } else if (_registered == true && _operator == false && count_oper == 4)
+    } else if (_registered == true && _operator == false && count_oper == 4) {
+      count_oper += 1;
       DEBUG_PRINT(
           "No operator-status possible at IRC-server, Bot can only sanction "
           "clients, no KILL");
-    else if (_registered == true && _operator == false && count_oper < 4) {
+    } else if (_registered == true && _operator == false && count_oper < 4) {
       count_oper += 1;
       become_operator(client_poll);
     }
