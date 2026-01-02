@@ -1,10 +1,9 @@
 #include <algorithm>  //std::find
-#include <iostream>
+#include <string>
 #include <list>
 #include <map>
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
-#include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
 #include "../IrcCommands.hpp"
 
@@ -48,7 +47,7 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  *     (founder and operator prefix are the only ones of interest)
  * (3) think about using wildcards for identifying users and channels (recipients)
  * (4) what should happen if user sends a message to his own?
- * (5) what should happen if user sends more than 2 parameters? Recently it simply ignoes them
+ * (5) what should happen if user sends more than 2 parameters? Recently it simply ignores them
  *
  * @return 0, in case of an error it returns error codes:
  *    ERR_NOTREGISTERED (451)

@@ -1,4 +1,3 @@
-
 #include <cstring>  // for strlen
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
@@ -140,7 +139,8 @@ int Server::handle_pollin(struct pollfd& pfd) {
     (void)err;
 #endif
 
-    _irc_commands->exec_command(*this, cmd_body);
+    IrcCommands to_execute;
+    to_execute.exec_command(*this, cmd_body);
   }
   return (0);
 }

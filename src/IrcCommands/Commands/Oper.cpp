@@ -1,18 +1,15 @@
-#include <iostream>
-#include <list>
-#include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
-#include "../../debug.hpp"
-#include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
 #include "../IrcCommands.hpp"
 
 /**
  * @brief is used by a normal user to obtain IRC operator privileges.
  * Parameters: <name> <password>
- *
- * <password> has to be server password + BOT
+ * 
+ * only the swearbot is allowed to act as an operator
+ * <name> has to be SWEARBOT 
+ * <password> has to be server password + 42BOT
  *
  * if client has already been operator before: nothing happens
  *  

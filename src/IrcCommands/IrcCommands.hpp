@@ -1,10 +1,7 @@
 #ifndef IRCCOMMANDS_HPP
 #define IRCCOMMANDS_HPP
 
-#include <iostream>
-#include <list>
 #include <map>
-#include <vector>
 #include "../Client/Client.hpp"
 #include "../includes/types.hpp"
 

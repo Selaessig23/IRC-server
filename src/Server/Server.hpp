@@ -1,13 +1,12 @@
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>
-#include <iostream>
+#include <string>
 #include <list>
 #include <vector>
 #include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../includes/types.hpp"
-// #include "../IrcCommands/IrcCommands.hpp"
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
@@ -29,7 +28,6 @@ class Server {
   std::vector<struct pollfd> _poll_fds;
   std::list<Client> _client_list;
   std::list<Channel> _channel_list;
-  IrcCommands* _irc_commands;
 
   //member function (helper)
   int initiate_poll();
@@ -49,7 +47,6 @@ class Server {
   ~Server();
 
   Client* find_client_by_fd(int fd);
-  // function to activate the IRC-Server (run the server-loop)
   int init();
 
   friend class IrcCommands;
