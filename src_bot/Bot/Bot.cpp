@@ -50,7 +50,7 @@ bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
  *
  * TODO
  * WHY? DO I NEED IT?
- * setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+ * setsockopt(_fd_client, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
  *
  * Restriction: program only works if it runs on the same host like server
  * (localhost)
@@ -73,6 +73,8 @@ Bot::Bot(int port, std::string pw, std::string data_input)
       //maybe add another test if there is only one word per line
       _swear_words.insert(word);
   }
+  int opt = 1;
+  setsockopt(_client_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   // Prepare the address and port for the server socket
   std::memset(&_client_addr, 0, sizeof(_client_addr));
   _client_addr.sin_family = AF_INET;  // IPv4
@@ -151,6 +153,26 @@ void Bot::handle_pollout(struct pollfd& pfd) {
   _output_buffer = new_out;
   if (_output_buffer.empty())
     pfd.events &= ~POLLOUT;
+}
+
+static void debug_parsed_cmds(cmd_obj& cmd_body) {
+
+  std::cout << "\nCMD_BDY: " << std::endl;
+  if (cmd_body.error)
+    std::cout << "ERR: " << cmd_body.error << std::endl;
+  if (!cmd_body.tags.empty())
+    std::cout << "TAGS: " << *cmd_body.tags.begin() << std::endl;
+  if (!cmd_body.prefix.empty())
+    std::cout << "PREFIX: " << cmd_body.prefix << std::endl;
+  if (!cmd_body.command.empty())
+    std::cout << "CMD: " << cmd_body.command << std::endl;
+  if (!cmd_body.parameters.empty()) {
+    std::cout << "PARAS:" << std::endl;
+    std::vector<std::string>::iterator it = cmd_body.parameters.begin();
+    for (; it != cmd_body.parameters.end(); it++) {
+      std::cout << *it << std::endl;
+    }
+  }
 }
 
 /**
@@ -233,18 +255,18 @@ int Bot::init_poll() {
   client_poll.events = POLLIN;
   client_poll.revents = 0;
   while (1) {
-    poll(&client_poll, sizeof(client_poll), 0);
+    poll(&client_poll, 1, 1000);
     if (_registered == false && count_register >= 4) {
       DEBUG_PRINT("Error in registration process at IRC-server");
       return (1);
     } else if (_registered == false) {
       count_register += 1;
       register_at_irc(client_poll);
-    } else if (_registered == true && _operator == false && count_oper >= 4)
+    } else if (_registered == true && _operator == false && count_oper == 4)
       DEBUG_PRINT(
           "No operator-status possible at IRC-server, Bot can only sanction "
           "clients, no KILL");
-    else if (_registered == true && _operator == false) {
+    else if (_registered == true && _operator == false && count_oper < 4) {
       count_oper += 1;
       become_operator(client_poll);
     }
@@ -253,6 +275,7 @@ int Bot::init_poll() {
         return (1);
     }
     if (client_poll.revents & POLLOUT) {
+      DEBUG_PRINT("POLLOUT");
       handle_pollout(client_poll);
     }
   }

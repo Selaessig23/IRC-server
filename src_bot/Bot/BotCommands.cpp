@@ -34,6 +34,7 @@ void Bot::become_operator(struct pollfd& pfd) {
   out += "OPER ";
   out += "SWEARBOT ";
   out += _pw + "42BOT";
+  out += "\r\n";
   _output_buffer += out;
   pfd.events |= POLLOUT;
 }
@@ -58,6 +59,7 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
   std::string out;
   out += "JOIN ";
   out += cmd_body.parameters[2];
+  out += "\r\n";
   _output_buffer += out;
   pfd.events |= POLLOUT;
   it_chan = std::find(_channel_list.begin(), _channel_list.end(),
@@ -110,6 +112,7 @@ void Bot::kill_client(const std::string& nick, struct pollfd& pfd) {
   out += nick;
   out +=
       " :We cannout accept creatures like " + nick + " in our lovely network.";
+  out += "\r\n";
   _output_buffer += out;
   pfd.events |= POLLOUT;
 }

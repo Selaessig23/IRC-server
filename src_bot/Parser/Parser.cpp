@@ -1,8 +1,8 @@
 #include <sstream>
-#include <string>
+#include <iostream>
+#include "../Bot/Bot.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
-#include "../Bot/Bot.hpp"
 
 namespace Parsing {
   /**

@@ -54,7 +54,6 @@ class Server {
   friend class IrcCommands;
 };
 
-void debug_parsed_cmds(cmd_obj& cmd_body);
 std::string get_current_date_time();
 
 #endif  // SERVER_HPP

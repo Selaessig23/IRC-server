@@ -31,12 +31,13 @@ void signal_handler(int signal) {
 }
 
 int validate_input(int argc, char** argv, int& port) {
-  if (argc != 5) {
-    std::cerr << "Check number of arguments. Required 3: address of server | portno | pw | path of swear.csv"
+  if (argc != 4) {
+    std::cerr << "Check number of arguments. Required 3: portno | pw | path of "
+                 "swear.csv"
               << std::endl;
     return (1);
   }
-  port = std::atoi(argv[2]);
+  port = std::atoi(argv[1]);
   if (port < PORT_MIN || port > PORT_MAX) {
     std::cerr << "Provided port no " << port << " out of range!" << std::endl;
     return (1);
@@ -53,14 +54,14 @@ int main(int argc, char* argv[]) {
 #endif
   if (validate_input(argc, argv, port))
     return (1);
-  std::string irc_address(argv[1]); //to verify, maybe when constructing the object
-  std::string pw(argv[3]);
-  std::string data_input(argv[4]); //to verify, maybe when constructing the object
+  std::string pw(argv[2]);
+  std::string data_input(
+      argv[3]);  //to verify, maybe when constructing the object
   try {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGQUIT, signal_handler);
-    g_bot= new Bot(port, pw, data_input);
+    g_bot = new Bot(port, pw, data_input);
     if (g_bot->init_poll()) {
       delete g_bot;
       return 1;
@@ -68,7 +69,8 @@ int main(int argc, char* argv[]) {
   } catch (const std::runtime_error& e) {
     std::cout << "Caught a runtime_error: " << e.what() << '\n';
   } catch (const std::invalid_argument& e) {
-    std::cout << "Caught an error caused by an invalid argument: " << e.what() << '\n';
+    std::cout << "Caught an error caused by an invalid argument: " << e.what()
+              << '\n';
   }
   return (0);
 }
