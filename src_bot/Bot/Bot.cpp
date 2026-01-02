@@ -106,25 +106,6 @@ Bot::~Bot() {
 }
 
 /**
- * @brief this function tries to register to the server by
- * using a server password (if there is one) PASS
- * NICK
- * USER
- *
- * TODO
- * (it throws an exception if registration process fails)
- * and tries to become operator
- */
-int Bot::register_at_irc(struct pollfd& pfd) {
-  std::string out;
-  out += "PASS " + _pw + "\r\n";
-  out += "NICK " + _nick + "\r\n";
-  out += "USER " + _user + " " + _host + " * " + _realname + "\r\n";
-  _output_buffer += out;
-  pfd.events |= POLLOUT;
-}
-
-/**
  * @brief function to handle a pollout event of the bot
  * to send from bots buffer to sever until buffer is empty
  * if buffer is empty, poll-event POLLOUT of the bot gets removed
@@ -182,44 +163,63 @@ int Bot::handle_pollin(struct pollfd& pfd) {
     if (cmd_body.command ==
         "001")  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
       _registered = true;
-    else if (_registered == false) // mabe remove it, too complex
-      register_at_irc(
-          pfd);  //check if I need a static variable here to not run into an endless loop
-    else if (cmd_body.command == "341")
-	    handle_invitation(cmd_body);
-      // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
-    else if (cmd_body.command == "PRIVMSG")
-	    check_for_swears(cmd_body); // sanctioning(pfd);
+    else if (_registered == true && cmd_body.command == "381")
+      // case RPL_YOUREOPER: ":You are now an IRC operator"
+      _operator = true;
+    else if (
+        _registered == true &&
+        cmd_body.command ==
+            "341")  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
+      handle_invitation(cmd_body);
+    else if (_registered == true && cmd_body.command == "PRIVMSG")
+      check_for_swears(cmd_body);  // sanctioning(pfd);
   }
   return (0);
 }
 
 /**
- * @brief this functions sets up the poll-loop
- * to enable the bot to communicate with the irc-server
+ * @brief this functions handles 
+ * (1) communication with irc-server by setting up a poll-loop
+ * (2) attempts to register at local irc-server (max. 4 times)
+ * (3) attempts to become an operator on the irc-server (max. 4 times)
  *
- * sets the nick to SWEARBOT, and
- * sets user to [...]
+ * TODO:
+ * (1) handle disconnection accordingly
  *
+ * @return returns 1 in case of an error (e. g. registration impossible, 
+ * disconnection from server-side)
  */
 int Bot::init_poll() {
+  int count_register = 0;
+  int count_oper = 0;
   struct pollfd client_poll;
   client_poll.fd = _client_fd;
   client_poll.events = POLLIN;
   client_poll.revents = 0;
-  register_at_irc(client_poll);
   while (1) {
     poll(&client_poll, sizeof(client_poll), 0);
+    if (_registered == false && count_register >= 4) {
+      DEBUG_PRINT("Error in registration process at IRC-server");
+      return (1);
+    } else if (_registered == false) {
+      count_register += 1;
+      register_at_irc(client_poll);
+    } else if (_registered == true && _operator == false && count_oper >= 4)
+      DEBUG_PRINT(
+          "No operator-status possible at IRC-server, Bot can only sanction "
+          "clients, no KILL");
+    else if (_registered == true && _operator == false) {
+      count_oper += 1;
+      become_operator(client_poll);
+    }
     if (client_poll.revents & POLLIN) {
-      if (handle_pollin())
-        break;
+      if (handle_pollin(client_poll))
+        return (1);
     }
     if (client_poll.revents & POLLOUT) {
       handle_pollout(client_poll);
     }
   }
-
-  // [...']
   return (0);
 }
 
