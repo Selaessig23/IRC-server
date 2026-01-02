@@ -1,8 +1,8 @@
 #include <algorithm>  //std::find
 #include <string>
 #include "../Channel/Channel.hpp"
-#include "../includes/types.hpp"
 #include "../includes/CONSTANTS.hpp"
+#include "../includes/types.hpp"
 #include "Bot.hpp"
 
 /**
@@ -58,8 +58,8 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
   out += cmd_body.parameters[2];
   _output_buffer += out;
   pfd.events |= POLLOUT;
-  it_chan = std::find(
-        _channel_list.begin(), _channel_list.end(), cmd_body.parameters[0]);
+  it_chan = std::find(_channel_list.begin(), _channel_list.end(),
+                      cmd_body.parameters[0]);
   it_chan->set_status(APPLIED);
   return (0);
 }
@@ -84,8 +84,7 @@ int Bot::handle_join(cmd_obj& cmd_body, struct pollfd& pfd) {
       return (1);
     it_chan->set_status(ACCEPTED);
     return (0);
-  }
-  else if (cmd_body.parameters[0] == _nick){
+  } else if (cmd_body.parameters[0] == _nick) {
     std::list<Channel>::iterator it_chan = std::find(
         _channel_list.begin(), _channel_list.end(), cmd_body.parameters[2]);
     if (it_chan == _channel_list.end())
@@ -96,4 +95,76 @@ int Bot::handle_join(cmd_obj& cmd_body, struct pollfd& pfd) {
   return (1);
 }
 
-  int check_for_swears(cmd_obj & cmd_body);
+/**
+ * @brief function that organises the sanctioning of a channel member when using
+ * a swear word. He gets a warning each time he uses a swear word.
+ * If bot is registered as an operator, the client gets killed for his 3rd strike
+ */
+void Bot::sanctioning(const std::string& nick, std::string& channel,
+                      std::string& out) {
+  std::list<Channel>::iterator it_chan =
+      std::find(_channel_list.begin(), _channel_list.end(), channel);
+  if (it_chan == _channel_list.end()) {
+    // message was a private message to bot not channel --> could be checked, recipient should than be _nick
+    out += nick;
+    out += "This will led to an enormous disadvantage in your further life.";
+  } else {
+    std::map<std::string, int> members = it_chan->get_members();
+    if (it_chan->get_strikes(nick) == -1)
+      members.insert(std::pair(nick, 1));
+    else if (it_chan->get_strikes(nick) < 3) {
+      std::map<std::string, int>::iterator chan_member = members.find(nick);
+      chan_member->second += 1;
+      out += nick;
+      out +=
+          " :An unwished comment was noticed. This is your first strike. "
+          "Please do not confuse other people by spreading falsehoods "
+          "about "
+          "42.";
+    } else if (_registered == true) {
+      kill_clients(nick);
+      out += nick;
+      out += "Dear members of channel " + channel;
+      out += " our not-valued member " + nick + " has passed away. May he rest not rest in peace.";
+    }
+  }
+}
+
+  /**
+ * @brief function to check for swear words in PRIVMSGs of channels
+ * the bot is member of
+ *
+ * PRIVMSGs have the following format:
+ * Command: PRIVMSG
+ * Parameters: <target>{,<target>} <text to be sent>
+ *
+ * prefix has to be set to find out the sender
+ * otherwise only a general warning gets spread
+ *
+ */
+  int Bot::check_for_swears(cmd_obj & cmd_body, struct pollfd & pfd) {
+    if (cmd_body.parameters.size() >= 2) {
+      std::string to_check = cmd_body.parameters[1];
+      if (to_check.find("42")) {
+        for (std::set<std::string>::iterator it_swear = _swear_words.begin();
+             it_swear != _swear_words.end(); it_swear++) {
+          if (to_check.find(*it_swear)) {
+            std::string out;
+            out += ":" + _nick;
+            out += " PRIVMSG ";
+            if (cmd_body.prefix.empty() && !cmd_body.parameters.empty()) {
+              out += cmd_body.parameters[0];
+              out +=
+                  " :The wise 42 network is going to control everything. "
+                  "Communicate wisely.";
+            } else {
+              sanctioning(cmd_body.prefix, cmd_body.parameters[0], out);
+            }
+            _output_buffer += out;
+            pfd.events |= POLLOUT;
+          }
+        }
+      }
+    }
+    return (0);
+  }
