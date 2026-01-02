@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     signal(SIGTERM, signal_handler);
     signal(SIGQUIT, signal_handler);
     g_bot= new Bot(port, pw, data_input);
-    if (g_bot->init(1)) {
+    if (g_bot->init_poll()) {
       delete g_bot;
       return 1;
     }

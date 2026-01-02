@@ -43,6 +43,9 @@ SRCS_IRC += src_irc/IrcCommands/IrcCommands.cpp
 #sources bot
 SRCS_BOT = src_bot/main.cpp
 SRCS_BOT += src_bot/Bot/Bot.cpp
+SRCS_BOT += src_bot/Bot/BotCommands.cpp
+SRCS_BOT += src_bot/Parser/Parser.cpp
+SRCS_BOT += src_bot/Channel/Channel.cpp
 
 OBJS_IRC = $(SRCS_IRC:src_irc/%.cpp=obj_irc/%.o)
 
@@ -124,7 +127,16 @@ debugvalrun: CXXFLAGS += -DDEBUG -g
 debugvalrun: fclean $(NAME_IRC)
 	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
 	@echo
-	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS)
+	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS_IRC)
+
+bonusdebugvalrun: CXXFLAGS += -DDEBUG -g
+bonusdebugvalrun: fclean bonus
+	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
+	@echo
+	@echo "Running irc-server and bot"
+	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_IRC) $(ARGS_IRC) & \
+	PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) $(ARGS_BOT) & \
+	wait
 
 
 .PHONY: all clean fclean re run valrun debug 

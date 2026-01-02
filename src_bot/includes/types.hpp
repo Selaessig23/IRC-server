@@ -3,6 +3,10 @@
 
 #include <string>
 #include <vector>
+#include "../Bot/Bot.hpp"
+
+// forward declaration
+class Bot;
 
 enum PARSE_ERR {
   NO_ERR = 0,
@@ -44,6 +48,7 @@ enum RPL_MSG {
 
 struct cmd_obj {
   PARSE_ERR error;
+  Bot* bot_obj;
   std::vector<std::string> tags;
   std::string prefix;
   std::string command;

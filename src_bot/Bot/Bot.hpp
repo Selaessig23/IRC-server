@@ -7,8 +7,11 @@
 #include <list>
 #include <set>
 #include <string>
-#include "../includes/types.hpp"
 #include "../Channel/Channel.hpp"
+#include "../includes/types.hpp"
+
+// forward declaration
+struct cmd_obj;
 
 class Bot {
  private:
@@ -32,10 +35,11 @@ class Bot {
   void register_at_irc(struct pollfd& pfd);
   void become_operator(struct pollfd& pfd);
   int handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd);
-  int handle_join(cmd_obj& cmd_body, struct pollfd& pfd);
+  int handle_join(cmd_obj& cmd_body);
   int check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd);
-  void sanctioning(const std::string &nick, std::string &channel, std::string& out, struct pollfd &pfd);
-  void kill_client(const std::string &nick, struct pollfd &pfd);
+  void sanctioning(const std::string& nick, std::string& channel,
+                   std::string& out, struct pollfd& pfd);
+  void kill_client(const std::string& nick, struct pollfd& pfd);
 
  public:
   Bot(int port, std::string pw, std::string data_input);
@@ -44,6 +48,10 @@ class Bot {
   ~Bot();
 
   int init_poll();
+
+  void clip_current_command(size_t delimiter);
+  void add_to_received_packs(std::string new_pack);
+  std::string get_received_packs();
 };
 
 #endif  // CLIENT_HPP

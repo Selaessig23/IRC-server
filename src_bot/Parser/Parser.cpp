@@ -1,8 +1,8 @@
-#include <map>
 #include <sstream>
-#include "../debug.hpp"
+#include <string>
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
+#include "../Bot/Bot.hpp"
 
 namespace Parsing {
   /**
@@ -39,10 +39,10 @@ namespace Parsing {
   int parse_command(cmd_obj& command_body) {
 
     command_body.error = NO_ERR;
-    std::string received_packs = command_body.client->get_received_packs();
+    std::string received_packs = command_body.bot_obj->get_received_packs();
     size_t delimiter = received_packs.find("\r\n");
     std::string current_command = received_packs.substr(0, delimiter);
-    command_body.client->clip_current_command(delimiter);
+    command_body.bot_obj->clip_current_command(delimiter);
 #ifdef DEBUG
     std::cout << "Current command: " << current_command << std::endl;
 #endif

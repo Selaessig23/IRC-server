@@ -91,8 +91,20 @@ Bot::Bot(int port, std::string pw, std::string data_input)
   DEBUG_PRINT("Successfully connected to IRC server (not registered yet)");
 }
 
-// all member variables to be added
-Bot::Bot(const Bot& other) {}
+Bot::Bot(const Bot& other)
+    : _client_fd(other._client_fd),
+      _pw(other._pw),
+      _client_addr(other._client_addr),
+      _registered(other._registered),
+      _operator(other._operator),
+      _received_packs(other._received_packs),
+      _nick(other._nick),
+      _user(other._user),
+      _host(other._host),
+      _realname(other._realname),
+      _output_buffer(other._output_buffer),
+      _channel_list(other._channel_list),
+      _swear_words(other._swear_words) {}
 
 Bot Bot::operator=(const Bot& other) {
   Bot temp(other);
@@ -103,6 +115,25 @@ Bot Bot::operator=(const Bot& other) {
 Bot::~Bot() {
   close(_client_fd);
   DEBUG_PRINT("Destructor was called succesfully");
+}
+
+void Bot::add_to_received_packs(std::string new_pack) {
+  _received_packs += new_pack;
+}
+
+std::string Bot::get_received_packs() {
+  return _received_packs;
+}
+
+/**
+ * @brief Remove command AND the \r\n delimiter
+ */
+void Bot::clip_current_command(size_t delimiter) {
+  if (delimiter + 2 <= _received_packs.size()) {
+    _received_packs = _received_packs.substr(delimiter + 2);
+  } else {
+    _received_packs.clear();
+  }
 }
 
 /**
@@ -150,6 +181,7 @@ int Bot::handle_pollin(struct pollfd& pfd) {
   while (_received_packs.find("\r\n") != std::string::npos) {
 
     cmd_obj cmd_body;
+    cmd_body.bot_obj= this;
     PARSE_ERR err = Parsing::parse_command(cmd_body);
 
 #ifdef DEBUG
@@ -166,9 +198,10 @@ int Bot::handle_pollin(struct pollfd& pfd) {
     else if (_registered == true && cmd_body.command == "381")
       // case RPL_YOUREOPER: ":You are now an IRC operator"
       _operator = true;
-    else if (_registered == true && (cmd_body.command == "JOIN" || cmd_body.command == "353"))
-	    // handle join
-	    handle_join(cmd_body, pfd);
+    else if (_registered == true &&
+             (cmd_body.command == "JOIN" || cmd_body.command == "353"))
+      // handle join
+      handle_join(cmd_body);
     else if (
         _registered == true &&
         cmd_body.command ==

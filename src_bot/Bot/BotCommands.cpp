@@ -1,5 +1,7 @@
 #include <algorithm>  //std::find
 #include <string>
+#include <set>
+#include <list>
 #include "../Channel/Channel.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
@@ -76,7 +78,7 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
  * @return returns 1 in case of channel name or nick name could not be found
  */
 
-int Bot::handle_join(cmd_obj& cmd_body, struct pollfd& pfd) {
+int Bot::handle_join(cmd_obj& cmd_body) {
   if (cmd_body.command == "JOIN") {
     std::list<Channel>::iterator it_chan = std::find(
         _channel_list.begin(), _channel_list.end(), cmd_body.parameters[0]);
@@ -130,7 +132,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
   } else {
     std::map<std::string, int> members = it_chan->get_members();
     if (it_chan->get_strikes(nick) == -1)
-      members.insert(std::pair(nick, 1));
+      members.insert(std::pair<std::string, int>(nick, 1));
     else if (it_chan->get_strikes(nick) < 3) {
       std::map<std::string, int>::iterator chan_member = members.find(nick);
       chan_member->second += 1;
