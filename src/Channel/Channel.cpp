@@ -20,9 +20,6 @@ Channel::Channel(std::string name)
       _user_limit(),
       _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
-#ifdef DEBUG
-  print_channel_info();
-#endif
 }
 
 Channel::Channel(const Channel& other)
@@ -195,6 +192,19 @@ std::string Channel::get_modes_string() {
     str += oss.str();
   }
   return (str);
+}
+
+std::string Channel::get_nicks_string() {
+  std::string nicks;
+  std::map<Client*, bool>::iterator it = _members.begin();
+  for (; it != _members.end(); it++) {
+    if (it->second)
+      nicks += "@";
+    nicks += it->first->get_nick();
+    if (it != _members.end()--)
+      nicks += ", ";
+  }
+  return (nicks);
 }
 
 /**

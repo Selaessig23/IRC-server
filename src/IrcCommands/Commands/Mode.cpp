@@ -34,10 +34,10 @@
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
 int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
-  if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
-    return (ERR_NOTREGISTERED);
-  }
+  // if (!client_register_check(base, *cmd.client)) {
+  //   send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+  //   return (ERR_NOTREGISTERED);
+  // }
 
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
@@ -50,13 +50,13 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
 
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
   for (; it_chan != base._channel_list.end(); it_chan++) {
-    if (it_chan->get_name() == cmd.parameters[0]) {
-      send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    if (it_chan->get_name() == cmd.parameters[0])
       break;
-    }
   }
-  if (it_chan == base._channel_list.end())
+  if (it_chan == base._channel_list.end()) {
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
     return (ERR_NOSUCHCHANNEL);
+  }
 
   if (cmd.parameters.size() == 1) {
     std::cout << it_chan->get_name() << " Modes: ["

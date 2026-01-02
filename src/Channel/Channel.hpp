@@ -71,6 +71,7 @@ class Channel {
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
+  std::string get_nicks_string();
   std::map<Client*, bool>& get_members();
   std::list<Client*>& get_invited();
 
@@ -82,7 +83,6 @@ class Channel {
 
   // Helpers
   void print_channel_info();
-  void broadcast_message();
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../includes/types.hpp"
 
@@ -38,6 +39,13 @@ class IrcCommands {
   std::string get_rpl(Server& base, const cmd_obj& cmd, enum RPL_MSG rpl);
   int send_privmsg(Server& base, Client& sender, Client& receiver,
                    const std::string& msg, const std::string& channel);
+  int new_channel(Server& base, const struct cmd_obj& cmd,
+                  std::string chan_name);
+  int join_existing_channel(Server& base, const struct cmd_obj& cmd,
+                            Channel* chan, std::string cmd_key);
+  int join_0(Server& base, const struct cmd_obj& cmd);
+  void join_message(Server& base, const struct cmd_obj& cmd, Client* target,
+                    Channel* chan);
 
  public:
   IrcCommands();

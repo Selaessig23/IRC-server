@@ -35,13 +35,13 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
     case RPL_NOTOPIC:
-      return (cmd.parameters[0] + " :No topic is set");
+      return ("<channel> :No topic is set");
     case RPL_TOPIC:
-      return (cmd.parameters[0] + " topic: ");
+      return ("<channel> topic: ");
     case RPL_TOPICWHOTIME:
-      return (cmd.parameters[0] + " topic is set by ");
+      return ("<channel> topic is set by ");
     case RPL_INVITING:
-      return (" invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
+      return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
       return (
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
