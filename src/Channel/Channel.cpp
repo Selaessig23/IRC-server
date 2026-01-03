@@ -107,7 +107,7 @@ void Channel::adjust_modes(int mode, bool status) {
 }
 
 // GETTERS
-std::string Channel::get_name() {
+const std::string& Channel::get_name() {
   return (_name);
 }
 
