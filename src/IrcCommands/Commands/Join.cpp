@@ -94,7 +94,7 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
  * After creating the channel, pushes it to the end of the list of _channels of _Server. 
  */
 int IrcCommands::new_channel(Server& base, const struct cmd_obj& cmd,
-                             std::string chan_name) {
+                             const std::string& chan_name) {
   Channel NewChannel(chan_name);
   base._channel_list.push_back(NewChannel);
   base._channel_list.back().new_member(cmd.client, true);
