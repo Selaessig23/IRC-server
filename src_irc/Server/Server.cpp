@@ -15,7 +15,6 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
-#include "../includes/types.hpp"
 
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
