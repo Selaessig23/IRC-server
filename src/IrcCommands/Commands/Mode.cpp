@@ -33,7 +33,7 @@ void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
  * 
- * After modes updatding is done, it broadcasts the MODE reply message
+ * After modes updating is done, it broadcasts the MODE reply message
  * that shows actual changes made on modes to the channel.
  * 
  * TODO:
