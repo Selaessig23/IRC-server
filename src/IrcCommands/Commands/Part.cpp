@@ -20,6 +20,7 @@ void IrcCommands::send_part_message(Server& base, const struct cmd_obj& cmd,
   msg += " has left the " + chan->get_name();
   if (cmd.parameters.size() > 1)
     msg += " :" + cmd.parameters[1];
+  msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
 }
