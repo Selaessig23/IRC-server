@@ -9,23 +9,19 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief INVITE command is used to invite clients to channels
- * Only members of that channel can invite non-members
+ * @brief INVITE command is used to invite clients to channels.
+ * Only members of that channel can invite non-member clients.
  * If invite_only (+i) mode is enabled for the channel, only chanops
  * can successfully call the command.
  * After a successful call invited client is getting added to _invited list
- * of the channel. Caller client receives RPL_INVITING and invited client
- * receives an custom INVITE message from the server.
- * e.g INVITE <nickname> <channel>
- * 
- * To comply with IRC protocol:
- * (1) If <nickname> is not existed, 0 is returned but
- * ERR_NOSUCHNICK can be returned instead.
- * (2) If client is already invited before, 0 is returned but
- * a custom message can be returned instead.
+ * of the channel.
+ * cmd.client receives RPL_INVITING and invited client receives 
+ * an custom INVITE message from cmd.client.
+ * Usage: INVITE <nickname> <channel>
  * 
  * @returns 0 or ERR_ in case of an error:
  * ERR_NEEDMOREPARAMS (461)
+ * ERR_NOSUCHNICK = (401)
  * ERR_NOSUCHCHANNEL (403)
  * ERR_CHANOPRIVSNEEDED (482)
  * ERR_USERNOTINCHANNEL (441)
@@ -80,8 +76,10 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
         break;
     }
   }
-  if (it_inv_cli == base._client_list.end())
-    return (0);
+  if (it_inv_cli == base._client_list.end()) {
+    send_message(base, cmd, ERR_NOSUCHNICK, true, NULL);
+    return (ERR_NOSUCHNICK);
+  }
 
   std::list<Client*>::iterator it_inv_list = it_chan->get_invited().begin();
   for (; it_inv_list != it_chan->get_invited().end(); it_inv_list++) {

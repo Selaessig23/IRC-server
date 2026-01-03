@@ -23,9 +23,8 @@
  * After a successful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
- * (1) RPL_TOPIC, RPL_TOPICWHOTIME and RPL_NOTOPIC is being sent to all members
- * in the channel but they are going to be adapted to new send_message() structure.
- * These messages are unorded in themselves now.
+ * (1) RPL_TOPIC is unproper and command issuer client is wrong when it's broadcasted!
+ * They are all going to be  adapted to new send_message() structure.
  *  
  * @return ERR in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)

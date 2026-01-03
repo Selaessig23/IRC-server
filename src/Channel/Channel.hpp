@@ -29,6 +29,7 @@ class Channel {
 
  private:
   std::string _name;
+  std::string _creation_time;
   std::string _topic;
   std::string _topic_time;
   std::string _topic_who;
@@ -60,7 +61,8 @@ class Channel {
   bool update_chanops_stat(std::string nick, bool status);
 
   // Getters
-  std::string& get_name();
+  std::string get_name();
+  std::string get_creation_time();
   std::string get_topic();
   std::string get_topic_time();
   std::string get_topic_who();

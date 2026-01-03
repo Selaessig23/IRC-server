@@ -13,6 +13,7 @@
 
 Channel::Channel(std::string name)
     : _name(name),
+      _creation_time(get_current_date_time()),
       _topic(),
       _topic_time(),
       _topic_who(),
@@ -24,6 +25,7 @@ Channel::Channel(std::string name)
 
 Channel::Channel(const Channel& other)
     : _name(other._name),
+      _creation_time(other._creation_time),
       _topic(other._topic),
       _topic_time(other._topic_time),
       _topic_who(other._topic_who),
@@ -105,8 +107,12 @@ void Channel::adjust_modes(int mode, bool status) {
 }
 
 // GETTERS
-std::string& Channel::get_name() {
+std::string Channel::get_name() {
   return (_name);
+}
+
+std::string Channel::get_creation_time() {
+  return (_creation_time);
 }
 
 std::string Channel::get_topic() {

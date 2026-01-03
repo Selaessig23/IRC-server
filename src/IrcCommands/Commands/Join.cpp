@@ -10,82 +10,31 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief join_o is a helper function of JOIN command that executes
- * the special argument of ("0", 0x30). 
- * It makes the cmd.client to leave all channels that 
- * it's a member of by calling PART command for each of them.
- */
-int IrcCommands::join_0(Server& base, const struct cmd_obj& cmd) {
-  std::list<Channel>& chan_list = base.get_channel_list();
-  if (!chan_list.empty()) {
-    for (std::list<Channel>::iterator it_chan = chan_list.begin();
-         it_chan != chan_list.end();) {
-      if (it_chan->get_members().find(cmd.client) !=
-          it_chan->get_members().end()) {
-        cmd_obj tmp_cmd;
-        tmp_cmd.command = "PART";
-        tmp_cmd.parameters.push_back(it_chan->get_name());
-        tmp_cmd.client = cmd.client;
-        it_chan++;
-        this->exec_command(base, tmp_cmd);
-        continue;
-      }
-      it_chan++;
-    }
-  }
-  return (1);
-}
-
-/**
- * @brief JOIN command is used to create/join channels
- * If the <channel> already exists and other requirements are met
- * caller client can join the channel.
- * If the <channel> doesn't exist then it gets created.
- * There are various modes for the channels 
- * that works interconnectedly with JOIN command 
- * e.g. +k +i +l: has_key, invite_only, has_limit respectively
- * 
  * TODO:
- * (1) implement a successful joining message
- * (2) implement resprective RPL messages
- * (3) multi-channel entry at single command call
- * Parameters: <channel>{,<channel>} [<key>{,<key>}]
- * e.g. JOIN #chan,#42,#horizon 
- *  
- * @return 0, in case of an error it returns error codes:
- * ERR_NEEDMOREPARAMS (461)
- * ERR_NOSUCHCHANNEL (403)
- * ERR_BADCHANNELKEY (475)
- * ERR_CHANNELISFULL (471)
- * ERR_INVITEONLYCHAN (473)
- * 
- * RPL_TOPIC (332)
- * RPL_NAMREPLY (353)
- * RPL_ENDOFNAMES (366)
- * 
- * @return it returns 1 if command is succesfully executed
+ * (1) All message sending functionalities in the file works now 
+ * but are going to be adapted to last send_message() version
  */
 
 /**
-  * @brief function that structures join message and sends it to the target client.
+  * @brief function that structures JOIN reply message and sends it to the target client.
   *  It is called from new_channel and join_existing_channel functions 
   */
-void IrcCommands::join_message(Server& base, const struct cmd_obj& cmd,
-                               Client* target, Channel* chan) {
+void IrcCommands::send_join_message(Server& base, const struct cmd_obj& cmd,
+                                    Client* target, Channel* chan) {
   std::string msg;
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " has joined the channel " + chan->get_name();
+  msg += " has joined the " + chan->get_name();
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
 }
 
 /**
- * @brief function that add cmd.client to th <channel> after checking if all 
- * MODE 
- * 
+ * @brief function that add cmd.client to the <channel> after checking if
+ * MODE requirements of chnannel are set and met
+ * e.g. MODE_KEY (+k), MODE_INVITE (+i), MODE_LIMIT (+l)
  */
 int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
                                        Channel* chan, std::string cmd_key) {
@@ -123,7 +72,7 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
   chan->new_member(cmd.client, false);
   for (it_chan_mem = chan->get_members().begin();
        it_chan_mem != chan->get_members().end(); it_chan_mem++)
-    join_message(base, cmd, it_chan_mem->first, &base._channel_list.back());
+    send_join_message(base, cmd, it_chan_mem->first, chan);
   if (chan->get_topic().size()) {
     std::string msg = chan->get_topic();
     send_message(base, cmd, RPL_TOPIC, false, &msg);
@@ -141,9 +90,8 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
 
 /**
  * @brief Creates a new channel object and adds the cmd.client to it as its first member
- * by assigning as an operator of the channel. 
+ * by assigning it as an operator of the channel. 
  * After creating the channel, pushes it to the end of the list of _channels of _Server. 
- * 
  */
 int IrcCommands::new_channel(Server& base, const struct cmd_obj& cmd,
                              std::string chan_name) {
@@ -151,21 +99,67 @@ int IrcCommands::new_channel(Server& base, const struct cmd_obj& cmd,
   base._channel_list.push_back(NewChannel);
   base._channel_list.back().new_member(cmd.client, true);
   base._channel_list.back();
-  join_message(base, cmd, cmd.client, &base._channel_list.back());
+  send_join_message(base, cmd, cmd.client, &base._channel_list.back());
   send_message(base, cmd, RPL_NOTOPIC, false, NULL);
   send_message(base, cmd, RPL_ENDOFNAMES, false, NULL);
   return (1);
 }
 
 /**
- * @brief Executes necessary checks e.g. if cmd.client has already registered or
- * if there are enough parameter in command call.
- * After these checks it diverts the flow to one of these helper functions:
- * join_0(),
- * new_channel(),
- * join_existing_channel()
+ * @brief join_o is a helper function of JOIN command that executes
+ * the special argument of ("0", 0x30). 
+ * It makes the cmd.client to leave all channels that 
+ * it's a member of by calling PART command for each of them.
  */
+int IrcCommands::join_0(Server& base, const struct cmd_obj& cmd) {
+  std::list<Channel>& chan_list = base.get_channel_list();
+  if (!chan_list.empty()) {
+    for (std::list<Channel>::iterator it_chan = chan_list.begin();
+         it_chan != chan_list.end();) {
+      if (it_chan->get_members().find(cmd.client) !=
+          it_chan->get_members().end()) {
+        cmd_obj tmp_cmd;
+        tmp_cmd.command = "PART";
+        tmp_cmd.parameters.push_back(it_chan->get_name());
+        tmp_cmd.client = cmd.client;
+        it_chan++;
+        this->exec_command(base, tmp_cmd);
+        continue;
+      }
+      it_chan++;
+    }
+  }
+  return (1);
+}
 
+/**
+ * @brief JOIN command is used to create/join channels
+ * If the <channel> already exists and other requirements are met,
+ * command issuer client can join the channel.
+ * If the <channel> doesn't exist then it gets created.
+ * 
+ * Executes checks if cmd.client is registered and if there are enough parameters in command call.
+ * After these checks it parses multiple <channel> and <key> values that are separated by comma ','
+ * and stores them in separate vectors. 
+ * 
+ * Flow is continued with one of these helper functions:
+ * join_0(), new_channel(), join_existing_channel()
+ *
+ * Usage: JOIN <channel>{,<channel>} [<key>{,<key>}]
+ * e.g. JOIN #chan,#42,#horizon 
+ * 
+ * @return 0, in case of an error it returns error codes:
+ * ERR_NEEDMOREPARAMS (461)
+ * ERR_NOSUCHCHANNEL (403)
+ * ERR_BADCHANNELKEY (475)
+ * ERR_CHANNELISFULL (471)
+ * ERR_INVITEONLYCHAN (473)
+ * RPL_TOPIC (332)
+ * RPL_NAMREPLY (353)
+ * RPL_ENDOFNAMES (366)
+ * 
+ * @return it returns 1 if command is succesfully executed
+ */
 int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   // if (!client_register_check(base, *cmd.client)) {
   //   send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
@@ -201,15 +195,10 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   }
 
   for (size_t i = 0; i < chans.size(); i++) {
-    if (!(chans[i][0] == '#'))
-      return (0);
+    if (!(chans[i][0] == '#' || chans[i][0] == '&'))
+      continue;
 
-    std::string key;
-    if (i < keys.size())
-      key = key[i];
-    else
-      key = "";
-
+    std::string key = (i < keys.size()) ? keys[i] : "";
     std::list<Channel>::iterator it_chan = base._channel_list.begin();
     if (!base._channel_list.empty()) {
       for (; it_chan != base._channel_list.end(); ++it_chan) {

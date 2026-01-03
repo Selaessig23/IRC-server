@@ -17,7 +17,6 @@
  * (1) implement message sending with [<comment>]
  *      if [<comment>] isn't passed then a default message
  * (2) implement multi-kick at a single call
- * (5) Registration check!
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
