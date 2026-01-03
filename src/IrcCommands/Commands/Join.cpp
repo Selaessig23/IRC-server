@@ -188,13 +188,6 @@ int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   }
 
   for (size_t i = 0; i < chans.size(); i++) {
-    if (i < keys.size())
-      std::cout << "chan: " << chans[i] << " key:" << keys[i] << std::endl;
-    else
-      std::cout << "chan: " << chans[i] << std::endl;
-  }
-
-  for (size_t i = 0; i < chans.size(); i++) {
     if (!(chans[i][0] == '#' || chans[i][0] == '&'))
       continue;
 
