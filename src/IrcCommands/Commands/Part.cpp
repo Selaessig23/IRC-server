@@ -79,6 +79,7 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
   }
 
   it_chan->remove_from_members(cmd.client);
+  send_part_message(base, cmd, cmd.client, &(*it_chan));
 
   it_chan_mem = it_chan->get_members().begin();
   for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++)
