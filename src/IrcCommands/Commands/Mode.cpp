@@ -14,7 +14,7 @@
   */
 void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
                                     Client* target, Channel* chan,
-                                    std::string update) {
+                                    const std::string& update) {
   std::string msg;
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
