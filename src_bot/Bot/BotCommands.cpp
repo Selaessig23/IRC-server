@@ -121,6 +121,8 @@ void Bot::kill_client(const std::string& nick, struct pollfd& pfd) {
  * @brief function that organises the sanctioning of a channel member when using
  * a swear word. He gets a warning each time he uses a swear word.
  * If bot is registered as an operator, the client gets killed for his 3rd strike
+ *
+ * TODO: think about removing the client fom channel if he gets killed
  */
 void Bot::sanctioning(const std::string& nick, std::string& channel,
                       std::string& out, struct pollfd& pfd) {

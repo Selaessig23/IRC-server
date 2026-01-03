@@ -259,7 +259,7 @@ int Bot::init_poll() {
   client_poll.events = POLLIN;
   client_poll.revents = 0;
   while (1) {
-    poll(&client_poll, 1, 1000);
+    poll(&client_poll, 1, 3000);
     if (_registered == false && count_register >= 4) {
       DEBUG_PRINT("Error in registration process at IRC-server");
       return (1);
