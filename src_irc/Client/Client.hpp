@@ -3,8 +3,8 @@
 
 #include <netinet/in.h>  // for sockaddr_in
 #include <poll.h>
-#include <iostream>
 #include <map>
+#include <string>
 
 class Client {
  private:
@@ -12,6 +12,7 @@ class Client {
   int _client_fd;
   unsigned char _registered;
   struct sockaddr_in _client_addr;
+  bool _opertr;
   std::string _received_packs;
   std::string _nick;
   std::string _user;
@@ -45,11 +46,13 @@ class Client {
   std::string& get_user();
   std::string& get_host();
   std::string& get_realname();
+  bool get_opertr();
   unsigned char get_register_status();
   void set_register_status(unsigned char to_add);
   void set_nick(std::string nick);
   void set_user(std::string user);
   void set_host(std::string host);
+  void set_opertr(bool value);
   void set_realname(std::string realname);
   void set_servername(std::string realname);
 };

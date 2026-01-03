@@ -2,7 +2,7 @@
 #include <netinet/in.h>  // for sockaddr_in
 #include <poll.h>
 #include <algorithm>  // for std::swap
-#include <iostream>
+#include <string>
 #include "../debug.hpp"
 
 /** TODO:
@@ -12,16 +12,14 @@
  */
 
 Client::Client(long id, int fd, struct sockaddr_in addr)
-    : _id(id),
-      _client_fd(fd),
-      _registered(0),
-      _client_addr(addr) {}
+    : _id(id), _client_fd(fd), _registered(0), _client_addr(addr), _opertr(0) {}
 
 Client::Client(const Client& other)
     : _id(other._id),
       _client_fd(other._client_fd),
       _registered(other._registered),
       _client_addr(other._client_addr),
+      _opertr(other._opertr),
       _received_packs(other._received_packs),
       _nick(other._nick),
       _user(other._user),
@@ -103,6 +101,10 @@ unsigned char Client::get_register_status() {
   return (this->_registered);
 }
 
+bool Client::get_opertr() {
+  return (this->_opertr);
+}
+
 void Client::set_register_status(unsigned char to_add) {
   _registered |= to_add;
 }
@@ -113,6 +115,10 @@ void Client::set_nick(std::string nick) {
 
 void Client::set_user(std::string user) {
   this->_user = user;
+}
+
+void Client::set_opertr(bool value) {
+  this->_opertr = value;
 }
 
 void Client::set_host(std::string host) {

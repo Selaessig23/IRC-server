@@ -155,6 +155,7 @@ void Bot::handle_pollout(struct pollfd& pfd) {
     pfd.events &= ~POLLOUT;
 }
 
+#ifdef DEBUG
 static void debug_parsed_cmds(cmd_obj& cmd_body) {
 
   std::cout << "\nCMD_BDY: " << std::endl;
@@ -174,6 +175,7 @@ static void debug_parsed_cmds(cmd_obj& cmd_body) {
     }
   }
 }
+#endif
 
 /**
  * @brief function to handle a pollin event from one of the clients fds

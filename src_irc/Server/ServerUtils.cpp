@@ -1,4 +1,5 @@
-#include <cstring>  //memset
+
+#include <cstring>  // for strlen
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
@@ -47,6 +48,38 @@ static void debug_parsed_cmds(cmd_obj& cmd_body) {
 }
 
 /**
+ * @brief function to remove (kill) a client from server,
+ * it considers:
+ *  pollfd struct
+ *  _client_list
+ *  _channel_list
+ */
+void Server::remove_client(int fd) {
+
+  for (std::list<Client>::iterator it_client = _client_list.begin();
+       it_client != _client_list.end(); it_client++) {
+    if (it_client->get_client_fd() == fd) {
+      for (std::list<Channel>::iterator it_chan = _channel_list.begin();
+           it_chan != _channel_list.end(); it_chan++) {
+        it_chan->remove_from_members(&(*it_client));
+        it_chan->remove_from_invited(&(*it_client));
+      }
+      _client_list.erase(it_client);
+      break;
+    }
+  }
+  for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+       it != _poll_fds.end(); ++it) {
+    if (it->fd == fd) {
+      _poll_fds.erase(it);
+      break;
+    }
+  }
+  close(fd);
+  DEBUG_PRINT("Case delete client: " << fd);
+}
+
+/**
  * @brief function to set the event of the pollfd struct of client
  * with corresponding fd
  */
@@ -79,22 +112,7 @@ int Server::handle_pollin(struct pollfd& pfd) {
   int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
 
   if (recv_len <= 0) {
-    close(pfd.fd);
-    for (std::list<Client>::iterator it_client = _client_list.begin();
-         it_client != _client_list.end(); it_client++) {
-      if (it_client->get_client_fd() == pfd.fd) {
-        _client_list.erase(it_client);
-        break;
-      }
-    }
-    for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
-         it != _poll_fds.end(); ++it) {
-      if (it->fd == pfd.fd) {
-        DEBUG_PRINT("Case delete client: " << pfd.fd);
-        _poll_fds.erase(it);
-        break;
-      }
-    }
+    this->remove_client(pfd.fd);
     return (1);
   }
 

@@ -34,13 +34,21 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       return (" :No ident server\nUser gets registered with username\n" +
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
+    case RPL_NOTOPIC:
+      return (cmd.parameters[0] + " :No topic is set");
     case RPL_TOPIC:
-      return ("<channel> :<topic>");  //to be added
+      return (cmd.parameters[0] + " topic: ");
+    case RPL_TOPICWHOTIME:
+      return (cmd.parameters[0] + " topic is set by ");
+    case RPL_INVITING:
+      return ("<client> <nick> <channel> :INVITES YOU");  // to be adjusted
     case RPL_NAMREPLY:
       return (
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
     case RPL_ENDOFNAMES:
       return ("<channel> :End of /NAMES list");  //to be added
+    case RPL_YOUREOPER:
+      return (":You are now an IRC operator");
     default:
       return (" UNKNOWN REPLY");
   }
@@ -68,9 +76,9 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NOSUCHNICK:
       return (source + " :No such nick/channel");
     case ERR_NOSUCHCHANNEL:
-      return (" <channel> :No such channel");
+      return ("<channel> :No such channel");
     case ERR_CANNOTSENDTOCHAN:
-      return (" <channel> :No such channel");
+      return ("<channel> :No such channel");
     case ERR_INVALIDCAPCMD:
       return (source + " :Cannot handle CAP command with this target");
     case ERR_NORECIPIENT:
@@ -90,6 +98,12 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NICKCOLLISION:
       return (source + " :Nickname collision KILL from " +
               cmd.client->get_user() + "@" + cmd.client->get_host());
+    case ERR_USERNOTINCHANNEL:
+      return ("<client> <nick> <channel> :They aren't on that channel");
+    case ERR_NOTONCHANNEL:
+      return ("<client> <channel> :You're not on that channel");
+    case ERR_USERONCHANNEL:
+      return ("<client> <nick> <channel> :is already on channel");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -104,6 +118,10 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
       return (" <channel> :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
       return (" <channel> :Cannot join channel (+k)");
+    case ERR_NOPRIVILEGES:
+      return (" :Permission Denied- You're not an IRC operator");
+    case ERR_CHANOPRIVSNEEDED:
+      return ("<client> <channel> :You're not channel operator");
     default:
       return (out);
   }

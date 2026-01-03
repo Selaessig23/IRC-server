@@ -31,12 +31,19 @@ SRCS_IRC += src_irc/Client/Client.cpp
 SRCS_IRC += src_irc/Channel/Channel.cpp
 SRCS_IRC += src_irc/Parser/Parser.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/Join.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Part.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Nick.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Mode.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Invite.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Kick.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Kill.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/Pass.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/Pong.cpp
-SRCS_IRC += src_irc/IrcCommands/Commands/Nick.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/Cap.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/User.cpp
 SRCS_IRC += src_irc/IrcCommands/Commands/Privmsg.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Oper.cpp
+SRCS_IRC += src_irc/IrcCommands/Commands/Topic.cpp
 SRCS_IRC += src_irc/IrcCommands/IrcCommandsUtils.cpp
 SRCS_IRC += src_irc/IrcCommands/IrcCommands.cpp
 
@@ -63,7 +70,7 @@ LiBS_BOT =
 LIBS_BOT += src_bot/includes/types.hpp
 LIBS_BOT += src_bot/includes/CONSTANTS.hpp
 
-all: $(NAME_IRC)
+irc: $(NAME_IRC)
 
 $(NAME_IRC): $(OBJS_IRC) $(LIBS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS_IRC)
@@ -73,7 +80,7 @@ obj_irc/%.o: src_irc/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 
-bot_target: $(NAME_BOT)
+bot: $(NAME_BOT)
 
 $(NAME_BOT): $(OBJS_BOT) $(LIBS_BOT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS_BOT)
@@ -101,11 +108,19 @@ fclean: clean
 
 re: fclean all
 
-bonus: all bot_target
+all: irc 
 
-run: all
+bonus: irc bot
+
+runirc: irc 
 	@echo
-	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_IRC) $(ARGS)
+	@echo "Running irc-server"
+	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_IRC) $(ARGS_IRC)
+
+runbot: bot
+	@echo
+	@echo "Running irc-server"
+	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) $(ARGS_BOT)
 
 # to run both program simultanously
 runbonus: bonus
@@ -115,19 +130,37 @@ runbonus: bonus
 	PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) $(ARGS_BOT) & \
 	wait
 
-valrun: all
+valrunirc: all
 	@echo
-	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS)
-
-debug: CXXFLAGS += -DDEBUG -g
-debug: fclean $(NAME_IRC)
-	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
-
-debugvalrun: CXXFLAGS += -DDEBUG -g
-debugvalrun: fclean $(NAME_IRC)
-	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
-	@echo
+	@echo "Running irc-server with valgrind"
 	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS_IRC)
+
+valrunbot: bot
+	@echo
+	@echo "Running bot with valgrind"
+	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_BOT) $(ARGS_BOT)
+
+debugirc: CXXFLAGS += -DDEBUG -g
+debugirc: fclean $(NAME_IRC)
+	@echo "$(BOLD)$(YELLOW)Debug build IRC complete.$(RESET)"
+
+debugbot: CXXFLAGS += -DDEBUG -g
+debugbot: fclean $(NAME_BOT)
+	@echo "$(BOLD)$(YELLOW)Debug build BOT complete.$(RESET)"
+
+debugvalrunirc: CXXFLAGS += -DDEBUG -g
+debugvalrunirc: fclean $(NAME_IRC)
+	@echo "$(BOLD)$(YELLOW)Debug build IRC complete.$(RESET)"
+	@echo
+	@echo "Running irc-server with valgrind"
+	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS_IRC)
+
+debugvalrunbot: CXXFLAGS += -DDEBUG -g
+debugvalrunbot: fclean $(NAME_BOT)
+	@echo "$(BOLD)$(YELLOW)Debug build BOT complete.$(RESET)"
+	@echo
+	@echo "Running BOT with valgrind"
+	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_BOT) $(ARGS_BOT)
 
 bonusdebugvalrun: CXXFLAGS += -DDEBUG -g
 bonusdebugvalrun: fclean bonus
