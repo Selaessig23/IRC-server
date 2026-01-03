@@ -48,6 +48,9 @@ class Server {
   Server operator=(const Server& other);
   ~Server();
 
+  // Getters
+  std::list<Channel>& get_channel_list();
+
   Client* find_client_by_fd(int fd);
   // function to activate the IRC-Server (run the server-loop)
   int init();

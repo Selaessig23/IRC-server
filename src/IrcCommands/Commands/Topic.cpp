@@ -23,9 +23,8 @@
  * After a successful topic change all the members are informed with RPL_TOPIC.
  * 
  * TODO:
- * (1) RPL_TOPIC, RPL_TOPICWHOTIME and RPL_NOTOPIC is being sent to all members
- * in the channel but they are going to be adapted to new send_message() structure.
- * These messages are unorded in themselves now.
+ * (1) RPL_TOPIC is improper and command issuer client is wrong when it's broadcasted!
+ * They are all going to be  adapted to new send_message() structure.
  *  
  * @return ERR in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -39,6 +38,11 @@
  * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
+
   if (cmd.parameters.size() == 0) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
