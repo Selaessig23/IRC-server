@@ -40,13 +40,14 @@ class IrcCommands {
   int send_privmsg(Server& base, Client& sender, Client& receiver,
                    const std::string& msg, const std::string& channel);
   int new_channel(Server& base, const struct cmd_obj& cmd,
-                  std::string chan_name);
+                  const std::string& chan_name);
   int join_existing_channel(Server& base, const struct cmd_obj& cmd,
-                            Channel* chan, std::string cmd_key);
+                            Channel* chan, const std::string& cmd_key);
   int join_0(Server& base, const struct cmd_obj& cmd);
   int update_modes(Server& base, const struct cmd_obj& cmd, Channel* chan);
   void send_mode_message(Server& base, const struct cmd_obj& cmd,
-                         Client* target, Channel* chan, std::string update);
+                         Client* target, Channel* chan,
+                         const std::string& update);
   void send_join_message(Server& base, const struct cmd_obj& cmd,
                          Client* target, Channel* chan);
   void send_part_message(Server& base, const struct cmd_obj& cmd,

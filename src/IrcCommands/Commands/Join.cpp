@@ -37,7 +37,8 @@ void IrcCommands::send_join_message(Server& base, const struct cmd_obj& cmd,
  * e.g. MODE_KEY (+k), MODE_INVITE (+i), MODE_LIMIT (+l)
  */
 int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
-                                       Channel* chan, const std::string& cmd_key) {
+                                       Channel* chan,
+                                       const std::string& cmd_key) {
   std::map<Client*, bool>::iterator it_chan_mem = chan->get_members().begin();
   for (; it_chan_mem != chan->get_members().end(); it_chan_mem++) {
     if (cmd.client == it_chan_mem->first)
