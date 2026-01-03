@@ -22,10 +22,10 @@
  *    ERR_ALREADYREGISTERED
  */
 int IrcCommands::user(Server& base, const struct cmd_obj& cmd) {
-  // if (cmd.parameters.empty() || cmd.parameters.size() < 4) {
-  //   send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
-  //   return (ERR_NEEDMOREPARAMS);
-  // }
+  if (cmd.parameters.empty() || cmd.parameters.size() < 4) {
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    return (ERR_NEEDMOREPARAMS);
+  }
 
   if (!cmd.client->get_user().empty()) {
     send_message(base, cmd, ERR_ALREADYREGISTERED, true, NULL);
