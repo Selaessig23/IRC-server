@@ -106,7 +106,7 @@ int IrcCommands::new_channel(Server& base, const struct cmd_obj& cmd,
 }
 
 /**
- * @brief join_o is a helper function of JOIN command that executes
+ * @brief join_0 is a helper function of JOIN command that executes
  * the special argument of ("0", 0x30). 
  * It makes the cmd.client to leave all channels that 
  * it's a member of by calling PART command for each of them.
