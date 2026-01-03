@@ -45,7 +45,7 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
   }
 
   if ((chan->get_modes() & MODE_KEY) &&
-      (cmd.parameters.size() < 2 || cmd_key != chan->get_key())) {
+      (cmd_key.empty() || cmd_key != chan->get_key())) {
     send_message(base, cmd, ERR_BADCHANNELKEY, true, NULL);
     return (ERR_BADCHANNELKEY);
   }
