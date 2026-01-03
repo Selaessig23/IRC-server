@@ -259,7 +259,11 @@ int Bot::init_poll() {
   client_poll.events = POLLIN;
   client_poll.revents = 0;
   while (1) {
-    poll(&client_poll, 1, 3000);
+    poll(&client_poll, 1, 6000);
+    if (client_poll.revents & POLLIN) {
+      if (handle_pollin(client_poll))
+        return (1);
+    }
     if (_registered == false && count_register >= 4) {
       DEBUG_PRINT("Error in registration process at IRC-server");
       return (1);
@@ -274,10 +278,6 @@ int Bot::init_poll() {
     } else if (_registered == true && _operator == false && count_oper < 4) {
       count_oper += 1;
       become_operator(client_poll);
-    }
-    if (client_poll.revents & POLLIN) {
-      if (handle_pollin(client_poll))
-        return (1);
     }
     if (client_poll.revents & POLLOUT) {
       handle_pollout(client_poll);
