@@ -33,7 +33,7 @@ void IrcCommands::send_join_message(Server& base, const struct cmd_obj& cmd,
 
 /**
  * @brief function that add cmd.client to the <channel> after checking if
- * MODE requirements of chnannel are set and met
+ * MODE requirements of channel are set and met
  * e.g. MODE_KEY (+k), MODE_INVITE (+i), MODE_LIMIT (+l)
  */
 int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
