@@ -9,12 +9,27 @@
 #include "../IrcCommands.hpp"
 
 /**
+  * @brief function that structures INVITE message and sends it to the target client.
+  */
+void IrcCommands::send_invite_message(Server& base, const struct cmd_obj& cmd,
+                                      Client* target, Channel* chan) {
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " invites " + target->get_nick();
+  msg += " to the channel " + chan->get_name();
+  msg += "\r\n";
+  target->add_client_out(msg);
+  base.set_pollevent(target->get_client_fd(), POLLOUT);
+}
+
+/**
  * @brief INVITE command is used to invite clients to channels.
  * Only members of that channel can invite non-member clients.
  * If invite_only (+i) mode is enabled for the channel, only chanops
  * can successfully call the command.
- * After a successful call invited client is getting added to _invited list
- * of the channel.
+ * After a successful call invited client is getting added to _invited list of the channel.
  * cmd.client receives RPL_INVITING and invited client receives 
  * an custom INVITE message from cmd.client.
  * Usage: INVITE <nickname> <channel>
@@ -33,10 +48,11 @@
  */
 
 int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
-  // if (!client_register_check(base, *cmd.client)) {
-  //   send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
-  //   return (ERR_NOTREGISTERED);
-  // }
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
+
   if (cmd.parameters.size() < 2) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
@@ -98,16 +114,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
 
   it_chan->new_invited(&(*it_inv_cli));
   send_message(base, cmd, RPL_INVITING, false, NULL);
-
-  std::string msg;
-  msg += ":" + cmd.client->get_nick();
-  msg += "!" + cmd.client->get_user();
-  msg += "@" + cmd.client->get_host();
-  msg += " invites " + it_inv_cli->get_nick();
-  msg += " to the channel " + it_chan->get_name();
-  msg += "\r\n";
-  it_inv_cli->add_client_out(msg);
-  base.set_pollevent(it_inv_cli->get_client_fd(), POLLOUT);
+  send_invite_message(base, cmd, &(*it_inv_cli), &(*it_chan));
 
   return (1);
 }

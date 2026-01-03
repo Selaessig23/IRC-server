@@ -38,6 +38,11 @@
  * @return it returns 1 if command is successfully executed
  */
 int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
+
   if (cmd.parameters.size() == 0) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
     return (ERR_NEEDMOREPARAMS);
