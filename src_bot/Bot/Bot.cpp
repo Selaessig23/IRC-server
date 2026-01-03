@@ -118,7 +118,7 @@ Bot Bot::operator=(const Bot& other) {
 
 Bot::~Bot() {
   close(_client_fd);
-  DEBUG_PRINT("Destructor was called succesfully");
+  DEBUG_PRINT("Destructor was called successfully");
 }
 
 void Bot::add_to_received_packs(std::string new_pack) {

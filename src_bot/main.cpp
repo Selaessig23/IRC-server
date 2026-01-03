@@ -19,7 +19,7 @@
 
 // TODO:
 // AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
-// protocl number (if several)
+// protocol number (if several)
 
 Bot* g_bot;
 

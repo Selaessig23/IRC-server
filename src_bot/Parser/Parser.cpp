@@ -10,11 +10,11 @@ namespace Parsing {
  * (1 --> commented out for testing reasons) it checks if message ends with CR-LF, if not it returns an individual message
  *     as there is no official one: input line to long (max size of input according to recv-buf is 8750 bytes)
  * (2) tokenizes the string
- * (3) it checks for max size of message (if correclty terminated with CR-LF)
+ * (3) it checks for max size of message (if correctly terminated with CR-LF)
  * (4) it splits the tags and add them into com_obj.tags, if there are tags
- * (5) it checks if there is a prefix and adds it to com_onj.prefix
+ * (5) it checks if there is a prefix and adds it to com_obj.prefix
  * (6) it validates commands and does first error handling, if command does not exist
- * (7) it add paramters to com_obj_parameters
+ * (7) it add parameters to com_obj_parameters
  * (8) it returns an error if size of parameters > 15: no error code provided by protocol, must clients return
  *    417 ERR_INPUTTOOLONG (so do I)
  *

@@ -52,7 +52,7 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
     return (1);
   std::list<Channel>::iterator it_chan = std::find(
       _channel_list.begin(), _channel_list.end(), cmd_body.parameters[2]);
-  if (it_chan == _channel_list.end())
+  if (it_chan != _channel_list.end())
     return (1);
   Channel new_channel(cmd_body.parameters[2]);
   _channel_list.push_back(new_channel);
@@ -63,7 +63,7 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
   _output_buffer += out;
   pfd.events |= POLLOUT;
   it_chan = std::find(_channel_list.begin(), _channel_list.end(),
-                      cmd_body.parameters[0]);
+                      cmd_body.parameters[2]);
   it_chan->set_status(APPLIED);
   return (0);
 }
@@ -135,7 +135,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
     out += nick;
     out += " :This will led to an enormous disadvantage in your further life.";
   } else {
-    std::map<std::string, int> members = it_chan->get_members();
+    std::map<std::string, int>& members = it_chan->get_members();
     if (it_chan->get_strikes(nick) == -1)
       members.insert(std::pair<std::string, int>(nick, 1));
     else if (it_chan->get_strikes(nick) < 3) {
@@ -147,7 +147,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
           "Please do not confuse other people by spreading falsehoods "
           "about "
           "42.";
-    } else if (_registered == true) {
+    } else if (_operator == true) {
       kill_client(nick, pfd);
       out += nick;
       out += " :Dear members of channel " + channel;
@@ -177,7 +177,7 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
       for (std::set<std::string>::iterator it_swear = _swear_words.begin();
            it_swear != _swear_words.end(); it_swear++) {
         delimiter = to_check.find(*it_swear);
-	if (delimiter != std::string::npos) {
+        if (delimiter != std::string::npos) {
           std::string out;
           out += ":" + _nick;
           out += " PRIVMSG ";

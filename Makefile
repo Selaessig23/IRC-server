@@ -62,12 +62,10 @@ DEPS_IRC := $(OBJS_IRC:.o=.d)
 
 DEPS_BOT := $(OBJS_BOT:.o=.d)
 
-LiBS =
-LIBS += src_irc/includes/types.hpp
+LIBS = src_irc/includes/types.hpp
 LIBS += src_irc/includes/CONSTANTS.hpp
 
-LiBS_BOT =
-LIBS_BOT += src_bot/includes/types.hpp
+LIBS_BOT = src_bot/includes/types.hpp
 LIBS_BOT += src_bot/includes/CONSTANTS.hpp
 
 irc: $(NAME_IRC)

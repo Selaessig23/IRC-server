@@ -2,7 +2,7 @@
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Channel::Channel(std::string name) : _name(name) {
+Channel::Channel(std::string name) : _name(name), _status(0) {
   _status |= INVITED;
 }
 
