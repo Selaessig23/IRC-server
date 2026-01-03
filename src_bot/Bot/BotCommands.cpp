@@ -1,7 +1,7 @@
 #include <algorithm>  //std::find
-#include <string>
-#include <set>
 #include <list>
+#include <set>
+#include <string>
 #include "../Channel/Channel.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
@@ -111,7 +111,7 @@ void Bot::kill_client(const std::string& nick, struct pollfd& pfd) {
   out += "KILL ";
   out += nick;
   out +=
-      " :We cannout accept creatures like " + nick + " in our lovely network.";
+      " :We cannot accept creatures like " + nick + " in our lovely network.";
   out += "\r\n";
   _output_buffer += out;
   pfd.events |= POLLOUT;
@@ -131,7 +131,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
   if (it_chan == _channel_list.end()) {
     // message was a private message to bot not channel --> could be checked, recipient should than be _nick
     out += nick;
-    out += "This will led to an enormous disadvantage in your further life.";
+    out += " :This will led to an enormous disadvantage in your further life.";
   } else {
     std::map<std::string, int> members = it_chan->get_members();
     if (it_chan->get_strikes(nick) == -1)
@@ -148,7 +148,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
     } else if (_registered == true) {
       kill_client(nick, pfd);
       out += nick;
-      out += "Dear members of channel " + channel;
+      out += " :Dear members of channel " + channel;
       out += " our not-valued member " + nick +
              " has passed away. May he rest not rest in peace.";
     }
@@ -183,7 +183,10 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
                 " :The wise 42 network is going to control everything. "
                 "Communicate wisely.";
           } else {
-            sanctioning(cmd_body.prefix, cmd_body.parameters[0], out, pfd);
+            //cut nick from prefix
+            int pos = cmd_body.prefix.find("!");
+            std::string nick = cmd_body.prefix.substr(0, pos);
+            sanctioning(nick, cmd_body.parameters[0], out, pfd);
           }
           out += "\r\n";
           _output_buffer += out;

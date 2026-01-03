@@ -59,6 +59,7 @@ bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
 Bot::Bot(int port, std::string pw, std::string data_input)
     : _pw(pw),
       _registered(false),
+      _operator(false),
       _nick("42BOT"),
       _user("Max"),
       _host("42host"),
@@ -73,6 +74,7 @@ Bot::Bot(int port, std::string pw, std::string data_input)
       //maybe add another test if there is only one word per line
       _swear_words.insert(word);
   }
+  _client_fd = 0;
   int opt = 1;
   setsockopt(_client_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   // Prepare the address and port for the server socket
@@ -194,7 +196,7 @@ int Bot::handle_pollin(struct pollfd& pfd) {
   int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
 
   if (recv_len <= 0) {
-    close(pfd.fd);  //add handling if server-connection ends
+    //add handling if server-connection ends
     return (1);
   }
 
@@ -232,7 +234,7 @@ int Bot::handle_pollin(struct pollfd& pfd) {
             "341")  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
       handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
-      check_for_swears(cmd_body, pfd);  // sanctioning(pfd);
+      check_for_swears(cmd_body, pfd);  // sanctioning
   }
   return (0);
 }
@@ -278,7 +280,6 @@ int Bot::init_poll() {
         return (1);
     }
     if (client_poll.revents & POLLOUT) {
-      DEBUG_PRINT("POLLOUT");
       handle_pollout(client_poll);
     }
   }
