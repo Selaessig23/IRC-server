@@ -15,7 +15,6 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
-#include "../includes/types.hpp"
 
 Server::~Server() {
   DEBUG_PRINT("Destructor of Server called.");
@@ -24,19 +23,19 @@ Server::~Server() {
   }
   //Close Server last
   close(_poll_fds.begin()->fd);
-  delete _irc_commands;
 }
 
+/**
+ * @brief a socket becomes created and bound to serve as a server
+ * if there is an error during implementation an error gets thrown
+ */
 Server::Server(int port, std::string& pw)
     : _network_name("MUMs_network"),
       _server_name("MUMs_server"),
       _version("0.0.0.0.0.9"),
       _port(port),
-      _pw(pw),
-      _irc_commands(new IrcCommands()) {
-  //created at
+      _pw(pw) {
   _created_at = get_current_date_time();
-  _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0)
     throw std::runtime_error("Socket creation error.");
@@ -46,7 +45,6 @@ Server::Server(int port, std::string& pw)
   _addr.sin_family = AF_INET;
   _addr.sin_addr.s_addr = INADDR_ANY;
   _addr.sin_port = htons(port);
-  // Assign socket to IP & Port
   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr),
            sizeof(_addr)) < 0) {
     close(_fd_server);
@@ -65,7 +63,7 @@ Server::Server(const Server& other)
       _pw(other._pw),
       _poll_fds(other._poll_fds),
       _client_list(other._client_list),
-      _irc_commands(other._irc_commands) {}
+      _channel_list(other._channel_list) {}
 
 Server Server::operator=(const Server& other) {
   Server temp(other);
@@ -86,9 +84,9 @@ int Server::add_new_client_to_poll(int client_fd) {
 }
 
 /**
- * @brief function to create and add new client to list of client-class
- * (1) it creates new client class
- * (2) client is add to client class
+ * @brief function to create and add new client to list of client-obj
+ * (1) it creates new client obj
+ * (2) client is add to client obj
  * (3) welcome-message from server gets written to client buffer
  *     and poll event of client fd gets set to POLLIN AND 
  *     POLLOUT (to write welcome message)
@@ -103,7 +101,6 @@ int Server::handle_new_client() {
   DEBUG_PRINT("FD of new client: " << client_fd);
   add_new_client_to_poll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
-  // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT | POLLIN;

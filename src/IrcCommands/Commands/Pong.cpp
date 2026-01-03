@@ -1,17 +1,12 @@
-#include <iostream>
-#include <list>
+#include <string>
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
-#include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
 #include "../IrcCommands.hpp"
 
 /**
  * @brief function to respond to PING command from client
- *
- * TODO
- * (1) Think about behaviour if client is not registered yet
- *     (normally clients should not send PING as long as they are not registered, but what if yes)
+ * it also answers with PONG if client was not yet registered
  */
 int IrcCommands::pong(Server& base, const struct cmd_obj& cmd) {
   std::string out;

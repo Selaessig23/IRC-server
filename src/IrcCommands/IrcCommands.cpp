@@ -37,9 +37,7 @@ IrcCommands::~IrcCommands() {}
  * (1) it checks which command is enquired by client
  * (2) it runs the commands for parsing
  *
- * TODO: handle case if command was not found
- *
- * @return it returns 1 if command was not found
+ * @return it returns != 0 if command was not found
  */
 int IrcCommands::exec_command(Server& base, struct cmd_obj& cmd) {
   function to_execute;
