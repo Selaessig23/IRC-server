@@ -172,10 +172,12 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
 int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
   if (cmd_body.parameters.size() >= 2) {
     std::string to_check = cmd_body.parameters[1];
-    if (to_check.find("42")) {
+    size_t delimiter = to_check.find("42");
+    if (delimiter != std::string::npos) {
       for (std::set<std::string>::iterator it_swear = _swear_words.begin();
            it_swear != _swear_words.end(); it_swear++) {
-        if (to_check.find(*it_swear)) {
+        delimiter = to_check.find(*it_swear);
+	if (delimiter != std::string::npos) {
           std::string out;
           out += ":" + _nick;
           out += " PRIVMSG ";
