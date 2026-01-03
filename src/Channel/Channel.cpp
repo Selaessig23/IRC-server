@@ -203,11 +203,12 @@ std::string Channel::get_modes_string() {
 std::string Channel::get_nicks_string() {
   std::string nicks;
   std::map<Client*, bool>::iterator it = _members.begin();
-  for (; it != _members.end(); it++) {
+  while (it != _members.end()) {
     if (it->second)
       nicks += "@";
     nicks += it->first->get_nick();
-    if (it != _members.end()--)
+    ++it;
+    if (it != _members.end())
       nicks += ", ";
   }
   return (nicks);
