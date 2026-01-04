@@ -141,8 +141,10 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
  * (2) think about changing the parameters
  */
 void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
-                               int numeric_msg_code, bool error,
+                               int numeric_msg_code, bool tmp_error,
                                std::string* msg) {
+  (void)tmp_error;
+  bool error = (numeric_msg_code >= 400) ? true : false;
   std::string out;
   std::stringstream ss;
   ss << std::setfill('0') << std::setw(3) << numeric_msg_code;
@@ -155,9 +157,7 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
     out += cmd.client->get_nick() + " ";
   else
     out += "* ";
-  if (msg)
-    out += *msg;
-  else if (error == true)
+  if (error == true)
     out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code));
   else
     out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code));
