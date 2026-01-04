@@ -29,12 +29,12 @@
  */
 int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.size() < 2) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
@@ -45,7 +45,7 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (it_chan == base._channel_list.end() || base._channel_list.empty()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -56,12 +56,12 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, NULL);
     return (ERR_NOTONCHANNEL);
   }
 
   if (it_chan_mem->second == false) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, NULL);
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -82,14 +82,14 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_kick_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, NULL);
     return (ERR_USERNOTINCHANNEL);
   }
 
   it_chan->remove_from_members(&(*it_kick_nick));
 
   // custom getting kicked message gonna be added HERE:
-  // send_message(base, cmd, RPL_INVITING, false, NULL);
+  // send_message(base, cmd, RPL_INVITING, cmd.client, NULL);
 
   return (1);
 }

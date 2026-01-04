@@ -67,12 +67,12 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  */
 int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NORECIPIENT, true, NULL);
+    send_message(base, cmd, ERR_NORECIPIENT, cmd.client, NULL);
     return (ERR_NORECIPIENT);
   }
 
@@ -89,7 +89,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
   it_para++;
 
   if (it_para == cmd.parameters.end() || it_para->empty()) {
-    send_message(base, cmd, ERR_NOTEXTTOSEND, true, NULL);
+    send_message(base, cmd, ERR_NOTEXTTOSEND, cmd.client, NULL);
     return (ERR_NOTEXTTOSEND);
   }
 
@@ -113,7 +113,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
                        it_chan->get_name());
         }
       } else {
-        send_message(base, cmd, ERR_CANNOTSENDTOCHAN, true, NULL);
+        send_message(base, cmd, ERR_CANNOTSENDTOCHAN, cmd.client, NULL);
         return (ERR_CANNOTSENDTOCHAN);
       }
     } else {
@@ -123,7 +123,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
           it_nick != base._client_list.end()) {
         send_privmsg(base, *cmd.client, *it_nick, msg, "");
       } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()) {
-        send_message(base, cmd, ERR_NOSUCHNICK, true, NULL);
+        send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, NULL);
         return (ERR_NOSUCHNICK);
       }
     }

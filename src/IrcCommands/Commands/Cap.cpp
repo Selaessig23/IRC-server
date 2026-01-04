@@ -11,7 +11,7 @@
  *
  * some versions of clients like irssi v1.2.3 are waiting for this specific response:
  * if (cmd.parameters[0] != "END") {
- *     send_message(base, cmd, ERR_INVALIDCAPCMD, true, NULL);
+ *     send_message(base, cmd, ERR_INVALIDCAPCMD, cmd.client, NULL);
  *     return (ERR_INVALIDCAPCMD);
  * }
  *
@@ -20,11 +20,11 @@
  */
 int IrcCommands::cap(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_INVALIDCAPCMD, true, NULL);
+    send_message(base, cmd, ERR_INVALIDCAPCMD, cmd.client, NULL);
     return (ERR_INVALIDCAPCMD);
   }
   if (cmd.parameters[0] != "END") {
-    send_message(base, cmd, ERR_INVALIDCAPCMD, true, NULL);
+    send_message(base, cmd, ERR_INVALIDCAPCMD, cmd.client, NULL);
     return (ERR_INVALIDCAPCMD);
   }
   std::string response;

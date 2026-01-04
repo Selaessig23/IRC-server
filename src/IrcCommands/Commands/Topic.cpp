@@ -39,12 +39,12 @@
  */
 int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.size() == 0) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
 
@@ -56,19 +56,17 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (base._channel_list.empty() || it_chan == base._channel_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
   if (cmd.parameters.size() == 1) {
     if (it_chan->get_topic().size()) {
       std::string msg = it_chan->get_topic();
-      send_message(base, cmd, RPL_TOPIC, false, &msg);
-      msg = it_chan->get_topic_who() + " set the topic on " +
-            it_chan->get_topic_time();
-      send_message(base, cmd, RPL_TOPICWHOTIME, false, &msg);
+      send_message(base, cmd, RPL_TOPIC, cmd.client, &(*it_chan));
+      send_message(base, cmd, RPL_TOPICWHOTIME, cmd.client, &(*it_chan));
     } else
-      send_message(base, cmd, RPL_NOTOPIC, false, NULL);
+      send_message(base, cmd, RPL_NOTOPIC, cmd.client, &(*it_chan));
     return (1);
   }
 
@@ -79,11 +77,11 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
   if ((it_chan->get_modes() & MODE_TOPIC) && it_chan_mem->second == false) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, &(*it_chan));
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -93,7 +91,7 @@ int IrcCommands::topic(Server& base, const struct cmd_obj& cmd) {
   it_chan_mem = it_chan->get_members().begin();
   for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
     tmp_cmd.client = it_chan_mem->first;
-    send_message(base, tmp_cmd, RPL_TOPIC, false, &msg);
+    send_message(base, tmp_cmd, RPL_TOPIC, it_chan_mem->first, &(*it_chan));
   }
 
   return (1);

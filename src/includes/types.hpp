@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 
 enum PARSE_ERR {

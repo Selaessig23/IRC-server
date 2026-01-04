@@ -14,7 +14,7 @@
  * (1) add all required rpl messages according to rpl_code
  */
 std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
-                                 enum RPL_MSG rpl) {
+                                 enum RPL_MSG rpl, Channel* chan) {
   std::string out;
   switch (rpl) {
     case RPL_WELCOME:
@@ -35,22 +35,22 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
     case RPL_CHANNELMODEIS:
-      return ("<channel> <modestring> <mode arguments>...");
+      return (chan->get_name() + " Modes: [" + chan->get_modes_string() + "]");
     case RPL_CREATIONTIME:
-      return ("<channel> <creationtime>");
+      return (chan->get_name() + " is created on " + chan->get_creation_time());
     case RPL_NOTOPIC:
-      return ("<channel> :No topic is set");
+      return (chan->get_name() + " :No topic is set");
     case RPL_TOPIC:
-      return ("<channel> topic: ");
+      return (chan->get_name() + " topic: " + chan->get_topic());
     case RPL_TOPICWHOTIME:
-      return ("<channel> topic is set by ");
+      return (chan->get_name() + " topic is set by " + chan->get_topic_who() +
+              " on " + chan->get_topic_time());
     case RPL_INVITING:
       return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
-      return (
-          "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
+      return (chan->get_name() + " " + chan->get_nicks_string());  //to be added
     case RPL_ENDOFNAMES:
-      return ("<channel> :End of /NAMES list");  //to be added
+      return (chan->get_name() + " :End of /NAMES list");  //to be added
     case RPL_YOUREOPER:
       return (":You are now an IRC operator");
     default:
@@ -66,7 +66,7 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
  * (2) maybe remove paramter base if not required
  */
 std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
-                                   enum PARSE_ERR err) {
+                                   enum PARSE_ERR err, Channel* chan) {
   (void)base;
   std::string out;
   std::string source;
@@ -80,9 +80,9 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NOSUCHNICK:
       return (source + " :No such nick/channel");
     case ERR_NOSUCHCHANNEL:
-      return ("<channel> :No such channel");
+      return (cmd.parameters[0] + " :No such channel");
     case ERR_CANNOTSENDTOCHAN:
-      return ("<channel> :No such channel");
+      return (cmd.parameters[0] + " :No such channel");
     case ERR_INVALIDCAPCMD:
       return (source + " :Cannot handle CAP command with this target");
     case ERR_NORECIPIENT:
@@ -103,11 +103,11 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
       return (source + " :Nickname collision KILL from " +
               cmd.client->get_user() + "@" + cmd.client->get_host());
     case ERR_USERNOTINCHANNEL:
-      return ("<nick> <channel> :They aren't on that channel");
+      return ("<nick> " + chan->get_name() + " :They aren't on that channel");
     case ERR_NOTONCHANNEL:
-      return ("<channel> :You're not on that channel");
+      return (chan->get_name() + " :You're not on that channel");
     case ERR_USERONCHANNEL:
-      return ("<nick> <channel> :is already on channel");
+      return ("<nick> " + chan->get_name() + " :is already on channel");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -117,15 +117,15 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_PASSWDMISMATCH:
       return (" :Password incorrect");
     case ERR_CHANNELISFULL:
-      return (" <channel> :Cannot join channel (+l)");
+      return (chan->get_name() + " :Cannot join channel (+l)");
     case ERR_INVITEONLYCHAN:
-      return (" <channel> :Cannot join channel (+i)");
+      return (chan->get_name() + " :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
-      return (" <channel> :Cannot join channel (+k)");
+      return (chan->get_name() + " :Cannot join channel (+k)");
     case ERR_NOPRIVILEGES:
       return (" :Permission Denied- You're not an IRC operator");
     case ERR_CHANOPRIVSNEEDED:
-      return ("<channel> :You're not channel operator");
+      return (chan->get_name() + " :You're not channel operator");
     default:
       return (out);
   }
@@ -141,9 +141,8 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
  * (2) think about changing the parameters
  */
 void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
-                               int numeric_msg_code, bool tmp_error,
-                               std::string* msg) {
-  (void)tmp_error;
+                               int numeric_msg_code, Client* target,
+                               Channel* chan) {
   bool error = (numeric_msg_code >= 400) ? true : false;
   std::string out;
   std::stringstream ss;
@@ -151,19 +150,18 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
 
   out += ":";
   out += base._server_name + " ";
-  if (!msg)
-    out += ss.str() + " ";
+  out += ss.str() + " ";
   if (!cmd.client->get_nick().empty())
     out += cmd.client->get_nick() + " ";
   else
     out += "* ";
   if (error == true)
-    out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code));
+    out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code), chan);
   else
-    out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code));
+    out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code), chan);
   out += "\r\n";
-  cmd.client->add_client_out(out);
-  base.set_pollevent(cmd.client->get_client_fd(), POLLOUT);
+  target->add_client_out(out);
+  base.set_pollevent(target->get_client_fd(), POLLOUT);
 }
 
 /**

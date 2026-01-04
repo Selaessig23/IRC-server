@@ -108,7 +108,7 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
               msg += "o";
               msg_param += " " + cmd.parameters[param_ind];
             } else
-              send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+              send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, chan);
             param_ind++;
           }
           break;
@@ -159,16 +159,16 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
 
 int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
 
   } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&')) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -178,17 +178,15 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan == base._channel_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
   if (cmd.parameters.size() == 1) {
     std::string msg =
         it_chan->get_name() + " Modes: [" + it_chan->get_modes_string() + "]";
-    send_message(base, cmd, RPL_CHANNELMODEIS, false, &msg);
-
-    msg = it_chan->get_creation_time();
-    send_message(base, cmd, RPL_CREATIONTIME, false, &msg);
+    send_message(base, cmd, RPL_CHANNELMODEIS, cmd.client, &(*it_chan));
+    send_message(base, cmd, RPL_CREATIONTIME, cmd.client, &(*it_chan));
     return (0);
   }
 
@@ -199,11 +197,11 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
   if (!it_chan_mem->second) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, &(*it_chan));
     return (ERR_CHANOPRIVSNEEDED);
   }
 
