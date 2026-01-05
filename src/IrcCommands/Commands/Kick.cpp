@@ -105,14 +105,6 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   Client* tmp_kick_cli = &(*it_kick_mem->first);
   it_chan->remove_from_members(&(*it_kick_nick));
 
-  // cmd_obj tmp_cmd;
-  // tmp_cmd.command = cmd.command;
-  // tmp_cmd.client = cmd.client;
-  // for (std::vector<std::string>::const_iterator tmp_it = cmd.parameters.begin();
-  //      tmp_it != cmd.parameters.end(); tmp_it++) {
-  //   tmp_cmd.parameters.push_back(*tmp_it);
-  // }
-
   send_kick_message(base, cmd, cmd.client, &(*it_chan));
   if (cmd.client != tmp_kick_cli)
     send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
