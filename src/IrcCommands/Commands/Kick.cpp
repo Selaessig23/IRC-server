@@ -9,14 +9,30 @@
 #include "../IrcCommands.hpp"
 
 /**
+  * @brief function that structures INVITE message and sends it to the target client.
+  */
+void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
+                                    Client* target, Channel* chan) {
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " kicked " + target->get_nick();
+  msg += " from " + chan->get_name();
+  if (cmd.parameters.size() > 2)
+    msg += ". Reason: " + cmd.parameters[2];
+  msg += "\r\n";
+  target->add_client_out(msg);
+  base.set_pollevent(target->get_client_fd(), POLLOUT);
+}
+
+/**
  * @brief KICK command is used to remove members from channels
  * Only operaators of the channel can remove other members
  * KICK <channel> <user> *( "," <user> ) [<comment>]
  * 
  * TODO:
- * (1) implement message sending with [<comment>]
- *      if [<comment>] isn't passed then a default message
- * (2) implement multi-kick at a single call
+ * (1) implement multi-kick at a single call
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -56,12 +72,12 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
 
   if (it_chan_mem->second == false) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, &(*it_chan));
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -82,14 +98,14 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_kick_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, NULL);
+    send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, &(*it_chan));
     return (ERR_USERNOTINCHANNEL);
   }
 
   it_chan->remove_from_members(&(*it_kick_nick));
 
-  // custom getting kicked message gonna be added HERE:
-  // send_message(base, cmd, RPL_INVITING, cmd.client, NULL);
+  send_kick_message(base, cmd, cmd.client, &(*it_chan));
+  send_kick_message(base, cmd, it_kick_mem->first, &(*it_chan));
 
   return (1);
 }

@@ -21,10 +21,6 @@
  * 
  * If <topic> is an empty string, the topic is cleared.
  * After a successful topic change all the members are informed with RPL_TOPIC.
- * 
- * TODO:
- * (1) RPL_TOPIC is improper and command issuer client is wrong when it's broadcasted!
- * They are all going to be  adapted to new send_message() structure.
  *  
  * @return ERR in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)

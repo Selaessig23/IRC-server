@@ -56,6 +56,8 @@ class IrcCommands {
                          Client* target, Channel* chan);
   void send_invite_message(Server& base, const struct cmd_obj& cmd,
                            Client* target, Channel* chan);
+  void send_kick_message(Server& base, const struct cmd_obj& cmd,
+                         Client* target, Channel* chan);
 
  public:
   IrcCommands();

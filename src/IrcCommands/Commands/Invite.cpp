@@ -18,7 +18,7 @@ void IrcCommands::send_invite_message(Server& base, const struct cmd_obj& cmd,
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
   msg += " invites " + target->get_nick();
-  msg += " to the " + chan->get_name();
+  msg += " to " + chan->get_name();
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);

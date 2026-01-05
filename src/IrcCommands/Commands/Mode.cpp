@@ -35,10 +35,6 @@ void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
  * 
  * After modes updating is done, it broadcasts the MODE reply message
  * that shows actual changes made on modes to the channel.
- * 
- * TODO:
- * (1) All message sending functionalities in the file works now 
- * but are going to be adapted to last send_message() version
  *  
  * @return 0 or error codes:
  * ERR_USERNOTINCHANNEL (441)
