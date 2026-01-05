@@ -6,12 +6,14 @@
 #include <string>
 #include <vector>
 #include "../Client/Client.hpp"
+#include "../IrcCommands/IrcCommands.hpp"
 #include "../Server/Server.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
 Channel::Channel(std::string name)
     : _name(name),
+      _creation_time(get_current_date_time()),
       _topic(),
       _topic_time(),
       _topic_who(),
@@ -19,13 +21,11 @@ Channel::Channel(std::string name)
       _user_limit(),
       _modes(MODE_TOPIC) {
   DEBUG_PRINT("Channel is created");
-#ifdef DEBUG
-  print_channel_info();
-#endif
 }
 
 Channel::Channel(const Channel& other)
     : _name(other._name),
+      _creation_time(other._creation_time),
       _topic(other._topic),
       _topic_time(other._topic_time),
       _topic_who(other._topic_who),
@@ -54,10 +54,6 @@ void Channel::new_member(Client* _new, bool is_oper) {
 
 void Channel::new_invited(Client* _new) {
   _invited.push_back(_new);
-  DEBUG_PRINT("The user is invited to the channel");
-#ifdef DEBUG
-  print_channel_info();
-#endif
 }
 
 void Channel::remove_from_members(Client* removal) {
@@ -111,8 +107,12 @@ void Channel::adjust_modes(int mode, bool status) {
 }
 
 // GETTERS
-std::string& Channel::get_name() {
+const std::string& Channel::get_name() {
   return (_name);
+}
+
+std::string Channel::get_creation_time() {
+  return (_creation_time);
 }
 
 std::string Channel::get_topic() {
@@ -200,6 +200,20 @@ std::string Channel::get_modes_string() {
   return (str);
 }
 
+std::string Channel::get_nicks_string() {
+  std::string nicks;
+  std::map<Client*, bool>::iterator it = _members.begin();
+  while (it != _members.end()) {
+    if (it->second)
+      nicks += "@";
+    nicks += it->first->get_nick();
+    ++it;
+    if (it != _members.end())
+      nicks += ", ";
+  }
+  return (nicks);
+}
+
 /**
  * @brief channel info to show each in the events of successful 
  * JOIN or MODE calls
@@ -207,6 +221,7 @@ std::string Channel::get_modes_string() {
  */
 
 void Channel::print_channel_info() {
+  std::cout << get_name() << std::endl;
   std::cout << get_modes_string() << std::endl;
   std::cout << "Members[" << _members.size() << "]: ";
   for (std::map<Client*, bool>::iterator it = _members.begin();

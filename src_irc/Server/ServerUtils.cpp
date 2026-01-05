@@ -29,7 +29,7 @@ std::string get_current_date_time() {
 
 static void debug_parsed_cmds(cmd_obj& cmd_body) {
 
-  std::cout << "\nCMD_BDY: " << std::endl;
+  std::cout << "CMD_BDY: " << std::endl;
   if (cmd_body.error)
     std::cout << "ERR: " << cmd_body.error << std::endl;
   if (!cmd_body.tags.empty())

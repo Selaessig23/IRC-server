@@ -166,3 +166,8 @@ int Server::init() {
     return (1);
   return 0;
 }
+
+// Getters
+std::list<Channel>& Server::get_channel_list() {
+  return (_channel_list);
+}
