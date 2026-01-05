@@ -9,7 +9,7 @@
 #include "../IrcCommands.hpp"
 
 /**
-  * @brief function that structures INVITE message and sends it to the target client.
+  * @brief function that structures KICK message and sends it to the target client.
   */
 void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
                                     Client* target, Channel* chan) {
