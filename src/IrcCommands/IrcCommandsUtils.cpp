@@ -35,22 +35,31 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
     case RPL_CHANNELMODEIS:
-      return (chan->get_name() + " Modes: [" + chan->get_modes_string() + "]");
+      if (chan)
+        return (chan->get_name() + " Modes: [" + chan->get_modes_string() +
+                "]");
     case RPL_CREATIONTIME:
-      return (chan->get_name() + " is created on " + chan->get_creation_time());
+      if (chan)
+        return (chan->get_name() + " is created on " +
+                chan->get_creation_time());
     case RPL_NOTOPIC:
-      return (chan->get_name() + " :No topic is set");
+      if (chan)
+        return (chan->get_name() + " :No topic is set");
     case RPL_TOPIC:
-      return (chan->get_name() + " topic: " + chan->get_topic());
+      if (chan)
+        return (chan->get_name() + " topic: " + chan->get_topic());
     case RPL_TOPICWHOTIME:
-      return (chan->get_name() + " topic is set by " + chan->get_topic_who() +
-              " on " + chan->get_topic_time());
+      if (chan)
+        return (chan->get_name() + " topic is set by " + chan->get_topic_who() +
+                " on " + chan->get_topic_time());
     case RPL_INVITING:
       return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
-      return (chan->get_name() + " " + chan->get_nicks_string());
+      if (chan)
+        return (chan->get_name() + " " + chan->get_nicks_string());
     case RPL_ENDOFNAMES:
-      return (chan->get_name() + " :End of /NAMES list");
+      if (chan)
+        return (chan->get_name() + " :End of /NAMES list");
     case RPL_YOUREOPER:
       return (":You are now an IRC operator");
     default:
@@ -103,11 +112,14 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
       return (source + " :Nickname collision KILL from " +
               cmd.client->get_user() + "@" + cmd.client->get_host());
     case ERR_USERNOTINCHANNEL:
-      return ("<nick> " + chan->get_name() + " :They aren't on that channel");
+      if (chan)
+        return ("<nick> " + chan->get_name() + " :They aren't on that channel");
     case ERR_NOTONCHANNEL:
-      return (chan->get_name() + " :You're not on that channel");
+      if (chan)
+        return (chan->get_name() + " :You're not on that channel");
     case ERR_USERONCHANNEL:
-      return ("<nick> " + chan->get_name() + " :is already on channel");
+      if (chan)
+        return ("<nick> " + chan->get_name() + " :is already on channel");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -117,15 +129,19 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_PASSWDMISMATCH:
       return (" :Password incorrect");
     case ERR_CHANNELISFULL:
-      return (chan->get_name() + " :Cannot join channel (+l)");
+      if (chan)
+        return (chan->get_name() + " :Cannot join channel (+l)");
     case ERR_INVITEONLYCHAN:
-      return (chan->get_name() + " :Cannot join channel (+i)");
+      if (chan)
+        return (chan->get_name() + " :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
-      return (chan->get_name() + " :Cannot join channel (+k)");
+      if (chan)
+        return (chan->get_name() + " :Cannot join channel (+k)");
     case ERR_NOPRIVILEGES:
       return (" :Permission Denied- You're not an IRC operator");
     case ERR_CHANOPRIVSNEEDED:
-      return (chan->get_name() + " :You're not channel operator");
+      if (chan)
+        return (chan->get_name() + " :You're not channel operator");
     default:
       return (out);
   }
