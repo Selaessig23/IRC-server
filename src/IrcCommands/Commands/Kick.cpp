@@ -29,7 +29,7 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
 
 /**
  * @brief KICK command is used to remove members from channels
- * Only operaators of the channel can remove other members
+ * Only operators of the channel can remove other members
  * KICK <channel> <user> *( "," <user> ) [<comment>]
  * 
  * TODO:
