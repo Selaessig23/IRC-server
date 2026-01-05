@@ -67,8 +67,6 @@ class IrcCommands {
   int exec_command(Server& base, struct cmd_obj& cmd);
   void send_message(Server& base, const cmd_obj& cmd, int numeric_msg_code,
                     Client* target, Channel* chan);
-  //   void send_message(Server& base, const cmd_obj& cmd, int numeric_msg_code,
-  //                     Client* target, const msg_elem& msg);
 };
 
 #endif  //IRCCOMMANDS_HPP
