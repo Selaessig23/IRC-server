@@ -93,7 +93,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (it_inv_cli == base._client_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, &(*it_chan));
+    send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, NULL);
     return (ERR_NOSUCHNICK);
   }
 
