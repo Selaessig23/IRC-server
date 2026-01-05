@@ -10,30 +10,159 @@
 #include "../IrcCommands.hpp"
 
 /**
- * @brief MODE command to set channel's following modes:
+  * @brief function that structures MODE reply message and sends it to the target client.
+  */
+void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
+                                    Client* target, Channel* chan,
+                                    const std::string& update) {
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " MODE " + chan->get_name() + " [" + update + "]";
+  msg += "\r\n";
+  target->add_client_out(msg);
+  base.set_pollevent(target->get_client_fd(), POLLOUT);
+}
+
+/**
+ * @brief this function sets or unsets the following modes of channels:
  * i: Set/remove Invite-only channel
  * t: Set/remove the restrictions of the TOPIC command to channel
  * k: Set/remove the channel key (password)
  * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
- * Usage: MODE <channel> [<modestring> [<mode arguments>...]]
- * e.g. MODE #chan42 +iklo <key> <limit> <nickname>
+ * 
+ * After modes updating is done, it broadcasts the MODE reply message
+ * that shows actual changes made on modes to the channel.
  * 
  * TODO:
- * (1) send_channel_message is going to be implemented
- * (2) implement respective ERR
- * (3) implement resprective RPL
+ * (1) All message sending functionalities in the file works now 
+ * but are going to be adapted to last send_message() version
  *  
- * @return 0, in case of an error it returns error codes:
- * ERR_NOSUCHCHANNEL (403)
+ * @return 0 or error codes:
  * ERR_USERNOTINCHANNEL (441)
- * ERR_CHANOPRIVSNEEDED (482)
- * RPL_CHANNELMODEIS (324)
- * RPL_CREATIONTIME (329)
+ * in case of an error
  * 
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
+
+int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
+                              Channel* chan) {
+  const std::string modestring = cmd.parameters[1];
+  unsigned long param_ind = 2;
+  std::string msg;
+  std::string msg_param;
+  if (modestring[0] == '-' || modestring[0] == '+') {
+    bool sign = (modestring[0] == '+') ? true : false;
+    msg = sign ? "+" : "-";
+    for (std::string::const_iterator it = modestring.begin() + 1;
+         it != modestring.end(); it++) {
+      switch (*it) {
+        case '+':
+          sign = true;
+          msg += "+";
+          break;
+        case '-':
+          sign = false;
+          msg += "-";
+          break;
+        case 'i':
+          chan->adjust_modes(MODE_INVITE, sign);
+          msg += "i";
+          break;
+        case 'k':
+          if (!sign) {
+            chan->set_key("");
+            chan->adjust_modes(MODE_KEY, sign);
+            msg += "k";
+          } else if (sign && param_ind < cmd.parameters.size()) {
+            chan->set_key(cmd.parameters[param_ind]);
+            chan->adjust_modes(MODE_KEY, sign);
+            msg += "k";
+            msg_param += " " + cmd.parameters[param_ind];
+            param_ind++;
+          }
+          break;
+        case 'l':
+          if (!sign) {
+            chan->set_user_limit(0);
+            chan->adjust_modes(MODE_LIMIT, sign);
+            msg += "l";
+          } else if (sign && param_ind < cmd.parameters.size()) {
+            chan->set_user_limit(
+                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
+            chan->adjust_modes(MODE_LIMIT, sign);
+            msg += "l";
+            msg_param += " " + cmd.parameters[param_ind];
+            param_ind++;
+          }
+          break;
+        case 't':
+          chan->adjust_modes(MODE_TOPIC, sign);
+          msg += "t";
+          break;
+        case 'o':
+          if (param_ind < cmd.parameters.size()) {
+            if (chan->update_chanops_stat(cmd.parameters[param_ind], sign)) {
+              msg += "o";
+              msg_param += " " + cmd.parameters[param_ind];
+            } else
+              send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+            param_ind++;
+          }
+          break;
+      }
+    }
+    std::cout << "msg: " << msg << std::endl;
+    std::cout << "msg_param: " << msg_param << std::endl;
+  }
+  msg += msg_param;
+  if (msg.size() >= 2 &&
+      ((msg[0] == '-' && msg[1] == '+') || (msg[0] == '+' && msg[1] == '-')))
+    msg.erase(0, 1);
+
+  for (std::map<Client*, bool>::iterator it_chan_mem =
+           chan->get_members().begin();
+       it_chan_mem != chan->get_members().end(); it_chan_mem++)
+    send_mode_message(base, cmd, it_chan_mem->first, chan, msg);
+
+  DEBUG_PRINT(chan->get_name()
+              << " Modes: [" << chan->get_modes_string() << "]" << std::endl);
+  return (1);
+}
+
+/**
+ * @brief MODE command to set channel's following modes:
+ * In the following all necessary checks are getting done before the actual updating
+ * takes place. If all the requirements are made update_modes() is called.
+ * Otherwise an error code is returned. 
+ * 
+ * Command Usage: 
+ * MODE <channel> [<modestring> [<mode arguments>...]]
+ * e.g. MODE #chan42 +iklo <key> <limit> <nickname>
+ * 
+ * TODO:
+ * (1) All message sending functionalities in the file works now 
+ * but are going to be adapted to last send_message() version
+ *  
+ * @return 0 or error codes:
+ * ERR_NOSUCHCHANNEL (403)
+ * ERR_USERNOTINCHANNEL (441)
+ * ERR_NEEDMOREPARAMS (461)
+ * ERR_CHANOPRIVSNEEDED (482)
+ * RPL_CHANNELMODEIS (324)
+ * RPL_CREATIONTIME (329)
+ * in case of an error
+ * 
+ * @return it returns 1 if command and password is correct, otherwise it returns 0
+ */
+
 int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    return (ERR_NOTREGISTERED);
+  }
 
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
@@ -49,13 +178,18 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
     if (it_chan->get_name() == cmd.parameters[0])
       break;
   }
-  if (it_chan == base._channel_list.end())
+  if (it_chan == base._channel_list.end()) {
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
     return (ERR_NOSUCHCHANNEL);
+  }
 
   if (cmd.parameters.size() == 1) {
-    std::cout << it_chan->get_name() << " Modes: ["
-              << it_chan->get_modes_string() << "]" << std::endl;
-    it_chan->print_channel_info();
+    std::string msg =
+        it_chan->get_name() + " Modes: [" + it_chan->get_modes_string() + "]";
+    send_message(base, cmd, RPL_CHANNELMODEIS, false, &msg);
+
+    msg = it_chan->get_creation_time();
+    send_message(base, cmd, RPL_CREATIONTIME, false, &msg);
     return (0);
   }
 
@@ -74,53 +208,5 @@ int IrcCommands::mode(Server& base, const struct cmd_obj& cmd) {
     return (ERR_CHANOPRIVSNEEDED);
   }
 
-  const std::string modes = cmd.parameters[1];
-  int param_ind = 2;
-  if (modes[0] == '-' || modes[0] == '+') {
-    bool sign = (modes[0] == '+');
-    std::string::const_iterator it = modes.begin() + 1;
-    for (; it != modes.end(); it++) {
-      switch (*it) {
-        case 'i':
-          it_chan->adjust_modes(MODE_INVITE, sign);
-          break;
-        case 'k':
-          if (!sign) {
-            it_chan->set_key("");
-            it_chan->adjust_modes(MODE_KEY, sign);
-          } else if (sign && cmd.parameters.size() >= 3) {
-            it_chan->set_key(cmd.parameters[param_ind]);
-            it_chan->adjust_modes(MODE_KEY, sign);
-            param_ind++;
-          }
-          break;
-        case 'l':
-          if (!sign) {
-            it_chan->set_user_limit(0);
-            it_chan->adjust_modes(MODE_LIMIT, sign);
-          } else if (sign && cmd.parameters.size() >= 3) {
-            it_chan->set_user_limit(
-                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
-            it_chan->adjust_modes(MODE_LIMIT, sign);
-            param_ind++;
-          }
-          break;
-        case 't':
-          it_chan->adjust_modes(MODE_TOPIC, sign);
-          break;
-        case 'o':
-          if (cmd.parameters.size() >= 3) {
-            if (it_chan->update_chanops_stat(cmd.parameters[param_ind], sign))
-              send_message(base, cmd, NO_ERR, false, NULL);
-            else
-              send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
-            param_ind++;
-          }
-          break;
-      }
-    }
-  }
-  std::cout << it_chan->get_name() << " Modes: [" << it_chan->get_modes_string()
-            << "]" << std::endl;
-  return (0);
+  return (update_modes(base, cmd, &(*it_chan)));
 }

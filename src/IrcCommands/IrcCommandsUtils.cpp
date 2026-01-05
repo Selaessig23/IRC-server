@@ -34,14 +34,18 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       return (" :No ident server\nUser gets registered with username\n" +
               cmd.client->get_user() + " and real name " +
               cmd.client->get_realname());
+    case RPL_CHANNELMODEIS:
+      return ("<channel> <modestring> <mode arguments>...");
+    case RPL_CREATIONTIME:
+      return ("<channel> <creationtime>");
     case RPL_NOTOPIC:
-      return (cmd.parameters[0] + " :No topic is set");
+      return ("<channel> :No topic is set");
     case RPL_TOPIC:
-      return (cmd.parameters[0] + " topic: ");
+      return ("<channel> topic: ");
     case RPL_TOPICWHOTIME:
-      return (cmd.parameters[0] + " topic is set by ");
+      return ("<channel> topic is set by ");
     case RPL_INVITING:
-      return ("<client> <nick> <channel> :INVITES YOU");  // to be adjusted
+      return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
       return (
           "<symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}");  //to be added
@@ -99,11 +103,11 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
       return (source + " :Nickname collision KILL from " +
               cmd.client->get_user() + "@" + cmd.client->get_host());
     case ERR_USERNOTINCHANNEL:
-      return ("<client> <nick> <channel> :They aren't on that channel");
+      return ("<nick> <channel> :They aren't on that channel");
     case ERR_NOTONCHANNEL:
-      return ("<client> <channel> :You're not on that channel");
+      return ("<channel> :You're not on that channel");
     case ERR_USERONCHANNEL:
-      return ("<client> <nick> <channel> :is already on channel");
+      return ("<nick> <channel> :is already on channel");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -121,7 +125,7 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_NOPRIVILEGES:
       return (" :Permission Denied- You're not an IRC operator");
     case ERR_CHANOPRIVSNEEDED:
-      return ("<client> <channel> :You're not channel operator");
+      return ("<channel> :You're not channel operator");
     default:
       return (out);
   }

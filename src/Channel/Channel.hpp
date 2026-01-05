@@ -29,6 +29,7 @@ class Channel {
 
  private:
   std::string _name;
+  std::string _creation_time;
   std::string _topic;
   std::string _topic_time;
   std::string _topic_who;
@@ -44,7 +45,6 @@ class Channel {
   int _modes;
 
  public:
-  Channel();
   Channel(std::string name);
   Channel(const Channel& other);
   Channel& operator=(const Channel& other);
@@ -61,7 +61,8 @@ class Channel {
   bool update_chanops_stat(std::string nick, bool status);
 
   // Getters
-  std::string& get_name();
+  const std::string& get_name();
+  std::string get_creation_time();
   std::string get_topic();
   std::string get_topic_time();
   std::string get_topic_who();
@@ -72,6 +73,7 @@ class Channel {
   size_t get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
+  std::string get_nicks_string();
   std::map<Client*, bool>& get_members();
   std::list<Client*>& get_invited();
 

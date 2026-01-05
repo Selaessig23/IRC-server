@@ -44,7 +44,7 @@ namespace Parsing {
     std::string current_command = received_packs.substr(0, delimiter);
     command_body.client->clip_current_command(delimiter);
 #ifdef DEBUG
-    std::cout << "Current command: " << current_command << std::endl;
+    std::cout << "\nCurrent command: " << current_command << std::endl;
 #endif
 
     std::string token;
