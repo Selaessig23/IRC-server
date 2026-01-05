@@ -35,10 +35,11 @@ Server::Server(int port, std::string& pw)
       _irc_commands(new IrcCommands()) {
   //created at
   _created_at = get_current_date_time();
-  _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
-  if (_fd_server < 0)
+  if (_fd_server < 0) {
+    delete _irc_commands;
     throw std::runtime_error("Socket creation error.");
+  }
   int opt = 1;
   setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   std::memset(&_addr, 0, sizeof(_addr));
@@ -48,6 +49,7 @@ Server::Server(int port, std::string& pw)
   // Assign socket to IP & Port
   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr),
            sizeof(_addr)) < 0) {
+    delete _irc_commands;
     close(_fd_server);
     throw std::runtime_error("Binding Error.");
   }
