@@ -117,14 +117,14 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
   if (msg.size() >= 2 &&
       ((msg[0] == '-' && msg[1] == '+') || (msg[0] == '+' && msg[1] == '-')))
     msg.erase(0, 1);
+  else if (msg.size() < 4)
+    return (0);
 
   for (std::map<Client*, bool>::iterator it_chan_mem =
            chan->get_members().begin();
        it_chan_mem != chan->get_members().end(); it_chan_mem++)
     send_mode_message(base, cmd, it_chan_mem->first, chan, msg);
 
-  DEBUG_PRINT(chan->get_name()
-              << " Modes: [" << chan->get_modes_string() << "]" << std::endl);
   return (1);
 }
 

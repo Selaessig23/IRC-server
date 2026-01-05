@@ -17,7 +17,7 @@ void IrcCommands::send_part_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " has left the " + chan->get_name();
+  msg += " PART " + chan->get_name();
   if (cmd.parameters.size() > 1)
     msg += " :" + cmd.parameters[1];
   msg += "\r\n";

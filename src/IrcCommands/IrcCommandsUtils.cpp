@@ -48,9 +48,9 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
     case RPL_INVITING:
       return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
-      return (chan->get_name() + " " + chan->get_nicks_string());  //to be added
+      return (chan->get_name() + " " + chan->get_nicks_string());
     case RPL_ENDOFNAMES:
-      return (chan->get_name() + " :End of /NAMES list");  //to be added
+      return (chan->get_name() + " :End of /NAMES list");
     case RPL_YOUREOPER:
       return (":You are now an IRC operator");
     default:

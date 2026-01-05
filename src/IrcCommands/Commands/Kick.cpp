@@ -1,5 +1,6 @@
 #include <iostream>
 #include <list>
+#include <vector>
 #include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
@@ -17,10 +18,10 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " kicked " + target->get_nick();
-  msg += " from " + chan->get_name();
+  msg += " KICK " + chan->get_name();
+  msg += " " + cmd.parameters[1];
   if (cmd.parameters.size() > 2)
-    msg += ". Reason: " + cmd.parameters[2];
+    msg += " : " + cmd.parameters[2];
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
@@ -101,11 +102,23 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
     send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, &(*it_chan));
     return (ERR_USERNOTINCHANNEL);
   }
-
+  Client* tmp_kick_cli = &(*it_kick_mem->first);
   it_chan->remove_from_members(&(*it_kick_nick));
 
+  // cmd_obj tmp_cmd;
+  // tmp_cmd.command = cmd.command;
+  // tmp_cmd.client = cmd.client;
+  // for (std::vector<std::string>::const_iterator tmp_it = cmd.parameters.begin();
+  //      tmp_it != cmd.parameters.end(); tmp_it++) {
+  //   tmp_cmd.parameters.push_back(*tmp_it);
+  // }
+
   send_kick_message(base, cmd, cmd.client, &(*it_chan));
-  send_kick_message(base, cmd, it_kick_mem->first, &(*it_chan));
+  if (cmd.client != tmp_kick_cli)
+    send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
+
+  if (it_chan->get_members_size() == 0)
+    base._channel_list.erase(it_chan);
 
   return (1);
 }

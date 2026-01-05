@@ -25,7 +25,7 @@ void IrcCommands::send_join_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " has joined the " + chan->get_name();
+  msg += " JOIN " + chan->get_name();
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
