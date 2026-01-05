@@ -21,7 +21,7 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
   msg += " KICK " + chan->get_name();
   msg += " " + cmd.parameters[1];
   if (cmd.parameters.size() > 2)
-    msg += " : " + cmd.parameters[2];
+    msg += " :" + cmd.parameters[2];
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
