@@ -105,7 +105,13 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   Client* tmp_kick_cli = &(*it_kick_mem->first);
   it_chan->remove_from_members(&(*it_kick_nick));
 
-  send_kick_message(base, cmd, cmd.client, &(*it_chan));
+  // Broadcast KICK message to all remaining channel members
+  std::map<Client*, bool>::iterator it_broadcast =
+      it_chan->get_members().begin();
+  for (; it_broadcast != it_chan->get_members().end(); ++it_broadcast) {
+    send_kick_message(base, cmd, it_broadcast->first, &(*it_chan));
+  }
+  // Also send KICK message to the kicked client
   if (cmd.client != tmp_kick_cli)
     send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
 
