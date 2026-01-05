@@ -171,7 +171,7 @@ void IrcCommands::send_message(Server& base, const cmd_obj& cmd,
     out += cmd.client->get_nick() + " ";
   else
     out += "* ";
-  if (error == true)
+  if (error)
     out += get_error(base, cmd, static_cast<PARSE_ERR>(numeric_msg_code), chan);
   else
     out += get_rpl(base, cmd, static_cast<RPL_MSG>(numeric_msg_code), chan);

@@ -5,11 +5,11 @@
 #include <list>
 #include <map>
 #include <vector>
-#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../includes/types.hpp"
 
-class Server;  //forward declaration
+class Server;   //forward declaration
+class Channel;  //forward declaration
 
 class IrcCommands {
  private:

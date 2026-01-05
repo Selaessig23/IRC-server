@@ -117,7 +117,7 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
   if (msg.size() >= 2 &&
       ((msg[0] == '-' && msg[1] == '+') || (msg[0] == '+' && msg[1] == '-')))
     msg.erase(0, 1);
-  else if (msg.size() < 4)
+  else if (msg == "[+]" || msg == "[-]")
     return (0);
 
   for (std::map<Client*, bool>::iterator it_chan_mem =
