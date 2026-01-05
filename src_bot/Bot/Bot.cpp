@@ -148,13 +148,17 @@ void Bot::clip_current_command(size_t delimiter) {
  */
 void Bot::handle_pollout(struct pollfd& pfd) {
 
-  int size_sent =
-      send(pfd.fd, _output_buffer.c_str(), strlen(_output_buffer.c_str()), 0);
+  //   int size_sent =
+  //       send(pfd.fd, _output_buffer.c_str(), strlen(_output_buffer.c_str()), 0);
+  int size_sent = send(pfd.fd, _output_buffer.data(), _output_buffer.size(), 0);
   std::string new_out = _output_buffer;
   new_out.erase(0, size_sent);
   _output_buffer = new_out;
-  if (_output_buffer.empty())
+  DEBUG_PRINT("outbutbuffer empty? " << _output_buffer);
+  if (_output_buffer.empty()) {
+    DEBUG_PRINT("outbutbuffer bot empty");
     pfd.events &= ~POLLOUT;
+  }
 }
 
 #ifdef DEBUG
@@ -192,6 +196,8 @@ static void debug_parsed_cmds(cmd_obj& cmd_body) {
  */
 int Bot::handle_pollin(struct pollfd& pfd) {
 
+  static int count_register = 1;
+  static int count_oper = 0;
   char buf[8750];
   int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
 
@@ -235,6 +241,23 @@ int Bot::handle_pollin(struct pollfd& pfd) {
       handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
       check_for_swears(cmd_body, pfd);  // sanctioning
+    else {
+      if (_registered == false && count_register >= 4) {
+        DEBUG_PRINT("Error in registration process at IRC-server");
+        return (1);
+      } else if (_registered == false) {
+        count_register += 1;
+        register_at_irc(pfd);
+      } else if (_registered == true && _operator == false && count_oper == 4) {
+        count_oper += 1;
+        DEBUG_PRINT(
+            "No operator-status possible at IRC-server, Bot can only sanction "
+            "clients, no KILL");
+      } else if (_registered == true && _operator == false && count_oper < 4) {
+        count_oper += 1;
+        become_operator(pfd);
+      }
+    }
   }
   return (0);
 }
@@ -252,36 +275,38 @@ int Bot::handle_pollin(struct pollfd& pfd) {
  * disconnection from server-side)
  */
 int Bot::init_poll() {
-  int count_register = 0;
-  int count_oper = 0;
+  //   int count_register = 1;
+  //   int count_oper = 0;
   struct pollfd client_poll;
   client_poll.fd = _client_fd;
   client_poll.events = POLLIN;
   client_poll.revents = 0;
+  register_at_irc(client_poll);
   while (1) {
-    poll(&client_poll, 1, 6000);
+    poll(&client_poll, 1, -1);
     if (client_poll.revents & POLLIN) {
       if (handle_pollin(client_poll))
         return (1);
-    }
-    if (_registered == false && count_register >= 4) {
-      DEBUG_PRINT("Error in registration process at IRC-server");
-      return (1);
-    } else if (_registered == false) {
-      count_register += 1;
-      register_at_irc(client_poll);
-    } else if (_registered == true && _operator == false && count_oper == 4) {
-      count_oper += 1;
-      DEBUG_PRINT(
-          "No operator-status possible at IRC-server, Bot can only sanction "
-          "clients, no KILL");
-    } else if (_registered == true && _operator == false && count_oper < 4) {
-      count_oper += 1;
-      become_operator(client_poll);
-    }
-    if (client_poll.revents & POLLOUT) {
+    } else if (client_poll.revents & POLLOUT) {
+      DEBUG_PRINT("case pollout:" << _output_buffer);
       handle_pollout(client_poll);
     }
+    //     DEBUG_PRINT("Stuff left in bot out: $" << _output_buffer);
+    //     if (_registered == false && count_register >= 4) {
+    //       DEBUG_PRINT("Error in registration process at IRC-server");
+    //       return (1);
+    //     } else if (_registered == false) {
+    //       count_register += 1;
+    //       register_at_irc(client_poll);
+    //     } else if (_registered == true && _operator == false && count_oper == 4) {
+    //       count_oper += 1;
+    //       DEBUG_PRINT(
+    //           "No operator-status possible at IRC-server, Bot can only sanction "
+    //           "clients, no KILL");
+    //     } else if (_registered == true && _operator == false && count_oper < 4) {
+    //       count_oper += 1;
+    //       become_operator(client_poll);
+    //     }
   }
   return (0);
 }

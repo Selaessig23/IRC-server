@@ -195,6 +195,7 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           out += "\r\n";
           _output_buffer += out;
           pfd.events |= POLLOUT;
+	  break ;
         }
       }
     }

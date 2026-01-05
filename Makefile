@@ -82,7 +82,7 @@ bot: $(NAME_BOT)
 
 $(NAME_BOT): $(OBJS_BOT) $(LIBS_BOT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS_BOT)
-	@echo "-- bot prog created, try it by using ./bot>"
+	@echo "-- bot prog created, try it by using ./bot <portno> <password> <path of swear-word-file>"
 
 obj_bot/%.o: src_bot/%.cpp
 	@mkdir -p $(@D)
@@ -99,10 +99,26 @@ clean:
 	@rm -rf obj_bot
 	@echo -- Deleting all .o and .dep files
 
+cleanirc:
+	@rm -rf obj_irc
+	@echo -- Deleting all irc .o and .dep files
+
+cleanbot:
+	@rm -rf obj_bot
+	@echo -- Deleting all bot .o and .dep files
+
 fclean: clean
 	@rm -f $(NAME_IRC)
 	@rm -f $(NAME_BOT)
 	@echo -- Deleting executables
+
+fcleanirc: cleanirc
+	@rm -f $(NAME_IRC)
+	@echo -- Deleting irc executables
+
+fcleanbot: cleanbot
+	@rm -f $(NAME_BOT)
+	@echo -- Deleting bot executables
 
 re: fclean all
 
@@ -139,22 +155,22 @@ valrunbot: bot
 	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_BOT) $(ARGS_BOT)
 
 debugirc: CXXFLAGS += -DDEBUG -g
-debugirc: fclean $(NAME_IRC)
+debugirc: fcleanirc $(NAME_IRC)
 	@echo "$(BOLD)$(YELLOW)Debug build IRC complete.$(RESET)"
 
 debugbot: CXXFLAGS += -DDEBUG -g
-debugbot: fclean $(NAME_BOT)
+debugbot: fcleanbot $(NAME_BOT)
 	@echo "$(BOLD)$(YELLOW)Debug build BOT complete.$(RESET)"
 
 debugvalrunirc: CXXFLAGS += -DDEBUG -g
-debugvalrunirc: fclean $(NAME_IRC)
+debugvalrunirc: fcleanirc $(NAME_IRC)
 	@echo "$(BOLD)$(YELLOW)Debug build IRC complete.$(RESET)"
 	@echo
 	@echo "Running irc-server with valgrind"
 	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_IRC) $(ARGS_IRC)
 
 debugvalrunbot: CXXFLAGS += -DDEBUG -g
-debugvalrunbot: fclean $(NAME_BOT)
+debugvalrunbot: fcleanbot $(NAME_BOT)
 	@echo "$(BOLD)$(YELLOW)Debug build BOT complete.$(RESET)"
 	@echo
 	@echo "Running BOT with valgrind"
