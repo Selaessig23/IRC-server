@@ -1,5 +1,6 @@
 #include <iostream>
 #include <list>
+#include <vector>
 #include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
@@ -9,14 +10,30 @@
 #include "../IrcCommands.hpp"
 
 /**
+  * @brief function that structures KICK message and sends it to the target client.
+  */
+void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
+                                    Client* target, Channel* chan) {
+  std::string msg;
+  msg += ":" + cmd.client->get_nick();
+  msg += "!" + cmd.client->get_user();
+  msg += "@" + cmd.client->get_host();
+  msg += " KICK " + chan->get_name();
+  msg += " " + cmd.parameters[1];
+  if (cmd.parameters.size() > 2)
+    msg += " :" + cmd.parameters[2];
+  msg += "\r\n";
+  target->add_client_out(msg);
+  base.set_pollevent(target->get_client_fd(), POLLOUT);
+}
+
+/**
  * @brief KICK command is used to remove members from channels
- * Only operaators of the channel can remove other members
+ * Only operators of the channel can remove other members
  * KICK <channel> <user> *( "," <user> ) [<comment>]
  * 
  * TODO:
- * (1) implement message sending with [<comment>]
- *      if [<comment>] isn't passed then a default message
- * (2) implement multi-kick at a single call
+ * (1) implement multi-kick at a single call
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
@@ -29,12 +46,12 @@
  */
 int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.size() < 2) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
@@ -45,7 +62,7 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (it_chan == base._channel_list.end() || base._channel_list.empty()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -56,12 +73,12 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
 
   if (it_chan_mem->second == false) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, &(*it_chan));
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -82,14 +99,23 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_kick_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_USERNOTINCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, &(*it_chan));
     return (ERR_USERNOTINCHANNEL);
   }
-
+  Client* tmp_kick_cli = &(*it_kick_mem->first);
   it_chan->remove_from_members(&(*it_kick_nick));
 
-  // custom getting kicked message gonna be added HERE:
-  // send_message(base, cmd, RPL_INVITING, false, NULL);
+  for (std::map<Client*, bool>::iterator it_broadcast =
+           it_chan->get_members().begin();
+       it_broadcast != it_chan->get_members().end(); ++it_broadcast)
+    send_kick_message(base, cmd, it_broadcast->first, &(*it_chan));
+  // if (cmd.client == tmp_kick_cli)
+  //   send_kick_message(base, cmd, cmd.client, &(*it_chan));
+  // else
+  send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
+
+  if (it_chan->get_members_size() == 0)
+    base._channel_list.erase(it_chan);
 
   return (1);
 }

@@ -23,12 +23,12 @@
  */
 int IrcCommands::user(Server& base, const struct cmd_obj& cmd) {
   if (cmd.parameters.empty() || cmd.parameters.size() < 4) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
 
   if (!cmd.client->get_user().empty()) {
-    send_message(base, cmd, ERR_ALREADYREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_ALREADYREGISTERED, cmd.client, NULL);
     return (ERR_ALREADYREGISTERED);
   }
 
@@ -42,12 +42,12 @@ int IrcCommands::user(Server& base, const struct cmd_obj& cmd) {
   cmd.client->set_servername(*it);
   it++;
   cmd.client->set_realname(*it);
-  //   send_message(base, cmd, RPL_INTERN_SETUSER, false, NULL);
+  //   send_message(base, cmd, RPL_INTERN_SETUSER, cmd.client, NULL);
 
   if (client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, RPL_WELCOME, false, NULL);
-    send_message(base, cmd, RPL_YOURHOST, false, NULL);
-    send_message(base, cmd, RPL_CREATED, false, NULL);
+    send_message(base, cmd, RPL_WELCOME, cmd.client, NULL);
+    send_message(base, cmd, RPL_YOURHOST, cmd.client, NULL);
+    send_message(base, cmd, RPL_CREATED, cmd.client, NULL);
   }
   return (0);
 }

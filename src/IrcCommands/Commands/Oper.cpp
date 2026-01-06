@@ -23,23 +23,22 @@
  * ERR_NOOPERHOST (491) --> not in use
  */
 int IrcCommands::oper(Server& base, const struct cmd_obj& cmd) {
-    if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.size() < 2) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
-  if (cmd.parameters.size() >= 2 &&
-      *cmd.parameters.begin() == ("SWEARBOT") &&
+  if (cmd.parameters.size() >= 2 && *cmd.parameters.begin() == ("SWEARBOT") &&
       *(cmd.parameters.begin() + 1) == (base._pw + "42BOT")) {
     cmd.client->set_opertr(true);
-    send_message(base, cmd, RPL_YOUREOPER, false, NULL);
+    send_message(base, cmd, RPL_YOUREOPER, cmd.client, NULL);
     return (0);
   } else {
-    send_message(base, cmd, ERR_PASSWDMISMATCH, true, NULL);
+    send_message(base, cmd, ERR_PASSWDMISMATCH, cmd.client, NULL);
     return (ERR_PASSWDMISMATCH);
   }
 }

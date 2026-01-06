@@ -17,7 +17,7 @@ void IrcCommands::send_part_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " has left the " + chan->get_name();
+  msg += " PART " + chan->get_name();
   if (cmd.parameters.size() > 1)
     msg += " :" + cmd.parameters[1];
   msg += "\r\n";
@@ -45,12 +45,12 @@ void IrcCommands::send_part_message(Server& base, const struct cmd_obj& cmd,
  */
 int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   } else if (!(cmd.parameters[0][0] == '#' || cmd.parameters[0][0] == '&'))
     return (0);
@@ -63,7 +63,7 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (base._channel_list.empty() || it_chan == base._channel_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -74,7 +74,7 @@ int IrcCommands::part(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
 
