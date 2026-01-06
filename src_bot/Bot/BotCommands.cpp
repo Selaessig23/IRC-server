@@ -146,7 +146,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
   if (it_chan == _channel_list.end()) {
     // message was a private message to bot not channel --> could be checked, recipient should than be _nick
     out += nick;
-    out += " :This will led to an enormous disadvantage in your further life.";
+    out += " :This will lead to an enormous disadvantage in your future life.";
   } else {
     std::map<std::string, int>& members = it_chan->get_members();
     if (it_chan->get_strikes(nick) == -1)
@@ -156,7 +156,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
       chan_member->second += 1;
       out += nick;
       out +=
-          " :An unwished comment was noticed. This is your first strike. "
+          " :An inappropriate has been detected. This is your first strike. "
           "Please do not confuse other people by spreading falsehoods "
           "about "
           "42.";
@@ -165,7 +165,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
       out += nick;
       out += " :Dear members of channel " + channel;
       out += " our not-valued member " + nick +
-             " has passed away. May he rest not rest in peace.";
+             " has passed away. May he not rest in peace.";
     }
   }
 }
@@ -197,8 +197,9 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           if (cmd_body.prefix.empty() && !cmd_body.parameters.empty()) {
             out += cmd_body.parameters[0];
             out +=
-                " :The wise 42 network is going to control everything. "
-                "Communicate wisely.";
+                " :The wise and intelligent 42 network will control everything "
+                "in the near future. "
+                "Communicate with caution.";
           } else {
             //cut nick from prefix
             int pos = cmd_body.prefix.find("!");
