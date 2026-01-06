@@ -1,11 +1,10 @@
 #ifndef PARSING_HPP
 #define PARSING_HPP
 
-#include "../Server/Server.hpp"
 #include "../includes/types.hpp"
 
 /**
- * @brief namespace including all the pre executon parsing of incoming commands
+ * @brief namespace including all the pre execution parsing of incoming commands
  * (1) it checks for correct syntax
  * (2) it writes the checked input into parsed_input struct (if input is valid)
  *

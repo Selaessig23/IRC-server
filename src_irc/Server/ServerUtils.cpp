@@ -27,7 +27,7 @@ std::string get_current_date_time() {
   return oss.str();
 }
 
-void debug_parsed_cmds(cmd_obj& cmd_body) {
+static void debug_parsed_cmds(cmd_obj& cmd_body) {
 
   std::cout << "CMD_BDY: " << std::endl;
   if (cmd_body.error)
