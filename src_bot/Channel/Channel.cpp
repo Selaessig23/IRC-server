@@ -7,9 +7,7 @@ Channel::Channel(std::string name) : _name(name), _status(0) {
 }
 
 Channel::Channel(const Channel& other)
-    : _name(other._name),
-      _status(other._status),
-      _warned_members(other._warned_members) {}
+    : _name(other._name), _status(other._status) {}
 
 Channel Channel::operator=(const Channel& other) {
   Channel temp(other);
@@ -23,23 +21,6 @@ Channel::~Channel() {
 
 void Channel::set_status(int status) {
   _status |= status;
-}
-
-std::map<std::string, int>& Channel::get_members() {
-  return (_warned_members);
-}
-
-/**
- * @brief function to get the amount of strikes of a nick
- *
- * @return if nick was not found in list (== no strike yet), it returns -1
- */
-int Channel::get_strikes(const std::string& nick) {
-  std::map<std::string, int>::iterator it_member = _warned_members.find(nick);
-  if (it_member == _warned_members.end())
-    return (-1);
-  else
-    return it_member->second;
 }
 
 /**

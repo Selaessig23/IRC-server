@@ -26,7 +26,7 @@
  * so infile.c_str() is safer and more portable in older standards or use const char directly 
  * (instead of using const std::string& infile)
 */
-bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
+static bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
   //validate path of database
   std::ifstream inputfile;
   //attempt to open infile-parameter
@@ -108,7 +108,8 @@ Bot::Bot(const Bot& other)
       _realname(other._realname),
       _output_buffer(other._output_buffer),
       _channel_list(other._channel_list),
-      _swear_words(other._swear_words) {}
+      _swear_words(other._swear_words),
+      _warned_members(other._warned_members) {}
 
 Bot Bot::operator=(const Bot& other) {
   Bot temp(other);
@@ -138,6 +139,19 @@ void Bot::clip_current_command(size_t delimiter) {
   } else {
     _received_packs.clear();
   }
+}
+
+/**
+ * @brief function to get the amount of strikes of a nick
+ *
+ * @return if nick was not found in list (== no strike yet), it returns -1
+ */
+int Bot::get_strikes(const std::string& nick) {
+  std::map<std::string, int>::iterator it_member = _warned_members.find(nick);
+  if (it_member == _warned_members.end())
+    return (-1);
+  else
+    return it_member->second;
 }
 
 /**
@@ -190,8 +204,8 @@ static void debug_parsed_cmds(cmd_obj& cmd_body) {
  * the bot is able to handle the following RPL_MSGs from an irc-server
  * RPL_WELCOME = 001,
  * CONFIRMATION of operator-status
- * RPL_INVITING = 341,
- * PRIVMSG of channels the bot is member of
+ * RPL_INVITING = 341 | INVITE msg,
+ * PRIVMSG of clients and channels the bot is member of
  * 
  */
 int Bot::handle_pollin(struct pollfd& pfd) {

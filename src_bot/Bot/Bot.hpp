@@ -28,6 +28,7 @@ class Bot {
   std::string _output_buffer;
   std::list<Channel> _channel_list;
   std::set<std::string> _swear_words;
+  std::map<std::string, int> _warned_members;
 
   //member function (helper)
   void handle_pollout(struct pollfd& pfd);
@@ -38,7 +39,7 @@ class Bot {
   int handle_join(cmd_obj& cmd_body);
   int check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd);
   void sanctioning(const std::string& nick, std::string& channel,
-                   std::string& out, struct pollfd& pfd);
+                   std::string& out);
   void kill_client(const std::string& nick, struct pollfd& pfd);
 
  public:
@@ -52,6 +53,7 @@ class Bot {
   void clip_current_command(size_t delimiter);
   void add_to_received_packs(std::string new_pack);
   std::string get_received_packs();
+  int get_strikes(const std::string& nick);
 };
 
 #endif  // CLIENT_HPP

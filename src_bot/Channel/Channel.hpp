@@ -8,7 +8,6 @@ class Channel {
  private:
   std::string _name;
   int _status;  //to handle registration status (invited, applied, member)
-  std::map<std::string, int> _warned_members;
 
  public:
   Channel(std::string name);
@@ -17,8 +16,6 @@ class Channel {
   ~Channel();
 
   void set_status(int status);
-  std::map<std::string, int>& get_members();
-  int get_strikes(const std::string& nick);
   //overload for find-functionality
   bool operator==(const std::string& other) const;
 };
