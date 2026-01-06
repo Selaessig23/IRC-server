@@ -42,28 +42,37 @@ void Bot::become_operator(struct pollfd& pfd) {
 /**
  * @brief function to handle an invitation to join a channel
  * 
- * source: "<client> <nick> <channel> :INVITES YOU"
+ * source I: "<client> <nick> <channel> :INVITES YOU" (RPL_INVITING (341))
+ * source I: Command: INVITE | Parameters: <nickname> <channel> (INVITE msg)
  *
  * it checks if nick is correct and if bot is not yet member of this channel
  * if correct, channel gets status invited and bot tries to join the channel
  */
 int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
-  if (cmd_body.parameters[1] != _nick)
+  if (cmd_body.command == "342" &&
+      (cmd_body.parameters.size() < 3 || cmd_body.parameters[1] != _nick))
     return (1);
-  std::list<Channel>::iterator it_chan = std::find(
-      _channel_list.begin(), _channel_list.end(), cmd_body.parameters[2]);
+  else if (cmd_body.command == "INVITE" &&
+           (cmd_body.parameters.size() < 2 || cmd_body.parameters[0] != _nick))
+    return (1);
+  std::string chan;
+  if (cmd_body.command == "342")
+    chan = cmd_body.parameters[2];
+  else if (cmd_body.command == "INVITE")
+    chan = cmd_body.parameters[1];
+  std::list<Channel>::iterator it_chan =
+      std::find(_channel_list.begin(), _channel_list.end(), chan);
   if (it_chan != _channel_list.end())
     return (1);
-  Channel new_channel(cmd_body.parameters[2]);
+  Channel new_channel(chan);
   _channel_list.push_back(new_channel);
   std::string out;
   out += "JOIN ";
-  out += cmd_body.parameters[2];
+  out += chan;
   out += "\r\n";
   _output_buffer += out;
   pfd.events |= POLLOUT;
-  it_chan = std::find(_channel_list.begin(), _channel_list.end(),
-                      cmd_body.parameters[2]);
+  it_chan = std::find(_channel_list.begin(), _channel_list.end(), chan);
   it_chan->set_status(APPLIED);
   return (0);
 }
@@ -82,6 +91,8 @@ int Bot::handle_invitation(cmd_obj& cmd_body, struct pollfd& pfd) {
 
 int Bot::handle_join(cmd_obj& cmd_body) {
   if (cmd_body.command == "JOIN") {
+    if (cmd_body.parameters.size() < 1)
+      return (1);
     std::list<Channel>::iterator it_chan = std::find(
         _channel_list.begin(), _channel_list.end(), cmd_body.parameters[0]);
     if (it_chan == _channel_list.end())
@@ -89,6 +100,8 @@ int Bot::handle_join(cmd_obj& cmd_body) {
     it_chan->set_status(ACCEPTED);
     return (0);
   } else if (cmd_body.parameters[0] == _nick) {
+    if (cmd_body.parameters.size() < 3)
+      return (1);
     std::list<Channel>::iterator it_chan = std::find(
         _channel_list.begin(), _channel_list.end(), cmd_body.parameters[2]);
     if (it_chan == _channel_list.end())
@@ -195,7 +208,7 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           out += "\r\n";
           _output_buffer += out;
           pfd.events |= POLLOUT;
-	  break ;
+          break;
         }
       }
     }

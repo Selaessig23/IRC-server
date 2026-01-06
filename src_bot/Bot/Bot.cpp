@@ -224,10 +224,12 @@ int Bot::handle_pollin(struct pollfd& pfd) {
 #else
     (void)err;
 #endif
-    if (cmd_body.command ==
-        "001")  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
+    if (_registered == false && cmd_body.command ==
+        "001") {  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
       _registered = true;
-    else if (_registered == true && cmd_body.command == "381")
+      count_oper += 1;
+      become_operator(pfd);
+    } else if (_registered == true && cmd_body.command == "381")
       // case RPL_YOUREOPER: ":You are now an IRC operator"
       _operator = true;
     else if (_registered == true &&
@@ -235,12 +237,13 @@ int Bot::handle_pollin(struct pollfd& pfd) {
       // handle join
       handle_join(cmd_body);
     else if (
-        _registered == true &&
+        _registered == true && (
         cmd_body.command ==
-            "341")  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU"
+            "341" || cmd_body.command == "INVITE"))  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU" || Invite message
       handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
       check_for_swears(cmd_body, pfd);  // sanctioning
+    // add an error-message reader with dummy response
     else {
       if (_registered == false && count_register >= 4) {
         DEBUG_PRINT("Error in registration process at IRC-server");
