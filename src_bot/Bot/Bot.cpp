@@ -10,6 +10,7 @@
 #include <sstream>  // std::stringstream, std::stringbuf
 #include <stdexcept>
 #include "../Parser/Parser.hpp"
+#include "../Utils/Utils.hpp"
 #include "../debug.hpp"
 #include "../includes/types.hpp"
 
@@ -26,7 +27,8 @@
  * so infile.c_str() is safer and more portable in older standards or use const char directly 
  * (instead of using const std::string& infile)
 */
-static bool ft_open_inputfile(const char* path_infile, std::stringstream& buffer) {
+static bool ft_open_inputfile(const char* path_infile,
+                              std::stringstream& buffer) {
   //validate path of database
   std::ifstream inputfile;
   //attempt to open infile-parameter
@@ -238,8 +240,11 @@ int Bot::handle_pollin(struct pollfd& pfd) {
 #else
     (void)err;
 #endif
-    if (_registered == false && cmd_body.command ==
-        "001") {  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
+    int err_code = 0;
+    Utils::ft_convert_to_int(err_code, cmd_body.command);
+    if (_registered == false &&
+        cmd_body.command ==
+            "001") {  // case RPL_WELCOME:" :Welcome to the " + base._network_name + " Network, " +
       _registered = true;
       count_oper += 1;
       become_operator(pfd);
@@ -251,12 +256,17 @@ int Bot::handle_pollin(struct pollfd& pfd) {
       // handle join
       handle_join(cmd_body);
     else if (
-        _registered == true && (
-        cmd_body.command ==
-            "341" || cmd_body.command == "INVITE"))  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU" || Invite message
+        _registered == true &&
+        (cmd_body.command == "341" ||
+         cmd_body.command ==
+             "INVITE"))  // case RPL_INVITING: "<client> <nick> <channel> :INVITES YOU" || Invite message
       handle_invitation(cmd_body, pfd);
     else if (_registered == true && cmd_body.command == "PRIVMSG")
       check_for_swears(cmd_body, pfd);  // sanctioning
+#ifdef DEBUG
+    else if (err_code >= 400)
+      std::cout << "Bot is unable to handle error messages" << std::endl;
+#endif
     // add an error-message reader with dummy response
     else {
       if (_registered == false && count_register >= 4) {
@@ -308,22 +318,6 @@ int Bot::init_poll() {
       DEBUG_PRINT("case pollout:" << _output_buffer);
       handle_pollout(client_poll);
     }
-    //     DEBUG_PRINT("Stuff left in bot out: $" << _output_buffer);
-    //     if (_registered == false && count_register >= 4) {
-    //       DEBUG_PRINT("Error in registration process at IRC-server");
-    //       return (1);
-    //     } else if (_registered == false) {
-    //       count_register += 1;
-    //       register_at_irc(client_poll);
-    //     } else if (_registered == true && _operator == false && count_oper == 4) {
-    //       count_oper += 1;
-    //       DEBUG_PRINT(
-    //           "No operator-status possible at IRC-server, Bot can only sanction "
-    //           "clients, no KILL");
-    //     } else if (_registered == true && _operator == false && count_oper < 4) {
-    //       count_oper += 1;
-    //       become_operator(client_poll);
-    //     }
   }
   return (0);
 }

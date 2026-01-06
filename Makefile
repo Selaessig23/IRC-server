@@ -53,6 +53,7 @@ SRCS_BOT += src_bot/Bot/Bot.cpp
 SRCS_BOT += src_bot/Bot/BotCommands.cpp
 SRCS_BOT += src_bot/Parser/Parser.cpp
 SRCS_BOT += src_bot/Channel/Channel.cpp
+SRCS_BOT += src_bot/Utils/Utils.cpp
 
 OBJS_IRC = $(SRCS_IRC:src_irc/%.cpp=obj_irc/%.o)
 

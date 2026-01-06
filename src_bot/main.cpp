@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/12/22 16:02:43 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/06 11:18:46 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,7 @@
 #include "Bot/Bot.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
-
-// TODO:
-// AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
-// protocol number (if several)
+#include "Utils/Utils.hpp"
 
 Bot* g_bot;
 
@@ -30,29 +27,13 @@ void signal_handler(int signal) {
   exit(0);
 }
 
-int validate_input(int argc, char** argv, int& port) {
-  if (argc != 4) {
-    std::cerr << "Check number of arguments. Required 3: portno | pw | path of "
-                 "swear.csv"
-              << std::endl;
-    return (1);
-  }
-  port = std::atoi(argv[1]);
-  if (port < PORT_MIN || port > PORT_MAX) {
-    std::cerr << "Provided port no " << port << " out of range!" << std::endl;
-    return (1);
-  }
-  return (0);
-};
-
 int main(int argc, char* argv[]) {
-
   int port;
 // test debug-mode
 #ifdef DEBUG
   std::cout << "[DEBUG] Debug mode of bot is ON" << std::endl;
 #endif
-  if (validate_input(argc, argv, port))
+  if (Utils::validate_input(argc, argv, port))
     return (1);
   std::string pw(argv[2]);
   std::string data_input(

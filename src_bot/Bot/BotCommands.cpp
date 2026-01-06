@@ -165,8 +165,10 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
         amount = "third";
         if (_operator == true)
           amount += " (ultimate)";
-      } else
-        amount = "test";  //transform from int to string + "th";
+      } else {
+        amount = get_strikes(nick);
+        amount += "th";
+      }
     }
     out += nick;
     out += " :An inappropriate has been detected. This is your ";
@@ -198,6 +200,7 @@ void Bot::sanctioning(const std::string& nick, std::string& channel,
  * if a sender gets a strike for 3rd time and bot is an operator
  * the sender gets killed and the channel gets an information
  * (information message should normally be part of irc-server)
+ * client gets removed from _warned_member list afterwards
  *
  */
 int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
@@ -218,7 +221,8 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           if (cmd_body.prefix.empty() && !cmd_body.parameters.empty()) {
             out += channel;
             out +=
-                " :The wise and intelligent 42 network will control everything "
+                " :The wise and intelligent 42 network will control "
+                "everything "
                 "in the near future. "
                 "Communicate with caution.";
           } else {
