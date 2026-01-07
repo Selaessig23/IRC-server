@@ -34,7 +34,7 @@ void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
  * o: Give/take channel operator privilege
  * 
  * After modes updating is done, it broadcasts the MODE reply message
- * that shows actual changes made with the last command on modes of the channel.
+ * that shows the actual changes made by the last command to the channel modes.
  *  
  * @return 0 or ERR_USERNOTINCHANNEL (441) in case of an error
  * 
