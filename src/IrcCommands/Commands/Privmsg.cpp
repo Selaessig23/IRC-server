@@ -102,14 +102,11 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
           base._channel_list.begin(), base._channel_list.end(), *it_rec);
       if (it_chan != base._channel_list.end()) {
         std::map<Client*, bool>::iterator it_chan_member =
-            it_chan->get_members().begin();
-        for (; it_chan_member != it_chan->get_members().end(); it_chan_member++)
-          if (it_chan_member != it_chan->get_members().end())
-            break;
-          else {
-            send_message(base, cmd, ERR_CANNOTSENDTOCHAN, cmd.client, NULL);
-            return (ERR_CANNOTSENDTOCHAN);
-          }
+            it_chan->get_members().find(cmd.client);
+        if (it_chan_member == it_chan->get_members().end()) {
+          send_message(base, cmd, ERR_CANNOTSENDTOCHAN, cmd.client, NULL);
+          return (ERR_CANNOTSENDTOCHAN);
+        }
         for (it_chan_member = it_chan->get_members().begin();
              it_chan_member != it_chan->get_members().end(); it_chan_member++) {
           if (it_chan_member->first != cmd.client)
