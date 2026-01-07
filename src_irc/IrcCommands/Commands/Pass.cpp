@@ -17,18 +17,18 @@
  */
 int IrcCommands::pass(Server& base, const struct cmd_obj& cmd) {
   if (cmd.client->get_register_status() & PASS) {
-    send_message(base, cmd, ERR_ALREADYREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_ALREADYREGISTERED, cmd.client, NULL);
     return (ERR_ALREADYREGISTERED);
   }
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
   if (cmd.parameters.size() == 1 && *cmd.parameters.begin() == base._pw) {
     cmd.client->set_register_status(PASS);
     return (0);
   } else {
-    send_message(base, cmd, ERR_PASSWDMISMATCH, true, NULL);
+    send_message(base, cmd, ERR_PASSWDMISMATCH, cmd.client, NULL);
     return (ERR_PASSWDMISMATCH);
   }
 }

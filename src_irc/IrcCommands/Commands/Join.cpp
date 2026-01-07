@@ -25,7 +25,7 @@ void IrcCommands::send_join_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " has joined the " + chan->get_name();
+  msg += " JOIN " + chan->get_name();
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
@@ -47,13 +47,13 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
 
   if ((chan->get_modes() & MODE_KEY) &&
       (cmd_key.empty() || cmd_key != chan->get_key())) {
-    send_message(base, cmd, ERR_BADCHANNELKEY, true, NULL);
+    send_message(base, cmd, ERR_BADCHANNELKEY, cmd.client, chan);
     return (ERR_BADCHANNELKEY);
   }
 
   if ((chan->get_modes() & MODE_LIMIT) &&
       (chan->get_members_size() >= chan->get_user_limit())) {
-    send_message(base, cmd, ERR_CHANNELISFULL, true, NULL);
+    send_message(base, cmd, ERR_CHANNELISFULL, cmd.client, chan);
     return (ERR_CHANNELISFULL);
   }
 
@@ -66,7 +66,7 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
   }
   if (chan->get_modes() & MODE_INVITE &&
       it_inv_list == chan->get_invited().end()) {
-    send_message(base, cmd, ERR_INVITEONLYCHAN, true, NULL);
+    send_message(base, cmd, ERR_INVITEONLYCHAN, cmd.client, chan);
     return (ERR_INVITEONLYCHAN);
   }
 
@@ -75,16 +75,12 @@ int IrcCommands::join_existing_channel(Server& base, const struct cmd_obj& cmd,
        it_chan_mem != chan->get_members().end(); it_chan_mem++)
     send_join_message(base, cmd, it_chan_mem->first, chan);
   if (chan->get_topic().size()) {
-    std::string msg = chan->get_topic();
-    send_message(base, cmd, RPL_TOPIC, false, &msg);
-    msg = chan->get_topic_who() + " set the topic on " + chan->get_topic_time();
-    send_message(base, cmd, RPL_TOPICWHOTIME, false, &msg);
+    send_message(base, cmd, RPL_TOPIC, cmd.client, chan);
+    send_message(base, cmd, RPL_TOPICWHOTIME, cmd.client, chan);
   } else
-    send_message(base, cmd, RPL_NOTOPIC, false, NULL);
-  send_message(base, cmd, RPL_NAMREPLY, false, NULL);
-  std::string msg = chan->get_nicks_string();
-  send_message(base, cmd, 000, false, &msg);
-  send_message(base, cmd, RPL_ENDOFNAMES, false, NULL);
+    send_message(base, cmd, RPL_NOTOPIC, cmd.client, chan);
+  send_message(base, cmd, RPL_NAMREPLY, cmd.client, chan);
+  send_message(base, cmd, RPL_ENDOFNAMES, cmd.client, chan);
 
   return (1);
 }
@@ -101,8 +97,10 @@ int IrcCommands::new_channel(Server& base, const struct cmd_obj& cmd,
   base._channel_list.back().new_member(cmd.client, true);
   base._channel_list.back();
   send_join_message(base, cmd, cmd.client, &base._channel_list.back());
-  send_message(base, cmd, RPL_NOTOPIC, false, NULL);
-  send_message(base, cmd, RPL_ENDOFNAMES, false, NULL);
+  send_message(base, cmd, RPL_NOTOPIC, cmd.client, &base._channel_list.back());
+  send_message(base, cmd, RPL_NAMREPLY, cmd.client, &base._channel_list.back());
+  send_message(base, cmd, RPL_ENDOFNAMES, cmd.client,
+               &base._channel_list.back());
   return (1);
 }
 
@@ -163,12 +161,12 @@ int IrcCommands::join_0(Server& base, const struct cmd_obj& cmd) {
  */
 int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.empty()) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   } else if (cmd.parameters[0] == "0")
     return (join_0(base, cmd));

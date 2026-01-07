@@ -3,12 +3,13 @@
 
 #include <string>
 #include <vector>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 
 enum PARSE_ERR {
-  NO_ERR = 0,
-  SYNTHAX = 100,
-  EMPTY_CMD = 300,
+  NO_ERR = 000,
+  SYNTHAX = 2000,
+  EMPTY_CMD = 3000,
   ERR_NOSUCHNICK = 401,
   ERR_NOSUCHCHANNEL = 403,
   ERR_CANNOTSENDTOCHAN = 404,
@@ -36,7 +37,6 @@ enum PARSE_ERR {
 };
 
 enum RPL_MSG {
-  RPL_NONE = 000,
   RPL_WELCOME = 001,
   RPL_YOURHOST = 002,
   RPL_CREATED = 003,

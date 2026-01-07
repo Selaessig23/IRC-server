@@ -17,8 +17,8 @@ void IrcCommands::send_invite_message(Server& base, const struct cmd_obj& cmd,
   msg += ":" + cmd.client->get_nick();
   msg += "!" + cmd.client->get_user();
   msg += "@" + cmd.client->get_host();
-  msg += " invites " + target->get_nick();
-  msg += " to the channel " + chan->get_name();
+  msg += " INVITE " + cmd.parameters[0];
+  msg += " " + chan->get_name();
   msg += "\r\n";
   target->add_client_out(msg);
   base.set_pollevent(target->get_client_fd(), POLLOUT);
@@ -49,12 +49,12 @@ void IrcCommands::send_invite_message(Server& base, const struct cmd_obj& cmd,
 
 int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   if (!client_register_check(base, *cmd.client)) {
-    send_message(base, cmd, ERR_NOTREGISTERED, true, NULL);
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
     return (ERR_NOTREGISTERED);
   }
 
   if (cmd.parameters.size() < 2) {
-    send_message(base, cmd, ERR_NEEDMOREPARAMS, true, NULL);
+    send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);
     return (ERR_NEEDMOREPARAMS);
   }
   std::list<Channel>::iterator it_chan = base._channel_list.begin();
@@ -65,7 +65,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (base._channel_list.empty() || it_chan == base._channel_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHCHANNEL, cmd.client, NULL);
     return (ERR_NOSUCHCHANNEL);
   }
 
@@ -76,12 +76,12 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
       break;
   }
   if (it_chan_mem == it_chan->get_members().end()) {
-    send_message(base, cmd, ERR_NOTONCHANNEL, true, NULL);
+    send_message(base, cmd, ERR_NOTONCHANNEL, cmd.client, &(*it_chan));
     return (ERR_NOTONCHANNEL);
   }
 
   if (it_chan_mem->second == false) {
-    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, true, NULL);
+    send_message(base, cmd, ERR_CHANOPRIVSNEEDED, cmd.client, &(*it_chan));
     return (ERR_CHANOPRIVSNEEDED);
   }
 
@@ -93,7 +93,7 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
     }
   }
   if (it_inv_cli == base._client_list.end()) {
-    send_message(base, cmd, ERR_NOSUCHNICK, true, NULL);
+    send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, NULL);
     return (ERR_NOSUCHNICK);
   }
 
@@ -107,13 +107,13 @@ int IrcCommands::invite(Server& base, const struct cmd_obj& cmd) {
   it_chan_mem = it_chan->get_members().begin();
   for (; it_chan_mem != it_chan->get_members().end(); it_chan_mem++) {
     if (it_chan_mem->first == &(*it_inv_cli)) {
-      send_message(base, cmd, ERR_USERONCHANNEL, true, NULL);
+      send_message(base, cmd, ERR_USERONCHANNEL, cmd.client, &(*it_chan));
       return (ERR_USERONCHANNEL);
     }
   }
 
   it_chan->new_invited(&(*it_inv_cli));
-  send_message(base, cmd, RPL_INVITING, false, NULL);
+  send_message(base, cmd, RPL_INVITING, cmd.client, &(*it_chan));
   send_invite_message(base, cmd, &(*it_inv_cli), &(*it_chan));
 
   return (1);
