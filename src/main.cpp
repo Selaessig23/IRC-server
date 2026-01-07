@@ -6,14 +6,15 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2025/11/20 16:12:57 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/07 12:07:51 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <climits>  //for INT_MIN / INT_MAX
 #include <csignal>  //signal
+#include <cstdlib>
 #include <iostream>
-#include <climits> //for INT_MIN / INT_MAX
-#include <sstream> //for std::stringstream 
+#include <sstream>  //for std::stringstream
 #include "Server/Server.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
@@ -43,8 +44,7 @@ void signal_handler(int signal) {
  *
  * @return returns true if succesful, false if converions failed
  */
-bool	ft_convert_to_int(int &value, const std::string &to_convert)
-{
+bool ft_convert_to_int(int& value, const std::string& to_convert) {
   std::stringstream ss(to_convert);
   long long temp;
   char c;
