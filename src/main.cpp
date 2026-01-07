@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <climits>  //for INT_MIN / INT_MAX
 #include <csignal>  //signal
 #include <iostream>
-#include <climits> //for INT_MIN / INT_MAX
-#include <sstream> //for std::stringstream 
+#include <sstream>  //for std::stringstream
 #include "Server/Server.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
@@ -28,7 +28,7 @@ void signal_handler(int signal) {
   (void)signal;
   DEBUG_PRINT("Shutdown of server caused by signal: " << signal);
   delete g_server;
-  exit(0);
+  _exit(0);
 }
 
 /**
@@ -43,8 +43,7 @@ void signal_handler(int signal) {
  *
  * @return returns true if succesful, false if converions failed
  */
-bool	ft_convert_to_int(int &value, const std::string &to_convert)
-{
+bool ft_convert_to_int(int& value, const std::string& to_convert) {
   std::stringstream ss(to_convert);
   long long temp;
   char c;
