@@ -30,15 +30,13 @@ void IrcCommands::send_mode_message(Server& base, const struct cmd_obj& cmd,
  * i: Set/remove Invite-only channel
  * t: Set/remove the restrictions of the TOPIC command to channel
  * k: Set/remove the channel key (password)
- * o: Give/take channel operator privilege
  * l: Set/remove the user limit to channel
+ * o: Give/take channel operator privilege
  * 
  * After modes updating is done, it broadcasts the MODE reply message
- * that shows actual changes made on modes to the channel.
+ * that shows the actual changes made by the last command to the channel modes.
  *  
- * @return 0 or error codes:
- * ERR_USERNOTINCHANNEL (441)
- * in case of an error
+ * @return 0 or ERR_USERNOTINCHANNEL (441) in case of an error
  * 
  * @return it returns 1 if command and password is correct, otherwise it returns 0
  */
@@ -64,15 +62,19 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
           msg += "-";
           break;
         case 'i':
-          chan->adjust_modes(MODE_INVITE, sign);
-          msg += "i";
+          if ((sign && !(chan->get_modes() & MODE_INVITE)) ||
+              (!sign && (chan->get_modes() & MODE_INVITE))) {
+            chan->adjust_modes(MODE_INVITE, sign);
+            msg += "i";
+          }
           break;
         case 'k':
-          if (!sign) {
+          if (!sign && (chan->get_modes() & MODE_KEY)) {
             chan->set_key("");
             chan->adjust_modes(MODE_KEY, sign);
             msg += "k";
-          } else if (sign && param_ind < cmd.parameters.size()) {
+          } else if ((sign && !(chan->get_modes() & MODE_KEY)) &&
+                     param_ind < cmd.parameters.size()) {
             chan->set_key(cmd.parameters[param_ind]);
             chan->adjust_modes(MODE_KEY, sign);
             msg += "k";
@@ -81,11 +83,12 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
           }
           break;
         case 'l':
-          if (!sign) {
+          if (!sign && (chan->get_modes() & MODE_LIMIT)) {
             chan->set_user_limit(0);
             chan->adjust_modes(MODE_LIMIT, sign);
             msg += "l";
-          } else if (sign && param_ind < cmd.parameters.size()) {
+          } else if ((sign && !(chan->get_modes() & MODE_LIMIT)) &&
+                     param_ind < cmd.parameters.size()) {
             chan->set_user_limit(
                 std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
             chan->adjust_modes(MODE_LIMIT, sign);
@@ -95,8 +98,11 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
           }
           break;
         case 't':
-          chan->adjust_modes(MODE_TOPIC, sign);
-          msg += "t";
+          if ((sign && !(chan->get_modes() & MODE_TOPIC)) ||
+              (!sign && (chan->get_modes() & MODE_TOPIC))) {
+            chan->adjust_modes(MODE_TOPIC, sign);
+            msg += "t";
+          }
           break;
         case 'o':
           if (param_ind < cmd.parameters.size()) {
@@ -110,15 +116,18 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
           break;
       }
     }
-    std::cout << "msg: " << msg << std::endl;
-    std::cout << "msg_param: " << msg_param << std::endl;
   }
-  msg += msg_param;
-  if (msg.size() >= 2 &&
-      ((msg[0] == '-' && msg[1] == '+') || (msg[0] == '+' && msg[1] == '-')))
+  while (msg.size() &&
+         (msg[msg.size() - 1] == '-' || msg[msg.size() - 1] == '+'))
+    msg.erase(msg.size() - 1);
+  while (msg.size() >= 2 &&
+         ((msg[0] == '-' && msg[1] == '+') ||
+          (msg[0] == '+' && msg[1] == '-') ||
+          (msg[0] == '-' && msg[1] == '-') || (msg[0] == '+' && msg[1] == '+')))
     msg.erase(0, 1);
-  else if (msg == "[+]" || msg == "[-]")
+  if (msg.size() < 2)
     return (0);
+  msg += msg_param;
 
   for (std::map<Client*, bool>::iterator it_chan_mem =
            chan->get_members().begin();
@@ -137,10 +146,6 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
  * Command Usage: 
  * MODE <channel> [<modestring> [<mode arguments>...]]
  * e.g. MODE #chan42 +iklo <key> <limit> <nickname>
- * 
- * TODO:
- * (1) All message sending functionalities in the file works now 
- * but are going to be adapted to last send_message() version
  *  
  * @return 0 or error codes:
  * ERR_NOSUCHCHANNEL (403)

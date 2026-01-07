@@ -31,6 +31,8 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
  * @brief KICK command is used to remove members from channels
  * Only operators of the channel can remove other members
  * KICK <channel> <user> *( "," <user> ) [<comment>]
+ * KICK command is also functions for command issuer itself
+ * as if they called PART for respective channel.
  * 
  * TODO:
  * (1) implement multi-kick at a single call
@@ -104,15 +106,11 @@ int IrcCommands::kick(Server& base, const struct cmd_obj& cmd) {
   }
   Client* tmp_kick_cli = &(*it_kick_mem->first);
   it_chan->remove_from_members(&(*it_kick_nick));
-
+  send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
   for (std::map<Client*, bool>::iterator it_broadcast =
            it_chan->get_members().begin();
        it_broadcast != it_chan->get_members().end(); ++it_broadcast)
     send_kick_message(base, cmd, it_broadcast->first, &(*it_chan));
-  // if (cmd.client == tmp_kick_cli)
-  //   send_kick_message(base, cmd, cmd.client, &(*it_chan));
-  // else
-  send_kick_message(base, cmd, tmp_kick_cli, &(*it_chan));
 
   if (it_chan->get_members_size() == 0)
     base._channel_list.erase(it_chan);
