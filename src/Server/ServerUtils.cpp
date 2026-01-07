@@ -60,9 +60,13 @@ void Server::remove_client(int fd) {
        it_client != _client_list.end(); it_client++) {
     if (it_client->get_client_fd() == fd) {
       for (std::list<Channel>::iterator it_chan = _channel_list.begin();
-           it_chan != _channel_list.end(); it_chan++) {
+           it_chan != _channel_list.end();) {
         it_chan->remove_from_members(&(*it_client));
         it_chan->remove_from_invited(&(*it_client));
+        if (it_chan->get_members().empty())
+          it_chan = _channel_list.erase(it_chan);
+        else
+          it_chan++;
       }
       _client_list.erase(it_client);
       break;

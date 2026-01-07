@@ -101,8 +101,16 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
       std::list<Channel>::iterator it_chan = std::find(
           base._channel_list.begin(), base._channel_list.end(), *it_rec);
       if (it_chan != base._channel_list.end()) {
-        for (std::map<Client*, bool>::iterator it_chan_member =
-                 it_chan->get_members().begin();
+        std::map<Client*, bool>::iterator it_chan_member =
+            it_chan->get_members().begin();
+        for (; it_chan_member != it_chan->get_members().end(); it_chan_member++)
+          if (it_chan_member != it_chan->get_members().end())
+            break;
+          else {
+            send_message(base, cmd, ERR_CANNOTSENDTOCHAN, cmd.client, NULL);
+            return (ERR_CANNOTSENDTOCHAN);
+          }
+        for (it_chan_member = it_chan->get_members().begin();
              it_chan_member != it_chan->get_members().end(); it_chan_member++) {
           if (it_chan_member->first != cmd.client)
             send_privmsg(base, *cmd.client, *it_chan_member->first, msg,
@@ -118,7 +126,7 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
       if (it_nick == base._client_list.end()) {
         send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, NULL);
         return (ERR_NOSUCHNICK);
-      } else if (it_nick != base._client_list.end())
+      } else if (&(*it_nick) != cmd.client)
         send_privmsg(base, *cmd.client, *it_nick, msg, "");
     }
   }
