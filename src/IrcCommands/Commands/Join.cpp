@@ -160,10 +160,10 @@ int IrcCommands::join_0(Server& base, const struct cmd_obj& cmd) {
  * @return it returns 1 if command is succesfully executed
  */
 int IrcCommands::join(Server& base, const struct cmd_obj& cmd) {
-  //   if (!client_register_check(base, *cmd.client)) {
-  //     send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
-  //     return (ERR_NOTREGISTERED);
-  //   }
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
+    return (ERR_NOTREGISTERED);
+  }
 
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NEEDMOREPARAMS, cmd.client, NULL);

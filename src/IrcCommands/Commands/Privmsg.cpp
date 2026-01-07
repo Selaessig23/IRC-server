@@ -66,10 +66,10 @@ int IrcCommands::send_privmsg(Server& base, Client& sender, Client& receiver,
  *    RPL_AWAY (301) -> AWAY-functionality not implemented
  */
 int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
-  // if (!client_register_check(base, *cmd.client)) {
-  //   send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
-  //   return (ERR_NOTREGISTERED);
-  // }
+  if (!client_register_check(base, *cmd.client)) {
+    send_message(base, cmd, ERR_NOTREGISTERED, cmd.client, NULL);
+    return (ERR_NOTREGISTERED);
+  }
 
   if (cmd.parameters.empty()) {
     send_message(base, cmd, ERR_NORECIPIENT, cmd.client, NULL);
