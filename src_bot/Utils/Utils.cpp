@@ -1,8 +1,8 @@
 #include "Utils.hpp"
-#include "../includes/CONSTANTS.hpp"
-#include <climits> //for INT_MIN / INT_MAX
-#include <sstream> //for std::stringstream 
+#include <climits>  //for INT_MIN / INT_MAX
 #include <iostream>
+#include <sstream>  //for std::stringstream
+#include "../includes/CONSTANTS.hpp"
 
 /**
  * @brief function to convert a string to int
@@ -16,22 +16,18 @@
  *
  * @return returns true if succesful, false if converions failed
  */
-bool	Utils::ft_convert_to_int(int &value, const std::string &to_convert)
-{
+bool Utils::ft_convert_to_int(int& value, const std::string& to_convert) {
   std::stringstream ss(to_convert);
   long long temp;
   char c;
 
   if (!(ss >> temp)) {
-    std::cerr << "Invalid int: $" << to_convert << "$" << std::endl;
     return (false);
   }
   if (ss >> c) {
-    std::cerr << "Invalid int: $" << to_convert << "$" << std::endl;
     return (false);
   }
   if (temp > INT_MAX || temp < INT_MIN) {
-    std::cout << "Invalid int, out of int range: " << temp << std::endl;
     return (false);
   }
   value = static_cast<int>(temp);

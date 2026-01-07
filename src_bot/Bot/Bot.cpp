@@ -248,6 +248,9 @@ int Bot::handle_pollin(struct pollfd& pfd) {
       _registered = true;
       count_oper += 1;
       become_operator(pfd);
+    } else if (_registered == true &&
+               (cmd_body.command == "002" || cmd_body.command == "003")) {
+      return (0);
     } else if (_registered == true && cmd_body.command == "381")
       // case RPL_YOUREOPER: ":You are now an IRC operator"
       _operator = true;
@@ -267,7 +270,6 @@ int Bot::handle_pollin(struct pollfd& pfd) {
     else if (err_code >= 400)
       std::cout << "Bot is unable to handle error messages" << std::endl;
 #endif
-    // add an error-message reader with dummy response
     else {
       if (_registered == false && count_register >= 4) {
         DEBUG_PRINT("Error in registration process at IRC-server");
@@ -302,8 +304,6 @@ int Bot::handle_pollin(struct pollfd& pfd) {
  * disconnection from server-side)
  */
 int Bot::init_poll() {
-  //   int count_register = 1;
-  //   int count_oper = 0;
   struct pollfd client_poll;
   client_poll.fd = _client_fd;
   client_poll.events = POLLIN;
