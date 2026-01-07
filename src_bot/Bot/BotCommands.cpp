@@ -2,7 +2,6 @@
 #include <list>
 #include <set>
 #include <string>
-#include <unistd.h> //for usleep
 #include "../Channel/Channel.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
@@ -236,7 +235,6 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           _output_buffer += out;
           pfd.events |= POLLOUT;
           if (_operator == true && get_strikes(nick) >= 3) {
-            usleep(2000);
             kill_client(nick, pfd);
             std::map<std::string, int>::iterator to_kill =
                 _warned_members.find(nick);
@@ -248,6 +246,9 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
             out += " our not-valued member " + nick +
                    " has passed away. He hasn't treated the 42 network in a "
                    "fair way. May he not rest in peace.";
+            out += "\r\n";
+            _output_buffer += out;
+            pfd.events |= POLLOUT;
           }
           break;
         }
