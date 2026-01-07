@@ -29,7 +29,7 @@ void signal_handler(int signal) {
   (void)signal;
   DEBUG_PRINT("Shutdown of server caused by signal: " << signal);
   delete g_server;
-  _exit(0);
+  exit(0);
 }
 
 /**

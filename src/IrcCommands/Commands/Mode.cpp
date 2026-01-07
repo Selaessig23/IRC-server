@@ -100,8 +100,6 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
         case 't':
           if ((sign && !(chan->get_modes() & MODE_TOPIC)) ||
               (!sign && (chan->get_modes() & MODE_TOPIC))) {
-            std::cout << chan->get_modes() << MODE_TOPIC
-                      << (chan->get_modes() & MODE_TOPIC) << sign << std::endl;
             chan->adjust_modes(MODE_TOPIC, sign);
             msg += "t";
           }
@@ -122,17 +120,16 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
       }
     }
   }
-  std::cout << "msg" << msg << std::endl;
-  // std::string::iterator it_msg = msg.begin();
-  if (msg[msg.size() - 1] == '-' || msg[msg.size() - 1] == '+')
-    msg.erase(msg.size() - 1, 1);
-  if (msg.size() >= 2 &&
-      ((msg[0] == '-' && msg[1] == '+') || (msg[0] == '+' && msg[1] == '-')))
+  while (msg[msg.size() - 1] == '-' || msg[msg.size() - 1] == '+')
+    msg.erase(msg.size() - 1);
+  while (msg.size() >= 2 &&
+         ((msg[0] == '-' && msg[1] == '+') ||
+          (msg[0] == '+' && msg[1] == '-') ||
+          (msg[0] == '-' && msg[1] == '-') || (msg[0] == '+' && msg[1] == '+')))
     msg.erase(0, 1);
-  if (msg == "+" || msg == "-" || msg.size() == 0)
+  if (msg.size() < 2)
     return (0);
   msg += msg_param;
-  std::cout << "msg" << msg << std::endl;
 
   for (std::map<Client*, bool>::iterator it_chan_mem =
            chan->get_members().begin();
@@ -151,10 +148,6 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
  * Command Usage: 
  * MODE <channel> [<modestring> [<mode arguments>...]]
  * e.g. MODE #chan42 +iklo <key> <limit> <nickname>
- * 
- * TODO:
- * (1) All message sending functionalities in the file works now 
- * but are going to be adapted to last send_message() version
  *  
  * @return 0 or error codes:
  * ERR_NOSUCHCHANNEL (403)
