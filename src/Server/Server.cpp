@@ -38,8 +38,10 @@ Server::Server(int port, std::string& pw)
   _created_at = get_current_date_time();
   _port = port;
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
-  if (_fd_server < 0)
+  if (_fd_server < 0) {
+    delete _irc_commands;
     throw std::runtime_error("Socket creation error.");
+  }
   int opt = 1;
   setsockopt(_fd_server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   std::memset(&_addr, 0, sizeof(_addr));
@@ -50,6 +52,7 @@ Server::Server(int port, std::string& pw)
   if (bind(_fd_server, reinterpret_cast<struct sockaddr*>(&_addr),
            sizeof(_addr)) < 0) {
     close(_fd_server);
+    delete _irc_commands;
     throw std::runtime_error("Binding Error.");
   }
 }
