@@ -51,6 +51,7 @@ Server::Server(int port, std::string& pw)
            sizeof(_addr)) < 0) {
     delete _irc_commands;
     close(_fd_server);
+    delete _irc_commands;
     throw std::runtime_error("Binding Error.");
   }
 }
