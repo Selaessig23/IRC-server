@@ -1,4 +1,5 @@
 
+#include <errno.h>
 #include <cstring>  // for strlen
 #include <ctime>    // for time-related functions
 #include <iomanip>  // For std::setw and std::setfill
@@ -155,7 +156,7 @@ int Server::handle_pollin(struct pollfd& pfd) {
  * if buffer is empty, poll-event POLLOUT of clients fd gets removed
  * everything that has been sent to client becomes removed from clients out-buffer
  */
-void Server::handle_pollout(struct pollfd& pfd) {
+int Server::handle_pollout(struct pollfd& pfd) {
 
   std::list<Client>::iterator it_client = _client_list.begin();
   for (;
@@ -164,12 +165,19 @@ void Server::handle_pollout(struct pollfd& pfd) {
   if (it_client != _client_list.end()) {
     int size_sent = send(pfd.fd, it_client->get_client_out().c_str(),
                          strlen(it_client->get_client_out().c_str()), 0);
+    if (size_sent < 0) {
+      if (errno == EPIPE || errno == ECONNRESET) {
+        remove_client(pfd.fd);
+        return (1);
+      }
+    }
     std::string new_out = it_client->get_client_out();
     new_out.erase(0, size_sent);
     it_client->set_client_out(new_out);
     if (it_client->get_client_out().empty())
       remove_pollevent(it_client->get_client_fd(), POLLOUT);
   }
+  return (0);
 }
 
 Client* Server::find_client_by_fd(int fd) {

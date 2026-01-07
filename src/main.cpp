@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2026/01/07 12:07:51 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/07 18:30:20 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGQUIT, signal_handler);
+    signal(SIGPIPE, SIG_IGN);
     g_server = new Server(port, pw);
     if (g_server->init()) {
       delete g_server;

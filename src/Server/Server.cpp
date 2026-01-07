@@ -137,7 +137,8 @@ int Server::initiate_poll() {
           break;
       }
       if (it->revents & POLLOUT) {
-        handle_pollout(*it);
+        if (handle_pollout(*it))
+          break;
       }
     }
   }
