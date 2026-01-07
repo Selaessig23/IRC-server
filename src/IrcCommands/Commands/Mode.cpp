@@ -105,22 +105,20 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
           }
           break;
         case 'o':
-          if ((sign && !(chan->get_modes() & MODE_INVITE)) ||
-              (!sign && (chan->get_modes() & MODE_INVITE))) {
-            if (param_ind < cmd.parameters.size()) {
-              if (chan->update_chanops_stat(cmd.parameters[param_ind], sign)) {
-                msg += "o";
-                msg_param += " " + cmd.parameters[param_ind];
-              } else
-                send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, chan);
-              param_ind++;
-            }
+          if (param_ind < cmd.parameters.size()) {
+            if (chan->update_chanops_stat(cmd.parameters[param_ind], sign)) {
+              msg += "o";
+              msg_param += " " + cmd.parameters[param_ind];
+            } else
+              send_message(base, cmd, ERR_USERNOTINCHANNEL, cmd.client, chan);
+            param_ind++;
           }
           break;
       }
     }
   }
-  while (msg[msg.size() - 1] == '-' || msg[msg.size() - 1] == '+')
+  while (msg.size() &&
+         (msg[msg.size() - 1] == '-' || msg[msg.size() - 1] == '+'))
     msg.erase(msg.size() - 1);
   while (msg.size() >= 2 &&
          ((msg[0] == '-' && msg[1] == '+') ||

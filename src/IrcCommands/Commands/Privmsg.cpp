@@ -115,12 +115,11 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
     } else {
       std::list<Client>::iterator it_nick = std::find(
           base._client_list.begin(), base._client_list.end(), *it_rec);
-      if (it_nick != base._client_list.end() && (&(*it_nick) != cmd.client)) {
-        send_privmsg(base, *cmd.client, *it_nick, msg, "");
-      } else if (it_nick->get_client_fd() != cmd.client->get_client_fd()) {
+      if (it_nick == base._client_list.end()) {
         send_message(base, cmd, ERR_NOSUCHNICK, cmd.client, NULL);
         return (ERR_NOSUCHNICK);
-      }
+      } else if (it_nick != base._client_list.end())
+        send_privmsg(base, *cmd.client, *it_nick, msg, "");
     }
   }
   return (0);
