@@ -58,7 +58,7 @@ class Server {
   friend class IrcCommands;
 };
 
-//helper functions (in ServerUtils.cpp}
+//helper functions (in ServerUtils.cpp)
 void debug_parsed_cmds(cmd_obj& cmd_body);
 std::string get_current_date_time();
 

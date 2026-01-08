@@ -45,7 +45,7 @@ void Server::remove_pollevent(int fd, int event) {
  * buffer from recv is added to internal buffer of client-obj and only gets
  * parsed and executed if the internal buffer of the client includes a "\r\n"
  *
- * error-checks: 
+ * error-checks:
  * in case there is no input to read, it is interpreted as client was lost
  * therefore client gets deleted on server
  * it checks for recv-errors
@@ -108,8 +108,8 @@ int Server::handle_pollout(struct pollfd& pfd) {
     int size_sent = send(pfd.fd, it_client->get_client_out().c_str(),
                          strlen(it_client->get_client_out().c_str()), 0);
     if (size_sent < 0) {
-      if (size_sent < 0 &&
-          (errno == EPIPE || errno == ECONNRESET || errno == ETIMEDOUT)) {
+      if (errno == EPIPE || errno == ECONNRESET || errno == ETIMEDOUT |
+           errno == ENOTCONN) {
         remove_client(pfd.fd);
       }
       DEBUG_PRINT("Error on send-function: " << errno);
@@ -127,8 +127,8 @@ int Server::handle_pollout(struct pollfd& pfd) {
 /**
  * @brief function to run the poll loop
  * (main server loop)
- * it checks all fds of clients & server for 
- * (1) new incomming connections (of server/socket-fd)
+ * it checks all fds of clients & server for
+ * (1) new incoming connections (of server/socket-fd)
  * (2) events of the clients
  */
 int Server::initiate_poll() {
@@ -137,6 +137,10 @@ int Server::initiate_poll() {
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
+        if (it == _poll_fds.begin()) {
+          DEBUG_PRINT("Error on server socket pollfd, revents: " << it->revents);
+          return (1);
+        }
         remove_client(it->fd);
         break;
       }

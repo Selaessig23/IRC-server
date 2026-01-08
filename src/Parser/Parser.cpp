@@ -52,11 +52,9 @@ namespace Parsing {
     std::istringstream input_stream(current_command);
 
     while (std::getline(input_stream, token, ' ')) {
-        parsed_elements.push_back(token);
+        if (token != "")
+          parsed_elements.push_back(token);
     }
-//     while (input_stream >> token) {
-//       parsed_elements.push_back(token);
-//     }
 
     if (parsed_elements.empty()) {
       command_body.error = EMPTY_CMD;
