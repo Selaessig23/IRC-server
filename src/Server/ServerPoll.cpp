@@ -133,7 +133,15 @@ int Server::handle_pollout(struct pollfd& pfd) {
  */
 int Server::initiate_poll() {
   while (1) {
-    poll(&_poll_fds[0], _poll_fds.size(), -1);
+    int ret_poll = 0;
+    ret_poll = poll(&_poll_fds[0], _poll_fds.size(), -1);
+    if (ret_poll < 0) {
+      if (errno == EINTR)
+        continue;
+      DEBUG_PRINT("Error in poll-function, errno: " << errno);
+      return (1);
+      }
+    }
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
