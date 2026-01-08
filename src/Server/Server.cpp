@@ -124,7 +124,7 @@ int Server::handle_new_client() {
  */
 int Server::initiate_poll() {
   while (1) {
-    poll(&_poll_fds[0], _poll_fds.size(), 0);
+    poll(&_poll_fds[0], _poll_fds.size(), -1);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
