@@ -50,12 +50,8 @@ namespace Parsing {
     std::string token;
     std::vector<std::string> parsed_elements;
     std::istringstream input_stream(current_command);
-    // while (std::getline(ss, elem, ','))
-    //   chans.push_back(elem);
-    // while (input_stream >> token) {
-    while (std::getline(input_stream, token, ' ')) {
-      if (token[token.size() - 1] == '\n')
-        token.erase(token.size() - 1);
+
+    while (input_stream >> token) {
       parsed_elements.push_back(token);
     }
 
