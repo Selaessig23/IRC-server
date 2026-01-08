@@ -95,8 +95,8 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
               chan->adjust_modes(MODE_LIMIT, sign);
               msg += "l";
               msg_param += " " + cmd.parameters[param_ind];
-              param_ind++;
             }
+            param_ind++;
           }
           break;
         case 't':
