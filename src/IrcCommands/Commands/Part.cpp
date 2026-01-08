@@ -29,12 +29,6 @@ void IrcCommands::send_part_message(Server& base, const struct cmd_obj& cmd,
  * @brief PART command is used to leave channels
  * After succesful call client gets removed from the <channel>
  * e.g. PART <channel>
- * 
- * TODO:
- * (1) All message sending functionalities in the file works now 
- * but are going to be adapted to last send_message() version
- * (2) Handling multiple channel entry at single command call
- * e.g. PART #chan,#42
  *  
  * @return 0 or in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)

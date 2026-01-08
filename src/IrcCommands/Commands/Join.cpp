@@ -10,12 +10,6 @@
 #include "../IrcCommands.hpp"
 
 /**
- * TODO:
- * (1) All message sending functionalities in the file works now 
- * but are going to be adapted to last send_message() version
- */
-
-/**
   * @brief function that structures JOIN reply message and sends it to the target client.
   *  It is called from new_channel and join_existing_channel functions 
   */
