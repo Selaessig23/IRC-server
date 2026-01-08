@@ -127,6 +127,10 @@ int Server::initiate_poll() {
     poll(&_poll_fds[0], _poll_fds.size(), 0);
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
+      if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
+        remove_client(it->fd);
+        break;
+      }
       if (it == _poll_fds.begin() && it->revents != 0) {
         DEBUG_PRINT("Revent: " << it->revents);
         handle_new_client();
