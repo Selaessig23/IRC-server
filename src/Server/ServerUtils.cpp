@@ -169,6 +169,7 @@ int Server::handle_pollout(struct pollfd& pfd) {
       if (size_sent < 0 && (errno == EPIPE || errno == ECONNRESET)) {
         remove_client(pfd.fd);
       }
+      DEBUG_PRINT("Error on send-function: " << errno);
       return (1);
     }
     std::string new_out = it_client->get_client_out();
