@@ -107,35 +107,41 @@ void Server::remove_pollevent(int fd, int event) {
 }
 
 /**
- * @brief function to handle a pollin event from one of the clients fds
+ * @brief function to handle a pollin events from one of the clients fds
+ * buffer from recv is added to internal buffer of client-obj and only gets
+ * parsed and executed if the internal buffer of the client includes a "\r\n"
+ *
+ * error-checks: 
  * in case there is no input to read, it is interpreted as client was lost
  * therefore client gets deleted on server
+ * it checks for recv-errors
  */
 int Server::handle_pollin(struct pollfd& pfd) {
 
   char buf[8750];
   int recv_len = recv(pfd.fd, buf, sizeof(buf) - 1, 0);
-
-  if (recv_len <= 0) {
+  if (recv_len < 0) {
+    if (errno = ECONNRESET || errno == ETIMEDOUT)
+      remove_client(pfd.fd);
+    DEBUG_PRINT("Error detected in recv(): " << errno);
+    return (1);
+  }
+  if (recv_len == 0) {
     this->remove_client(pfd.fd);
     return (1);
   }
-
   buf[recv_len] = '\0';
 
   Client* client = find_client_by_fd(pfd.fd);
   if (!client)
     return (1);
-
   client->add_to_received_packs(buf);
 
   while (client->get_received_packs().find("\r\n") != std::string::npos) {
 
     cmd_obj cmd_body;
     cmd_body.client = client;
-
     PARSE_ERR err = Parsing::parse_command(cmd_body);
-
 #ifdef DEBUG
     if (err)
       std::cout << "\nERR: " << err << std::endl;
@@ -144,7 +150,6 @@ int Server::handle_pollin(struct pollfd& pfd) {
 #else
     (void)err;
 #endif
-
     _irc_commands->exec_command(*this, cmd_body);
   }
   return (0);
@@ -152,9 +157,12 @@ int Server::handle_pollin(struct pollfd& pfd) {
 
 /**
  * @brief function to handle a pollout event of a clients id
- * to send from clients buffer to client until it buffer is empty
+ * to send from clients buffer to client until buffer is empty
  * if buffer is empty, poll-event POLLOUT of clients fd gets removed
- * everything that has been sent to client becomes removed from clients out-buffer
+ * everything that was sent to client becomes removed from clients out-buffer
+ *
+ * function checks for send-errors to avoid blocking-behaviour and
+ * race-conditions
  */
 int Server::handle_pollout(struct pollfd& pfd) {
 
