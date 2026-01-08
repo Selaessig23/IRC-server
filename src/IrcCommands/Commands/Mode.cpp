@@ -88,7 +88,7 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             chan->adjust_modes(MODE_LIMIT, sign);
             msg += "l";
           } else if (sign && param_ind < cmd.parameters.size()) {
-            int limit =
+            size_t limit =
                 std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10);
             if (limit != chan->get_user_limit()) {
               chan->set_user_limit(limit);
