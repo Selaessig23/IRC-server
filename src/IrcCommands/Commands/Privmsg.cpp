@@ -85,6 +85,8 @@ int IrcCommands::privmsg(Server& base, const struct cmd_obj& cmd) {
     end = it_para->find(',', start);
     start = end + 1;
   }
+  recipients.push_back(it_para->substr(start, end - start));
+
   it_para++;
   if (it_para == cmd.parameters.end() || it_para->empty()) {
     send_message(base, cmd, ERR_NOTEXTTOSEND, cmd.client, NULL);

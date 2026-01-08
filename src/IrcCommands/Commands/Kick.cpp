@@ -30,12 +30,13 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
 /**
  * @brief KICK command is used to remove members from channels
  * Only operators of the channel can remove other members
- * KICK <channel> <user> *( "," <user> ) [<comment>]
+ * KICK <channel> <user> [<comment>]
  * KICK command is also functions for command issuer itself
  * as if they called PART for respective channel.
  * 
- * TODO:
- * (1) implement multi-kick at a single call
+ * Note: We haven't implemented multiple channel and multiple nick processing:
+ * Command: KICK
+ * Parameters: <channel> *( "," <channel> ) <user> *( "," <user> ) [<comment>]
  *  
  * @return 0, in case of an error it returns error codes:
  * ERR_NEEDMOREPARAMS (461)
