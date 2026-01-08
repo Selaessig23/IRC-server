@@ -87,16 +87,16 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             chan->set_user_limit(0);
             chan->adjust_modes(MODE_LIMIT, sign);
             msg += "l";
-          } else if ((param_ind < cmd.parameters.size() && sign &&
-                      (int)chan->get_user_limit() !=
-                          std::strtol(cmd.parameters[param_ind].c_str(), NULL,
-                                      10))) {
-            chan->set_user_limit(
-                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
-            chan->adjust_modes(MODE_LIMIT, sign);
-            msg += "l";
-            msg_param += " " + cmd.parameters[param_ind];
-            param_ind++;
+          } else if (sign && param_ind < cmd.parameters.size()) {
+            int limit =
+                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10);
+            if (limit != chan->get_user_limit()) {
+              chan->set_user_limit(limit);
+              chan->adjust_modes(MODE_LIMIT, sign);
+              msg += "l";
+              msg_param += " " + cmd.parameters[param_ind];
+              param_ind++;
+            }
           }
           break;
         case 't':
