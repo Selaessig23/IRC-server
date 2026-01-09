@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2026/01/06 11:18:46 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/09 15:19:45 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,11 @@
 #include <cstdlib>  //atoi
 #include <iostream>
 #include "Bot/Bot.hpp"
+#include "Utils/Utils.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
-#include "Utils/Utils.hpp"
 
 Bot* g_bot;
-
-void signal_handler(int signal) {
-  (void)signal;
-  DEBUG_PRINT("Exit of client caused by signal: " << signal);
-  delete g_bot;
-  exit(0);
-}
 
 int main(int argc, char* argv[]) {
   int port;
@@ -39,9 +32,9 @@ int main(int argc, char* argv[]) {
   std::string data_input(
       argv[3]);  //to verify, maybe when constructing the object
   try {
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
-    signal(SIGQUIT, signal_handler);
+    signal(SIGINT, Utils::signal_handler);
+    signal(SIGTERM, Utils::signal_handler);
+    signal(SIGQUIT, Utils::signal_handler);
     g_bot = new Bot(port, pw, data_input);
     if (g_bot->init_poll()) {
       delete g_bot;

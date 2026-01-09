@@ -36,6 +36,7 @@ int IrcCommands::oper(Server& base, const struct cmd_obj& cmd) {
       *(cmd.parameters.begin() + 1) == (base._pw + "42BOT")) {
     cmd.client->set_opertr(true);
     send_message(base, cmd, RPL_YOUREOPER, cmd.client, NULL);
+    DEBUG_PRINT("A new operator of the server was registered: " << cmd.client->get_nick());
     return (0);
   } else {
     send_message(base, cmd, ERR_PASSWDMISMATCH, cmd.client, NULL);

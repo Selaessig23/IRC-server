@@ -2,7 +2,18 @@
 #include <climits>  //for INT_MIN / INT_MAX
 #include <iostream>
 #include <sstream>  //for std::stringstream
+#include "../Bot/Bot.hpp"
+#include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
+
+extern Bot* g_bot;
+
+void signal_handler(int signal) {
+  (void)signal;
+  DEBUG_PRINT("Exit of client caused by signal: " << signal);
+  delete g_bot;
+  exit(0);
+}
 
 /**
  * @brief function to convert a string to int
