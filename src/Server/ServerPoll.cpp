@@ -1,5 +1,4 @@
 #include <errno.h>
-#include <cstring>  // for strlen
 #include <iostream>
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
@@ -41,7 +40,7 @@ void Server::remove_pollevent(int fd, int event) {
 }
 
 /**
- * @brief function to handle a pollin events from one of the clients fds
+ * @brief function to handle a pollin event from one of the clients fds
  * buffer from recv is added to internal buffer of client-obj and only gets
  * parsed and executed if the internal buffer of the client includes a "\r\n"
  *
@@ -106,10 +105,13 @@ int Server::handle_pollout(struct pollfd& pfd) {
        it_client++) {}
   if (it_client != _client_list.end()) {
     int size_sent = send(pfd.fd, it_client->get_client_out().c_str(),
-                         strlen(it_client->get_client_out().c_str()), 0);
-    if (size_sent < 0) {
-      if (errno == EPIPE || errno == ECONNRESET || errno == ETIMEDOUT |
-           errno == ENOTCONN) {
+                         it_client->get_client_out().size(), 0);
+    if (size_sent <= 0) {
+      if (size_sent == 0) {
+        DEBUG_PRINT("send returned 0 bytes, closing client fd: " << pfd.fd);
+        remove_client(pfd.fd);
+      } else if (errno == EPIPE || errno == ECONNRESET ||
+                 errno == ETIMEDOUT | errno == ENOTCONN) {
         remove_client(pfd.fd);
       }
       DEBUG_PRINT("Error on send-function: " << errno);
@@ -137,16 +139,16 @@ int Server::initiate_poll() {
     ret_poll = poll(&_poll_fds[0], _poll_fds.size(), -1);
     if (ret_poll < 0) {
       if (errno == EINTR)
-        continue;
+        initiate_poll();
       DEBUG_PRINT("Error in poll-function, errno: " << errno);
       return (1);
-      }
     }
     for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
          it != _poll_fds.end(); it++) {
       if (it->revents & (POLLERR | POLLHUP | POLLNVAL)) {
         if (it == _poll_fds.begin()) {
-          DEBUG_PRINT("Error on server socket pollfd, revents: " << it->revents);
+          DEBUG_PRINT(
+              "Error on server socket pollfd, revents: " << it->revents);
           return (1);
         }
         remove_client(it->fd);
