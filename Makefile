@@ -23,8 +23,9 @@ RED :=			\033[91m
 
 #sources
 SRCS =	main.cpp 
-SRCS += Server/ServerUtils.cpp
 SRCS += Server/Server.cpp
+SRCS += Server/ServerPoll.cpp
+SRCS += Server/ServerUtils.cpp
 SRCS += Client/Client.cpp
 SRCS += Channel/Channel.cpp
 SRCS += Parser/Parser.cpp

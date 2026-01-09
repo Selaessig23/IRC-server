@@ -31,12 +31,12 @@ class Server {
   std::list<Channel> _channel_list;
   IrcCommands* _irc_commands;
 
-  //member function (helper)
+  //member functions (helper)
   int initiate_poll();
   int add_new_client_to_poll(int client_fd);
   int handle_new_client();
   int handle_pollin(struct pollfd& poll_fd);
-  void handle_pollout(struct pollfd& poll_fd);
+  int handle_pollout(struct pollfd& poll_fd);
   void set_pollevent(int fd, int event);
   void remove_pollevent(int fd, int event);
   void remove_client(int fd);
@@ -50,14 +50,15 @@ class Server {
 
   // Getters
   std::list<Channel>& get_channel_list();
-
   Client* find_client_by_fd(int fd);
+
   // function to activate the IRC-Server (run the server-loop)
   int init();
 
   friend class IrcCommands;
 };
 
+//helper functions (in ServerUtils.cpp)
 void debug_parsed_cmds(cmd_obj& cmd_body);
 std::string get_current_date_time();
 
