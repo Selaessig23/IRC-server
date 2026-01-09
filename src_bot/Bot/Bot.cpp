@@ -248,8 +248,8 @@ int Bot::handle_pollin(struct pollfd& pfd) {
       become_operator(pfd);
     } else if (_registered == true &&
                (cmd_body.command == "002" || cmd_body.command == "003")) {
-    } else if (_registered == true && cmd_body.command == "381") {
       continue;
+    } else if (_registered == true && cmd_body.command == "381") {
       // case RPL_YOUREOPER: ":You are now an IRC operator"
       _operator = true;
       DEBUG_PRINT("Bot is now registered as an operator");

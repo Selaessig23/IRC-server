@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include "../Channel/Channel.hpp"
+#include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 #include "../includes/types.hpp"
 #include "Bot.hpp"
@@ -235,6 +236,8 @@ int Bot::check_for_swears(cmd_obj& cmd_body, struct pollfd& pfd) {
           _output_buffer += out;
           pfd.events |= POLLOUT;
           if (_operator == true && get_strikes(nick) >= 3) {
+            DEBUG_PRINT("Strikes " << get_strikes(nick));
+            DEBUG_PRINT("Operator status:" << _operator);
             kill_client(nick, pfd);
             std::map<std::string, int>::iterator to_kill =
                 _warned_members.find(nick);
