@@ -6,7 +6,7 @@
 /*   By: mstracke <mstracke@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2026/01/09 13:29:10 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/09 15:26:20 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,9 @@
 #include <iostream>
 #include <sstream>  //for std::stringstream
 #include "Server/Server.hpp"
-#include "Utils.hpp"
+#include "Utils/Utils.hpp"
 #include "debug.hpp"
 #include "includes/CONSTANTS.hpp"
-
-// TODO:
-// AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
-// protocl number (if several)
 
 Server* g_server;
 

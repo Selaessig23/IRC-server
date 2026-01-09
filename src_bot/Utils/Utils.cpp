@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+#include <cstdlib>  // for exxit
 #include <climits>  //for INT_MIN / INT_MAX
 #include <iostream>
 #include <sstream>  //for std::stringstream
@@ -8,7 +9,7 @@
 
 extern Bot* g_bot;
 
-void signal_handler(int signal) {
+void Utils::signal_handler(int signal) {
   (void)signal;
   DEBUG_PRINT("Exit of client caused by signal: " << signal);
   delete g_bot;

@@ -6,12 +6,11 @@
 /*   By: mstracke <mstracke@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 11:03:31 by mstracke          #+#    #+#             */
-/*   Updated: 2026/01/09 15:19:45 by mstracke         ###   ########.fr       */
+/*   Updated: 2026/01/09 15:30:11 by mstracke         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <csignal>  //signal
-#include <cstdlib>  //atoi
 #include <iostream>
 #include "Bot/Bot.hpp"
 #include "Utils/Utils.hpp"

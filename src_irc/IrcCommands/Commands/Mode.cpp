@@ -4,7 +4,7 @@
 #include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
-#include "../../Utils.hpp"
+#include "../../Utils/Utils.hpp"
 #include "../../debug.hpp"
 #include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
