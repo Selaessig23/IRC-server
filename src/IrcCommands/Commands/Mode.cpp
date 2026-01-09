@@ -4,6 +4,7 @@
 #include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
+#include "../../Utils.hpp"
 #include "../../debug.hpp"
 #include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
@@ -73,8 +74,8 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             chan->set_key("");
             chan->adjust_modes(MODE_KEY, sign);
             msg += "k";
-          } else if ((sign && !(chan->get_modes() & MODE_KEY)) &&
-                     param_ind < cmd.parameters.size()) {
+          } else if ((param_ind < cmd.parameters.size() && sign &&
+                      chan->get_key() != cmd.parameters[param_ind])) {
             chan->set_key(cmd.parameters[param_ind]);
             chan->adjust_modes(MODE_KEY, sign);
             msg += "k";
@@ -87,13 +88,21 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             chan->set_user_limit(0);
             chan->adjust_modes(MODE_LIMIT, sign);
             msg += "l";
-          } else if ((sign && !(chan->get_modes() & MODE_LIMIT)) &&
-                     param_ind < cmd.parameters.size()) {
-            chan->set_user_limit(
-                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10));
-            chan->adjust_modes(MODE_LIMIT, sign);
-            msg += "l";
-            msg_param += " " + cmd.parameters[param_ind];
+          } else if (sign && param_ind < cmd.parameters.size()) {
+            int limit = 0;
+            if (!Utils::ft_convert_to_int(limit, cmd.parameters[param_ind])) {
+              param_ind++;
+              continue;
+            }
+            if (limit < 0) {
+              param_ind++;
+              continue;
+            } else if (limit != chan->get_user_limit()) {
+              chan->set_user_limit(limit);
+              chan->adjust_modes(MODE_LIMIT, sign);
+              msg += "l";
+              msg_param += " " + cmd.parameters[param_ind];
+            }
             param_ind++;
           }
           break;

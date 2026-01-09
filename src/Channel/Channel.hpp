@@ -34,7 +34,7 @@ class Channel {
   std::string _topic_time;
   std::string _topic_who;
   std::string _key;
-  size_t _user_limit;
+  int _user_limit;
   /**
    * @brief Map of channel members to their operator status.
    * The key is a pointer to a Client participating in the channel.
@@ -67,10 +67,10 @@ class Channel {
   std::string get_topic_time();
   std::string get_topic_who();
   std::string get_key();
-  size_t get_user_limit();
+  int get_user_limit();
   int get_modes();
   std::string get_modes_string();
-  size_t get_members_size();
+  int get_members_size();
   size_t get_operators_size();
   std::vector<std::string> get_members_nicks();
   std::string get_nicks_string();
@@ -81,7 +81,7 @@ class Channel {
   void adjust_modes(int mode, bool status);
   void set_topic(std::string topic, std::string nick);
   void set_key(std::string key);
-  void set_user_limit(size_t limit);
+  void set_user_limit(int limit);
 
   // Helpers
   void print_channel_info();
