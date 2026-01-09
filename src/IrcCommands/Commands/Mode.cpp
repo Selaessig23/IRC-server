@@ -4,6 +4,7 @@
 #include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
+#include "../../Utils.hpp"
 #include "../../debug.hpp"
 #include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
@@ -88,9 +89,11 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             chan->adjust_modes(MODE_LIMIT, sign);
             msg += "l";
           } else if (sign && param_ind < cmd.parameters.size()) {
-            size_t limit =
-                std::strtol(cmd.parameters[param_ind].c_str(), NULL, 10);
-            if (limit != chan->get_user_limit()) {
+            int limit = 0;
+            Utils::ft_convert_to_int(limit, cmd.parameters[param_ind]);
+            if (limit < 0)
+              continue;
+            else if (limit != chan->get_user_limit()) {
               chan->set_user_limit(limit);
               chan->adjust_modes(MODE_LIMIT, sign);
               msg += "l";

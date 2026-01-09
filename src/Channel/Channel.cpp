@@ -88,7 +88,7 @@ void Channel::set_topic(std::string topic, std::string nick) {
   _topic_who = nick;
 }
 
-void Channel::set_user_limit(size_t limit) {
+void Channel::set_user_limit(int limit) {
   _user_limit = limit;
 }
 
@@ -131,7 +131,7 @@ std::string Channel::get_key() {
   return (_key);
 }
 
-size_t Channel::get_user_limit() {
+int Channel::get_user_limit() {
   return (_user_limit);
 }
 
@@ -139,7 +139,7 @@ int Channel::get_modes() {
   return (_modes);
 }
 
-size_t Channel::get_members_size() {
+int Channel::get_members_size() {
   return (_members.size());
 }
 
