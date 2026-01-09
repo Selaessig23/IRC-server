@@ -23,7 +23,7 @@ RED :=			\033[91m
 
 #sources
 SRCS =	main.cpp 
-SRCS += Utils.cpp
+SRCS += Utils/Utils.cpp
 SRCS += Server/Server.cpp
 SRCS += Server/ServerPoll.cpp
 SRCS += Server/ServerUtils.cpp
