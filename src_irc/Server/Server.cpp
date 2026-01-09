@@ -143,7 +143,6 @@ int Server::handle_new_client() {
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
   add_new_client_to_poll(client_fd);
-  std::vector<struct pollfd>::iterator it = _poll_fds.begin();
   Client NewClient((_client_list.size() + 1), client_fd, client_addr);
   _client_list.push_back(NewClient);
   return (0);
