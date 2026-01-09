@@ -56,7 +56,8 @@ namespace Utils {
                 << std::endl;
       return (1);
     }
-    ft_convert_to_int(port, argv[1]);
+    if (!ft_convert_to_int(port, argv[1]))
+      return (1);
     if (port < PORT_MIN || port > PORT_MAX) {
       std::cerr << "Provided port no " << port << " out of range!" << std::endl;
       return (1);

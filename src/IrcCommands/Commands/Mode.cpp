@@ -90,10 +90,14 @@ int IrcCommands::update_modes(Server& base, const struct cmd_obj& cmd,
             msg += "l";
           } else if (sign && param_ind < cmd.parameters.size()) {
             int limit = 0;
-            Utils::ft_convert_to_int(limit, cmd.parameters[param_ind]);
-            if (limit < 0)
+            if (!Utils::ft_convert_to_int(limit, cmd.parameters[param_ind])) {
+              param_ind++;
               continue;
-            else if (limit != chan->get_user_limit()) {
+            }
+            if (limit < 0) {
+              param_ind++;
+              continue;
+            } else if (limit != chan->get_user_limit()) {
               chan->set_user_limit(limit);
               chan->adjust_modes(MODE_LIMIT, sign);
               msg += "l";
