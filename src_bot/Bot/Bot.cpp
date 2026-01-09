@@ -164,8 +164,6 @@ int Bot::get_strikes(const std::string& nick) {
  */
 void Bot::handle_pollout(struct pollfd& pfd) {
 
-  //   int size_sent =
-  //       send(pfd.fd, _output_buffer.c_str(), strlen(_output_buffer.c_str()), 0);
   int size_sent = send(pfd.fd, _output_buffer.data(), _output_buffer.size(), 0);
   std::string new_out = _output_buffer;
   new_out.erase(0, size_sent);
@@ -314,7 +312,8 @@ int Bot::init_poll() {
     if (client_poll.revents & POLLIN) {
       if (handle_pollin(client_poll))
         return (1);
-    } else if (client_poll.revents & POLLOUT) {
+    }
+    if (client_poll.revents & POLLOUT) {
       DEBUG_PRINT("case pollout:" << _output_buffer);
       handle_pollout(client_poll);
     }

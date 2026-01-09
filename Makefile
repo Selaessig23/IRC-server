@@ -23,10 +23,11 @@ GREEN =			\033[32m
 YELLOW =		\033[33m
 RED :=			\033[91m
 
-#sources irc
-SRCS_IRC = src_irc/main.cpp 
-SRCS_IRC += src_irc/Server/ServerUtils.cpp
+#sources
+SRCS_IRC =	src_irc/main.cpp 
 SRCS_IRC += src_irc/Server/Server.cpp
+SRCS_IRC += src_irc/Server/ServerPoll.cpp
+SRCS_IRC += src_irc/Server/ServerUtils.cpp
 SRCS_IRC += src_irc/Client/Client.cpp
 SRCS_IRC += src_irc/Channel/Channel.cpp
 SRCS_IRC += src_irc/Parser/Parser.cpp
@@ -177,8 +178,8 @@ debugvalrunbot: fcleanbot $(NAME_BOT)
 	@echo "Running BOT with valgrind"
 	@PATH=".$${PATH:+:$${PATH}}" && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes $(NAME_BOT) $(ARGS_BOT)
 
-bonusdebugvalrun: CXXFLAGS += -DDEBUG -g
-bonusdebugvalrun: fclean bonus
+debugvalrunbonus: CXXFLAGS += -DDEBUG -g
+debugvalrunbonus: fclean bonus
 	@echo "$(BOLD)$(YELLOW)Debug build complete.$(RESET)"
 	@echo
 	@echo "Running irc-server and bot"

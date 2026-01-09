@@ -1,6 +1,6 @@
 #include "Server.hpp"
 #include <arpa/inet.h>  // for inet_ntoa()
-#include <fcntl.h>
+// #include <fcntl.h>
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <poll.h>
 #include <stdlib.h>
@@ -16,16 +16,6 @@
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
 
-Server::~Server() {
-  DEBUG_PRINT("Destructor of Server called.");
-  for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
-    close(it->fd);
-  }
-  //Close Server last
-  close(_poll_fds.begin()->fd);
-  delete _irc_commands;
-}
-
 Server::Server(int port, std::string& pw)
     : _network_name("MUMs_network"),
       _server_name("MUMs_server"),
@@ -33,7 +23,6 @@ Server::Server(int port, std::string& pw)
       _port(port),
       _pw(pw),
       _irc_commands(new IrcCommands()) {
-  //created at
   _created_at = get_current_date_time();
   _fd_server = socket(AF_INET, SOCK_STREAM, 0);
   if (_fd_server < 0) {
@@ -75,16 +64,67 @@ Server Server::operator=(const Server& other) {
   return (*this);
 }
 
+Server::~Server() {
+  DEBUG_PRINT("Destructor of Server called.");
+  for (fd_iterator it = _poll_fds.begin() + 1; it != _poll_fds.end(); it++) {
+    close(it->fd);
+  }
+  close(_poll_fds.begin()->fd);
+  delete _irc_commands;
+}
+
+// Getters
+std::list<Channel>& Server::get_channel_list() {
+  return (_channel_list);
+}
+
 /**
- * @brief function to add a new connection to poll struct
+ * @brief function to find a client of _client_list
+ * @return it returns a pointer to the client or NULL if it was not found
  */
-int Server::add_new_client_to_poll(int client_fd) {
-  struct pollfd ServerPoll;
-  ServerPoll.fd = client_fd;
-  ServerPoll.events = POLLIN;
-  ServerPoll.revents = 0;
-  _poll_fds.push_back(ServerPoll);
-  return (0);
+Client* Server::find_client_by_fd(int fd) {
+  std::list<Client>::iterator it = _client_list.begin();
+  for (; it != _client_list.end(); ++it) {
+    if (it->get_client_fd() == fd)
+      return &(*it);
+  }
+  return NULL;
+}
+
+/**
+ * @brief function to remove (kill) a client from server,
+ * it considers:
+ *  pollfd struct
+ *  _client_list
+ *  _channel_list
+ */
+void Server::remove_client(int fd) {
+
+  for (std::list<Client>::iterator it_client = _client_list.begin();
+       it_client != _client_list.end(); it_client++) {
+    if (it_client->get_client_fd() == fd) {
+      for (std::list<Channel>::iterator it_chan = _channel_list.begin();
+           it_chan != _channel_list.end();) {
+        it_chan->remove_from_members(&(*it_client));
+        it_chan->remove_from_invited(&(*it_client));
+        if (it_chan->get_members().empty())
+          it_chan = _channel_list.erase(it_chan);
+        else
+          it_chan++;
+      }
+      _client_list.erase(it_client);
+      break;
+    }
+  }
+  for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
+       it != _poll_fds.end(); ++it) {
+    if (it->fd == fd) {
+      _poll_fds.erase(it);
+      break;
+    }
+  }
+  close(fd);
+  DEBUG_PRINT("Case delete client: " << fd);
 }
 
 /**
@@ -105,7 +145,6 @@ int Server::handle_new_client() {
   DEBUG_PRINT("FD of new client: " << client_fd);
   add_new_client_to_poll(client_fd);
   std::vector<struct pollfd>::iterator it = _poll_fds.begin();
-  // check  for find function
   for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
   if (it != _poll_fds.end())
     it->events = POLLOUT | POLLIN;
@@ -115,42 +154,12 @@ int Server::handle_new_client() {
 }
 
 /**
- * @brief function to run the poll loop
- * (main server loop)
- * it checks all fds of clients & server for 
- * (1) new incomming connections (of server/socket-fd)
- * (2) events of the clients
- */
-int Server::initiate_poll() {
-  while (1) {
-    poll(&_poll_fds[0], _poll_fds.size(), 0);
-    for (std::vector<struct pollfd>::iterator it = _poll_fds.begin();
-         it != _poll_fds.end(); it++) {
-      if (it == _poll_fds.begin() && it->revents != 0) {
-        DEBUG_PRINT("Revent: " << it->revents);
-        handle_new_client();
-        break;
-      }
-      if (it->revents & POLLIN) {
-        if (handle_pollin(*it))
-          break;
-      }
-      if (it->revents & POLLOUT) {
-        handle_pollout(*it);
-      }
-    }
-  }
-  return (0);
-}
-
-/**
  * @brief function to activate the server
  * (1) activation (listen)
  * (2) init poll struct (1st element == socket-fd)
  * (3) init poll loop
  *
- * fcntl commented out as we are still unsure if required
- * respective if we are allowed to use it
+ * fcntl commented out as there was no case where the server got blocked
  */
 int Server::init() {
   // fcntl(_fd_server, F_SETFL, O_NONBLOCK); //
@@ -168,9 +177,4 @@ int Server::init() {
   if (initiate_poll())
     return (1);
   return 0;
-}
-
-// Getters
-std::list<Channel>& Server::get_channel_list() {
-  return (_channel_list);
 }
