@@ -34,7 +34,7 @@ void IrcCommands::send_kick_message(Server& base, const struct cmd_obj& cmd,
  * KICK command is also functions for command issuer itself
  * as if they called PART for respective channel.
  * 
- * Note: We haven't implemented multiple channel and multiple nick processing:
+ * Note: We haven't implemented multiple channel and multiple nick processing
  * Command: KICK
  * Parameters: <channel> *( "," <channel> ) <user> *( "," <user> ) [<comment>]
  *  

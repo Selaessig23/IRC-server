@@ -24,7 +24,8 @@ YELLOW =		\033[33m
 RED :=			\033[91m
 
 #sources
-SRCS_IRC =	src_irc/main.cpp 
+SRCS_IRC =	src_irc/main.cpp
+SRCS_IRC += src_irc/Utils/Utils.cpp
 SRCS_IRC += src_irc/Server/Server.cpp
 SRCS_IRC += src_irc/Server/ServerPoll.cpp
 SRCS_IRC += src_irc/Server/ServerUtils.cpp
