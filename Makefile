@@ -136,7 +136,7 @@ runirc: irc
 
 runbot: bot
 	@echo
-	@echo "Running irc-server"
+	@echo "Running bot-server"
 	@PATH=".$${PATH:+:$${PATH}}" && $(NAME_BOT) $(ARGS_BOT)
 
 # to run both program simultanously
