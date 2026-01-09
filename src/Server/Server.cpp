@@ -133,8 +133,7 @@ void Server::remove_client(int fd) {
  * (1) it creates new client class
  * (2) client is add to client class
  * (3) welcome-message from server gets written to client buffer
- *     and poll event of client fd gets set to POLLIN AND 
- *     POLLOUT (to write welcome message)
+ *     and poll event of client fd gets set to POLLIN 
  */
 int Server::handle_new_client() {
   struct sockaddr_in client_addr;
@@ -145,10 +144,6 @@ int Server::handle_new_client() {
       "New client connection from: " << inet_ntoa(client_addr.sin_addr));
   DEBUG_PRINT("FD of new client: " << client_fd);
   add_new_client_to_poll(client_fd);
-  std::vector<struct pollfd>::iterator it = _poll_fds.begin();
-  for (; it != _poll_fds.end() && it->fd != client_fd; it++) {}
-  if (it != _poll_fds.end())
-    it->events = POLLOUT | POLLIN;
   Client NewClient((_client_list.size() + 1), client_fd, client_addr);
   _client_list.push_back(NewClient);
   return (0);
