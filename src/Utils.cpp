@@ -27,7 +27,7 @@ namespace Utils {
  * @param value a reference to the int value that should be used for converted value
  * @param to_convert the string that has to be converted to int
  *
- * @return returns true if succesful, false if converions failed
+ * @return returns true if successful, false if converions failed
  */
   bool ft_convert_to_int(int& value, const std::string& to_convert) {
     std::stringstream ss(to_convert);
