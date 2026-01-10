@@ -2,7 +2,6 @@
 #include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
 #include <sstream>  // for std::ostringstream
-#include "../debug.hpp"
 #include "../includes/types.hpp"
 
 /**
@@ -26,7 +25,7 @@ std::string get_current_date_time() {
  * @brief function to debug the result of the input parsing
  */
 void debug_parsed_cmds(cmd_obj& cmd_body) {
-
+#ifdef DEBUG
   std::cout << "CMD_BDY: " << std::endl;
   if (cmd_body.error)
     std::cout << "ERR: " << cmd_body.error << std::endl;
@@ -43,4 +42,6 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
       std::cout << *it << std::endl;
     }
   }
+#endif
+  (void)cmd_body;
 }

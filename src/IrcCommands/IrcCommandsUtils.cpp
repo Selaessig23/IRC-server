@@ -10,8 +10,6 @@
 /**
  * @brief function to return the reply message of replymessagecode (rpl)
  *
- * TODO
- * (1) add all required rpl messages according to rpl_code
  */
 std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
                                  enum RPL_MSG rpl, Channel* chan) {
@@ -38,28 +36,42 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       if (chan)
         return (chan->get_name() + " Modes: [" + chan->get_modes_string() +
                 "]");
+      else
+        return (": Error on channel configs");
     case RPL_CREATIONTIME:
       if (chan)
         return (chan->get_name() + " is created on " +
                 chan->get_creation_time());
+      else
+        return (": Error on channel configs");
     case RPL_NOTOPIC:
       if (chan)
         return (chan->get_name() + " :No topic is set");
+      else
+        return (": Error on channel configs");
     case RPL_TOPIC:
       if (chan)
         return (chan->get_name() + " topic: " + chan->get_topic());
+      else
+        return (": Error on channel configs");
     case RPL_TOPICWHOTIME:
       if (chan)
         return (chan->get_name() + " topic is set by " + chan->get_topic_who() +
                 " on " + chan->get_topic_time());
+      else
+        return (": Error on channel configs");
     case RPL_INVITING:
       return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
       if (chan)
         return (chan->get_name() + " " + chan->get_nicks_string());
+      else
+        return (": Error on channel configs");
     case RPL_ENDOFNAMES:
       if (chan)
         return (chan->get_name() + " :End of /NAMES list");
+      else
+        return (": Error on channel configs");
     case RPL_YOUREOPER:
       return (":You are now an IRC operator");
     default:
@@ -71,7 +83,6 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
  * @brief function to return the error message of errorcode (err)
  *
  * TODO
- * (1) add all required error messages to corresponding error codes
  * (2) maybe remove paramter base if not required
  */
 std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
@@ -114,12 +125,18 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_USERNOTINCHANNEL:
       if (chan)
         return ("<nick> " + chan->get_name() + " :They aren't on that channel");
+      else
+        return (": Error on channel configs");
     case ERR_NOTONCHANNEL:
       if (chan)
         return (chan->get_name() + " :You're not on that channel");
+      else
+        return (" :You're not on that channel");
     case ERR_USERONCHANNEL:
       if (chan)
         return ("<nick> " + chan->get_name() + " :is already on channel");
+      else
+        return (": Error on channel configs");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -131,17 +148,25 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_CHANNELISFULL:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+l)");
+      else
+        return (" :Cannot join channel (+l)");
     case ERR_INVITEONLYCHAN:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+i)");
+      else
+        return (" :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+k)");
+      else
+        return (" :Cannot join channel (+k)");
     case ERR_NOPRIVILEGES:
       return (" :Permission Denied- You're not an IRC operator");
     case ERR_CHANOPRIVSNEEDED:
       if (chan)
         return (chan->get_name() + " :You're not channel operator");
+      else
+        return (" :You're not channel operator");
     default:
       return (out);
   }

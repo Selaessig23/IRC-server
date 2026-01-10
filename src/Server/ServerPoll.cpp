@@ -1,5 +1,5 @@
 #include <errno.h>
-#include <iostream>
+#include <string>
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../Parser/Parser.hpp"
 #include "../debug.hpp"
@@ -71,19 +71,19 @@ int Server::handle_pollin(struct pollfd& pfd) {
   client->add_to_received_packs(buf);
 
   while (client->get_received_packs().find("\r\n") != std::string::npos) {
-
     cmd_obj cmd_body;
     cmd_body.client = client;
     PARSE_ERR err = Parsing::parse_command(cmd_body);
-#ifdef DEBUG
     if (err)
-      std::cout << "\nERR: " << err << std::endl;
-    else
-      debug_parsed_cmds(cmd_body);
-#else
-    (void)err;
-#endif
-    _irc_commands->exec_command(*this, cmd_body);
+      DEBUG_PRINT("\nERR: " << cmd_body.error);
+    if (err && cmd_body.error == ERR_INPUTTOOLONG)
+      _irc_commands->send_message(*this, cmd_body, ERR_INPUTTOOLONG,
+                                  cmd_body.client, NULL);
+    else {
+      if (!err)
+        debug_parsed_cmds(cmd_body);
+      _irc_commands->exec_command(*this, cmd_body);
+    }
   }
   return (0);
 }
@@ -111,7 +111,7 @@ int Server::handle_pollout(struct pollfd& pfd) {
         DEBUG_PRINT("send returned 0 bytes, closing client fd: " << pfd.fd);
         remove_client(pfd.fd);
       } else if (errno == EPIPE || errno == ECONNRESET ||
-                 errno == ETIMEDOUT | errno == ENOTCONN) {
+                 errno == ETIMEDOUT || errno == ENOTCONN) {
         remove_client(pfd.fd);
       }
       DEBUG_PRINT("Error on send-function: " << errno);
