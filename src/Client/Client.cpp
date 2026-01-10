@@ -105,6 +105,10 @@ bool Client::get_opertr() {
   return (this->_opertr);
 }
 
+std::map<std::string, bool> &Client::get_channels(){
+	return(_channel_inscriptions);
+}
+
 void Client::set_register_status(unsigned char to_add) {
   _registered |= to_add;
 }

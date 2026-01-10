@@ -2,7 +2,7 @@
 #define CHANNEL_HPP
 
 #include <ctime>  // for time-related functions
-#include <iostream>
+#include <string>
 #include <list>
 #include <map>
 #include <string>

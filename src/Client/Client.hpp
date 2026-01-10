@@ -20,7 +20,7 @@ class Client {
   std::string _servername;
   std::string _realname;
   std::string _output_buffer;
-  std::map<std::string, bool> channel_inscriptions;
+  std::map<std::string, bool> _channel_inscriptions;
 
  public:
   Client();
@@ -48,6 +48,7 @@ class Client {
   std::string& get_realname();
   bool get_opertr();
   unsigned char get_register_status();
+  std::map<std::string, bool>& get_channels();
   void set_register_status(unsigned char to_add);
   void set_nick(std::string nick);
   void set_user(std::string user);

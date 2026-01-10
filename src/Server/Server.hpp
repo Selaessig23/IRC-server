@@ -1,8 +1,8 @@
 #include <netinet/in.h>  //for socket, bind, listen, accept
 #include <sys/socket.h>  //sockaddr_in
 #include <unistd.h>
-#include <iostream>
 #include <list>
+#include <string>
 #include <vector>
 #include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
@@ -37,8 +37,6 @@ class Server {
   int handle_new_client();
   int handle_pollin(struct pollfd& poll_fd);
   int handle_pollout(struct pollfd& poll_fd);
-  void set_pollevent(int fd, int event);
-  void remove_pollevent(int fd, int event);
   void remove_client(int fd);
 
  public:
@@ -51,6 +49,9 @@ class Server {
   // Getters
   std::list<Channel>& get_channel_list();
   Client* find_client_by_fd(int fd);
+  // Setters
+  void set_pollevent(int fd, int event);
+  void remove_pollevent(int fd, int event);
 
   // function to activate the IRC-Server (run the server-loop)
   int init();
