@@ -15,8 +15,11 @@
 #include "../IrcCommands/IrcCommands.hpp"
 #include "../debug.hpp"
 #include "../includes/CONSTANTS.hpp"
-#include "../includes/types.hpp"
 
+/**
+ * @brief socket for IRC-Server gets created in constructor
+ * IRC-Server is only able to read from IP4-addresses
+ */
 Server::Server(int port, std::string& pw)
     : _network_name("MUMs_network"),
       _server_name("MUMs_server"),

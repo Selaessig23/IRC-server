@@ -9,7 +9,7 @@ namespace Parsing {
  * @brief breaks down incomming string into cmd and params
  * (1 --> commented out for testing reasons) it checks if message ends with CR-LF, if not it returns an individual message
  *     as there is no official one: input line to long (max size of input according to recv-buf is 8750 bytes)
- * (2) tokenizes the string
+ * (2) it tokenizes the string
  * (3) it checks for max size of message (if correclty terminated with CR-LF)
  * (4) it splits the tags and add them into com_obj.tags, if there are tags
  * (5) it checks if there is a prefix and adds it to com_onj.prefix
@@ -18,7 +18,8 @@ namespace Parsing {
  * (8) it returns an error if size of parameters > 15: no error code provided by protocol, must clients return
  *    417 ERR_INPUTTOOLONG (so do I)
  *
- * DONE:
+ * 
+ * Details: 
  * (1) check for tags: Optional metadata on a message, starting with ('@', 0x40)
  *      - Basically, a series of <key>[=<value>] segments, separated by (';', 0x3B).
  *      - if set, they extend the max length if the message by 4096 additional bytes (only for tags)
@@ -28,12 +29,14 @@ namespace Parsing {
  *      - up to 15 parameters
  * (4) consider syntax rules of irc-protocoll
  *      - The prefix, command, and all parameters are separated by one (or more) ASCII space character(s)
- *      - TAB is considered to be a non-white-space
+ *      - TAB is considered to be a non-white-space (therefore getline was used to parse the inputbuff)
  *      - NUL is not allowed within messages: how to check it?
  *      - IRC messages are always lines of characters terminated with a CR-LF (Carriage Return - Line Feed) pair, 
  *      - the messages shall not exceed 512 characters in length (including CR-LF)
  *
  * see: https://modern.ircdocs.horse/#message-format | https://www.rfc-editor.org/rfc/rfc1459.html#section-2.3.1
+ *
+ * @return function returns > 0 if it has detected an error
  *
  */
   int parse_command(cmd_obj& command_body) {
@@ -43,22 +46,20 @@ namespace Parsing {
     size_t delimiter = received_packs.find("\r\n");
     std::string current_command = received_packs.substr(0, delimiter);
     command_body.client->clip_current_command(delimiter);
-#ifdef DEBUG
-    std::cout << "\nCurrent command: " << current_command << std::endl;
-#endif
+    DEBUG_PRINT("\nCurrent command: " << current_command);
 
     std::string token;
     std::vector<std::string> parsed_elements;
     std::istringstream input_stream(current_command);
 
     while (std::getline(input_stream, token, ' ')) {
-        if (token != "")
-          parsed_elements.push_back(token);
+      if (token != "")
+        parsed_elements.push_back(token);
     }
 
     if (parsed_elements.empty()) {
       command_body.error = EMPTY_CMD;
-      return command_body.error;
+      return (EMPTY_CMD);
     }
 
     if (((!(*parsed_elements.begin()).empty()) &&
@@ -70,6 +71,7 @@ namespace Parsing {
       command_body.error = ERR_INPUTTOOLONG;
       return (ERR_INPUTTOOLONG);
     }
+
     std::vector<std::string>::iterator it = parsed_elements.begin();
 
     if ((*it)[0] == '@') {
@@ -94,7 +96,7 @@ namespace Parsing {
 
     if (it == parsed_elements.end()) {
       command_body.error = EMPTY_CMD;
-      return command_body.error;
+      return (EMPTY_CMD);
     }
     command_body.command = *it;
     it++;
@@ -108,7 +110,7 @@ namespace Parsing {
           concated_param += *it;
         }
         command_body.parameters.push_back(concated_param);
-        return NO_ERR;
+        return (NO_ERR);
       } else {
         command_body.parameters.push_back(*it);
       }
