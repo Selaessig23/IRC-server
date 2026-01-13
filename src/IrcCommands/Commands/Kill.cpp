@@ -11,7 +11,7 @@
  * 
  * the operator cannot KILL itself
  *
- * @return 0, in case of an error it returns error codes:
+ * @return 0 if succesful, in case of an error it returns error codes:
  * ERR_NOPRIVILEGES
  * ERR_NEEDMOREPARAMS
  * ERR_NOSUCHNICK

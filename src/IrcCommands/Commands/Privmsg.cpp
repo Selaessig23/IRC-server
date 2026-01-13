@@ -1,10 +1,9 @@
 #include <algorithm>  //std::find
-#include <iostream>
 #include <list>
 #include <map>
+#include <string>
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
-#include "../../includes/CONSTANTS.hpp"
 #include "../../includes/types.hpp"
 #include "../IrcCommands.hpp"
 

@@ -1,7 +1,5 @@
 #include <list>
-#include <map>
 #include <string>
-#include "../../Channel/Channel.hpp"
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
 #include "../../includes/CONSTANTS.hpp"
@@ -17,7 +15,7 @@
  * Command: NICK
  * Parameters: <nickname_new>
  */
-static void change_nick_msgs(Server& base, Client* _client,
+static void change_nick_msgs(IrcCommands cmd_obj, Server& base, Client* _client,
                              std::string& nick_old) {
   std::string out = ":" + nick_old;
   out += " NICK ";
@@ -27,27 +25,13 @@ static void change_nick_msgs(Server& base, Client* _client,
   base.set_pollevent(_client->get_client_fd(), POLLOUT);
   std::list<Client*> recipients;
   // calculate in a sperate function to also enable the use for KILL function
-  std::map<std::string, bool> _channel_list = _client->get_channels();
-  for (std::map<std::string, bool>::iterator it_chan_name =
-           _channel_list.begin();
-       it_chan_name != _channel_list.end(); it_chan_name++) {
-    std::list<Channel>::iterator it_chan_all = base.get_channel_list().begin();
-    for (; it_chan_all != base.get_channel_list().end(); it_chan_all++) {
-      if (it_chan_name->first == it_chan_all->get_name()) {
-        for (std::map<Client*, bool>::iterator it_chan_members =
-                 it_chan_all->get_members().begin();
-             it_chan_members != it_chan_all->get_members().end();
-             it_chan_members++) {
-          recipients.push_back(it_chan_members->first);
-        }
-      }
+  if (cmd_obj.get_all_recipients(recipients, base, _client)) {
+    //end
+    for (std::list<Client*>::iterator it_rec = recipients.begin();
+         it_rec != recipients.end(); it_rec++) {
+      (*it_rec)->add_client_out(out);
+      base.set_pollevent((*it_rec)->get_client_fd(), POLLOUT);
     }
-  }
-  //end
-  for (std::list<Client*>::iterator it_rec = recipients.begin();
-       it_rec != recipients.end(); it_rec++) {
-    (*it_rec)->add_client_out(out);
-    base.set_pollevent((*it_rec)->get_client_fd(), POLLOUT);
   }
 }
 
@@ -107,7 +91,7 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd) {
       send_message(base, cmd, RPL_CREATED, cmd.client, NULL);
     }
   } else {
-    change_nick_msgs(base, cmd.client, nick_old);
+    change_nick_msgs(*this, base, cmd.client, nick_old);
   }
   return (0);
 }

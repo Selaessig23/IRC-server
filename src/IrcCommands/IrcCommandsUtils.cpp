@@ -1,6 +1,8 @@
 #include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
+#include <map>
 #include <sstream>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../Server/Server.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -222,3 +224,40 @@ bool IrcCommands::client_register_check(Server& base, Client& to_check) {
   else
     return (0);
 }
+
+/**
+ * @brief function to get all membres the sender is connteced with via sharing the same
+ * channel membership
+ *
+ * @rturn returns 0 in case there is no connected member, otherwise 1
+ */
+int IrcCommands::get_all_recipients(std::list<Client*>& all_rec, Server& base,
+                                    Client* sender) {
+  if (sender->get_channels().empty())
+    return (0);
+  std::map<std::string, bool> _channel_list = sender->get_channels();
+  for (std::map<std::string, bool>::iterator it_chan_name =
+           _channel_list.begin();
+       it_chan_name != _channel_list.end(); it_chan_name++) {
+    if (base.get_channel_list().empty())
+      return (0);
+    std::list<Channel>::iterator it_chan_all = base.get_channel_list().begin();
+    for (; it_chan_all != base.get_channel_list().end(); it_chan_all++) {
+      if (it_chan_name->first == it_chan_all->get_name()) {
+        if (it_chan_all->get_members().empty())
+          return (0);
+        for (std::map<Client*, bool>::iterator it_chan_members =
+                 it_chan_all->get_members().begin();
+             it_chan_members != it_chan_all->get_members().end();
+             it_chan_members++) {
+          all_rec.push_back(it_chan_members->first);
+        }
+      }
+    }
+  }
+  if (all_rec.empty())
+    return (0);
+  else
+    return (1);
+}
+
