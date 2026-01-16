@@ -226,13 +226,23 @@ bool IrcCommands::client_register_check(Server& base, Client& to_check) {
 }
 
 /**
- * @brief function to get all membres the sender is connteced with via sharing the same
+ * @brief function to get all members the sender is connected with via sharing the same
  * channel membership
  *
  * @rturn returns 0 in case there is no connected member, otherwise 1
  */
 int IrcCommands::get_all_recipients(std::list<Client*>& all_rec, Server& base,
                                     Client* sender) {
+  std::map<Client*, bool> ret;
+  for (std::list<Channel>::iterator it_chan = base._channel_list.begin(); it_chan != base._channel_list.end(); it_chan++){
+	  if (it_chan->is_member(sender->get_nick())) {
+		  std::map<Client*, bool> chan_members = it_chan->get_members();
+            for (std::map<Client*, bool>::iterator it_chanmembers = chan_members.begin(); it_chanmembers != chan_members.end(); it_chanmembers++) {
+		    if (it_chanmembers->first->get_nick() != sender->get_nick())
+			    ret.insert(*it_chanmembers);
+
+			  }
+			  }
   if (sender->get_channels().empty())
     return (0);
   std::map<std::string, bool> _channel_list = sender->get_channels();

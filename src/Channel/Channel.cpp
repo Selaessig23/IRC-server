@@ -238,3 +238,18 @@ void Channel::print_channel_info() {
   };
   std::cout << std::endl;
 }
+
+/**
+ * @brief function to check if a specific nickname is member
+ * of this channel
+ *
+ * @return returns 1 if nick was found, otherwise 0
+ */
+bool Channel::is_member(std::string nick) {
+  for (std::map<Client*, bool>::iterator client_it = _members.begin();
+       client_it != _members.end(); client_it++) {
+    if (client_it->first->get_nick() == nick)
+      return (true);
+  }
+  return (0);
+}

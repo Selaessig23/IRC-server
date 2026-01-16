@@ -2,7 +2,6 @@
 #define CHANNEL_HPP
 
 #include <ctime>  // for time-related functions
-#include <string>
 #include <list>
 #include <map>
 #include <string>
@@ -85,6 +84,7 @@ class Channel {
 
   // Helpers
   void print_channel_info();
+  bool is_member(std::string nick);
 };
 
 #endif

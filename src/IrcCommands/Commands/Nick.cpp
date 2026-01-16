@@ -24,7 +24,7 @@ static void change_nick_msgs(IrcCommands cmd_obj, Server& base, Client* _client,
   _client->add_client_out(out);
   base.set_pollevent(_client->get_client_fd(), POLLOUT);
   std::list<Client*> recipients;
-  // calculate in a sperate function to also enable the use for KILL function
+  // calculate in a seperate function to also enable the use for KILL function
   if (cmd_obj.get_all_recipients(recipients, base, _client)) {
     //end
     for (std::list<Client*>::iterator it_rec = recipients.begin();
