@@ -229,45 +229,34 @@ bool IrcCommands::client_register_check(Server& base, Client& to_check) {
  * @brief function to get all members the sender is connected with via sharing the same
  * channel membership
  *
- * @rturn returns 0 in case there is no connected member, otherwise 1
+ * TODO:
+ * (1) think about maybe using the std::map to write in all recipients (all_rec) instead of std::list
+ *
+ * @return returns 0 in case there is no connected member, otherwise 1
  */
 int IrcCommands::get_all_recipients(std::list<Client*>& all_rec, Server& base,
                                     Client* sender) {
   std::map<Client*, bool> ret;
-  for (std::list<Channel>::iterator it_chan = base._channel_list.begin(); it_chan != base._channel_list.end(); it_chan++){
-	  if (it_chan->is_member(sender->get_nick())) {
-		  std::map<Client*, bool> chan_members = it_chan->get_members();
-            for (std::map<Client*, bool>::iterator it_chanmembers = chan_members.begin(); it_chanmembers != chan_members.end(); it_chanmembers++) {
-		    if (it_chanmembers->first->get_nick() != sender->get_nick())
-			    ret.insert(*it_chanmembers);
-
-			  }
-			  }
-  if (sender->get_channels().empty())
-    return (0);
-  std::map<std::string, bool> _channel_list = sender->get_channels();
-  for (std::map<std::string, bool>::iterator it_chan_name =
-           _channel_list.begin();
-       it_chan_name != _channel_list.end(); it_chan_name++) {
-    if (base.get_channel_list().empty())
-      return (0);
-    std::list<Channel>::iterator it_chan_all = base.get_channel_list().begin();
-    for (; it_chan_all != base.get_channel_list().end(); it_chan_all++) {
-      if (it_chan_name->first == it_chan_all->get_name()) {
-        if (it_chan_all->get_members().empty())
-          return (0);
-        for (std::map<Client*, bool>::iterator it_chan_members =
-                 it_chan_all->get_members().begin();
-             it_chan_members != it_chan_all->get_members().end();
-             it_chan_members++) {
-          all_rec.push_back(it_chan_members->first);
-        }
+  for (std::list<Channel>::iterator it_chan = base._channel_list.begin();
+       it_chan != base._channel_list.end(); it_chan++) {
+    if (it_chan->is_member(sender->get_nick())) {
+      std::map<Client*, bool> chan_members = it_chan->get_members();
+      for (std::map<Client*, bool>::iterator it_chanmembers =
+               chan_members.begin();
+           it_chanmembers != chan_members.end(); it_chanmembers++) {
+        if (it_chanmembers->first->get_nick() != sender->get_nick())
+          ret.insert(*it_chanmembers);
       }
     }
+    if (ret.empty())
+      return (0);
+    else {
+      std::map<Client*, bool>::iterator it_members = ret.begin();
+      for (; it_members != ret.end(); it_members++) {
+        all_rec.push_back(it_members->first);
+      }
+      return (1);
+    }
   }
-  if (all_rec.empty())
-    return (0);
-  else
-    return (1);
 }
 

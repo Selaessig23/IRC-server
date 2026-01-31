@@ -8,6 +8,10 @@
 /**
  * @brief function to kill a user (client) from server,
  * privilege of an operator
+ *
+ * TODO:
+ * send a QUIT message to the recipient and all his friends
+ * (clients the user is connected through via a channel)
  * 
  * the operator cannot KILL itself
  *
@@ -37,7 +41,20 @@ int IrcCommands::kill(Server& base, const struct cmd_obj& cmd) {
 
   if (it_client->get_nick() == cmd.client->get_nick())
     return (0);
-
+  //to be coded
+  std::list<Client*> recipients;
+  if (base._irc_commands->get_all_recipients(recipients, base, cmd.client)) {
+    std::string out;
+    for (std::list<Client*>::iterator it_rec = recipients.begin();
+         it_rec != recipients.end(); it_rec++) {
+      //send a QUIT-message (has to be created)
+      if (!out.empty()) {
+        (*it_rec)->add_client_out(out);
+        base.set_pollevent((*it_rec)->get_client_fd(), POLLOUT);
+      }
+    }
+  }
+  //
   base.remove_client(it_client->get_client_fd());
   return (0);
 }
