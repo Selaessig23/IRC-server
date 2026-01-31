@@ -18,7 +18,7 @@
 
 /**
  * @brief socket for IRC-Server gets created in constructor
- * IRC-Server is only able to read from IP4-addresses
+ * IRC-Server is only able to read from IPv4-addresses
  */
 Server::Server(int port, std::string& pw)
     : _network_name("MUMs_network"),

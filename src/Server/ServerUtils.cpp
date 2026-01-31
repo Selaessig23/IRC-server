@@ -42,6 +42,7 @@ void debug_parsed_cmds(cmd_obj& cmd_body) {
       std::cout << *it << std::endl;
     }
   }
-#endif
+#else
   (void)cmd_body;
+#endif
 }
