@@ -1,6 +1,8 @@
 #include <iomanip>  // For std::setw and std::setfill
 #include <iostream>
+#include <map>
 #include <sstream>
+#include "../Channel/Channel.hpp"
 #include "../Client/Client.hpp"
 #include "../Server/Server.hpp"
 #include "../includes/CONSTANTS.hpp"
@@ -10,8 +12,6 @@
 /**
  * @brief function to return the reply message of replymessagecode (rpl)
  *
- * TODO
- * (1) add all required rpl messages according to rpl_code
  */
 std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
                                  enum RPL_MSG rpl, Channel* chan) {
@@ -38,28 +38,42 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
       if (chan)
         return (chan->get_name() + " Modes: [" + chan->get_modes_string() +
                 "]");
+      else
+        return (": Error on channel configs");
     case RPL_CREATIONTIME:
       if (chan)
         return (chan->get_name() + " is created on " +
                 chan->get_creation_time());
+      else
+        return (": Error on channel configs");
     case RPL_NOTOPIC:
       if (chan)
         return (chan->get_name() + " :No topic is set");
+      else
+        return (": Error on channel configs");
     case RPL_TOPIC:
       if (chan)
         return (chan->get_name() + " topic: " + chan->get_topic());
+      else
+        return (": Error on channel configs");
     case RPL_TOPICWHOTIME:
       if (chan)
         return (chan->get_name() + " topic is set by " + chan->get_topic_who() +
                 " on " + chan->get_topic_time());
+      else
+        return (": Error on channel configs");
     case RPL_INVITING:
       return ("invites " + cmd.parameters[0] + " to " + cmd.parameters[1]);
     case RPL_NAMREPLY:
       if (chan)
         return (chan->get_name() + " " + chan->get_nicks_string());
+      else
+        return (": Error on channel configs");
     case RPL_ENDOFNAMES:
       if (chan)
         return (chan->get_name() + " :End of /NAMES list");
+      else
+        return (": Error on channel configs");
     case RPL_YOUREOPER:
       return (":You are now an IRC operator");
     default:
@@ -71,7 +85,6 @@ std::string IrcCommands::get_rpl(Server& base, const cmd_obj& cmd,
  * @brief function to return the error message of errorcode (err)
  *
  * TODO
- * (1) add all required error messages to corresponding error codes
  * (2) maybe remove paramter base if not required
  */
 std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
@@ -114,12 +127,18 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_USERNOTINCHANNEL:
       if (chan)
         return ("<nick> " + chan->get_name() + " :They aren't on that channel");
+      else
+        return (": Error on channel configs");
     case ERR_NOTONCHANNEL:
       if (chan)
         return (chan->get_name() + " :You're not on that channel");
+      else
+        return (" :You're not on that channel");
     case ERR_USERONCHANNEL:
       if (chan)
         return ("<nick> " + chan->get_name() + " :is already on channel");
+      else
+        return (": Error on channel configs");
     case ERR_NOTREGISTERED:
       return (" :You have not registered");
     case ERR_NEEDMOREPARAMS:
@@ -131,17 +150,25 @@ std::string IrcCommands::get_error(Server& base, const cmd_obj& cmd,
     case ERR_CHANNELISFULL:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+l)");
+      else
+        return (" :Cannot join channel (+l)");
     case ERR_INVITEONLYCHAN:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+i)");
+      else
+        return (" :Cannot join channel (+i)");
     case ERR_BADCHANNELKEY:
       if (chan)
         return (chan->get_name() + " :Cannot join channel (+k)");
+      else
+        return (" :Cannot join channel (+k)");
     case ERR_NOPRIVILEGES:
       return (" :Permission Denied- You're not an IRC operator");
     case ERR_CHANOPRIVSNEEDED:
       if (chan)
         return (chan->get_name() + " :You're not channel operator");
+      else
+        return (" :You're not channel operator");
     default:
       return (out);
   }
@@ -197,3 +224,39 @@ bool IrcCommands::client_register_check(Server& base, Client& to_check) {
   else
     return (0);
 }
+
+/**
+ * @brief function to get all members the sender is connected with via sharing the same
+ * channel membership
+ *
+ * TODO:
+ * (1) think about maybe using the std::map to write in all recipients (all_rec) instead of std::list
+ *
+ * @return returns 0 in case there is no connected member, otherwise 1
+ */
+int IrcCommands::get_all_recipients(std::list<Client*>& all_rec, Server& base,
+                                    Client* sender) {
+  std::map<Client*, bool> ret;
+  for (std::list<Channel>::iterator it_chan = base._channel_list.begin();
+       it_chan != base._channel_list.end(); it_chan++) {
+    if (it_chan->is_member(sender->get_nick())) {
+      std::map<Client*, bool> chan_members = it_chan->get_members();
+      for (std::map<Client*, bool>::iterator it_chanmembers =
+               chan_members.begin();
+           it_chanmembers != chan_members.end(); it_chanmembers++) {
+        if (it_chanmembers->first->get_nick() != sender->get_nick())
+          ret.insert(*it_chanmembers);
+      }
+    }
+    if (ret.empty())
+      return (0);
+    else {
+      std::map<Client*, bool>::iterator it_members = ret.begin();
+      for (; it_members != ret.end(); it_members++) {
+        all_rec.push_back(it_members->first);
+      }
+      return (1);
+    }
+  }
+}
+

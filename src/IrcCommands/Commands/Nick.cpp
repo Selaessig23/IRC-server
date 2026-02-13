@@ -1,5 +1,5 @@
-#include <iostream>
 #include <list>
+#include <string>
 #include "../../Client/Client.hpp"
 #include "../../Server/Server.hpp"
 #include "../../includes/CONSTANTS.hpp"
@@ -7,13 +7,40 @@
 #include "../IrcCommands.hpp"
 
 /**
+ * @brief function to confirm the client if nick-change
+ * was successful and inform all members of channels the
+ * client is member of about the nick change
+ *
+ * Prefix> <nickname_old>
+ * Command: NICK
+ * Parameters: <nickname_new>
+ */
+static void change_nick_msgs(IrcCommands cmd_obj, Server& base, Client* _client,
+                             std::string& nick_old) {
+  std::string out = ":" + nick_old;
+  out += " NICK ";
+  out += _client->get_nick();
+  out += "\r\n";
+  _client->add_client_out(out);
+  base.set_pollevent(_client->get_client_fd(), POLLOUT);
+  std::list<Client*> recipients;
+  // calculate in a seperate function to also enable the use for KILL function
+  if (cmd_obj.get_all_recipients(recipients, base, _client)) {
+    //end
+    for (std::list<Client*>::iterator it_rec = recipients.begin();
+         it_rec != recipients.end(); it_rec++) {
+      (*it_rec)->add_client_out(out);
+      base.set_pollevent((*it_rec)->get_client_fd(), POLLOUT);
+    }
+  }
+}
+
+/**
  * @brief function to create or change the nickname of a certain client
  *
- * TODO:
- * (1) think about client feedback in case of success, esp. for changing nick
- * (2) think about if all other clients should get a feedback in case
- * of the client has changed his nick (maybe only as a channel notice)
- * (3) maybe choose another errmsg for pw not set yet (or just do not return anything, simply ignore)
+ * client gets a feedback in case of success, esp. for changing nick
+ * all other clients of channels the nick changing client is a member of
+ * get a feedback msg 
  *
  * @return 0, in case of an error it returns error codes:
  * ERR_NOTREGISTERED (451) --> if pw was not set
@@ -58,14 +85,13 @@ int IrcCommands::nick(Server& base, const struct cmd_obj& cmd) {
   cmd.client->set_nick(*cmd.parameters.begin());
   cmd.client->set_register_status(NICK);
   if (nick_old.empty()) {
-    //     send_message(base, cmd, RPL_INTERN_SETNICK, cmd.client, NULL);
     if (client_register_check(base, *cmd.client)) {
       send_message(base, cmd, RPL_WELCOME, cmd.client, NULL);
       send_message(base, cmd, RPL_YOURHOST, cmd.client, NULL);
       send_message(base, cmd, RPL_CREATED, cmd.client, NULL);
     }
   } else {
-    //     send_message(base, cmd, RPL_INTERN_CHANGENICK, cmd.client, NULL);
+    change_nick_msgs(*this, base, cmd.client, nick_old);
   }
   return (0);
 }

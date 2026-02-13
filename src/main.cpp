@@ -14,15 +14,8 @@
 #include <csignal>  //signal
 #include <cstdlib>
 #include <iostream>
-#include <sstream>  //for std::stringstream
 #include "Server/Server.hpp"
 #include "Utils/Utils.hpp"
-#include "debug.hpp"
-#include "includes/CONSTANTS.hpp"
-
-// TODO:
-// AF_INET == IPv4 | SOCK_STREAM = two-way connection-based byte streams |
-// protocl number (if several)
 
 Server* g_server;
 
